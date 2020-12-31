@@ -14,7 +14,7 @@ import Pusher from "pusher-js";
 import vscode from "../../vscode/vscode";
 
 //containers
-import { Panel } from "../../elements/containers";
+import { Panel } from "../../elements/elements";
 
 //constants
 import { API_ENDPOINT } from "../../constants/constants";
@@ -51,8 +51,8 @@ const Login = () => {
                 console.log("VSCODE", vscode);
 
                 vscode.postMessage({
-                    command: OPEN_BROWSER,
-                    data: {
+                    type: OPEN_BROWSER,
+                    payload: {
                         url: `${API_ENDPOINT}/auth/github?ide_token=${ideToken}`,
                     },
                 });
@@ -118,8 +118,6 @@ const LoginBackground = styled.div`
     display: flex;
 
     padding: 2rem 0rem;
-
-    color: white;
 `;
 
 const LoginContainer = styled(Panel)`

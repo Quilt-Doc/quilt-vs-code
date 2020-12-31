@@ -17,7 +17,12 @@ export const activate = (context: ExtensionContext) => {
 
     const webviewRegistration = registerWebviewViewProvider(
         quiltViewId,
-        provider
+        provider,
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true,
+            },
+        }
     );
 
     context.subscriptions.push(webviewRegistration);

@@ -1,10 +1,10 @@
-interface OpenBrowserMessageData {
+interface OpenBrowserMessagePayload {
     url: string;
 }
 
-type WebviewMessageData = OpenBrowserMessageData;
+type WebviewMessagePayload = OpenBrowserMessagePayload;
 
 export default interface WebviewMessage {
-    command: string;
-    data: WebviewMessageData;
+    type: string;
+    payload: WebviewMessagePayload;
 }

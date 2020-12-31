@@ -16,3 +16,11 @@ body {
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+body.vscode-light {
+    color: #172a4e;
+}
+
+body.vscode-dark {
+    color: white;
+}

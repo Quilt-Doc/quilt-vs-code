@@ -9,12 +9,16 @@ import {
     Webview,
     ExtensionContext,
     env,
+    window,
 } from "vscode";
 
+import GitHandler from "./git/gitHandler";
 import WebviewMessage from "./webviewMessage";
-import { OPEN_BROWSER } from "./types/messageTypes";
 
+import { OPEN_BROWSER, CHANGE_THEME } from "./types/MessageTypes";
 import { EXTENSION_NAME } from "../constants/constants";
+
+const { onDidChangeActiveColorTheme } = window;
 
 class QuiltViewProvider implements WebviewViewProvider {
     public static readonly quiltViewId = `${EXTENSION_NAME}.view`;
@@ -34,26 +38,43 @@ class QuiltViewProvider implements WebviewViewProvider {
             enableScripts: true,
 
             localResourceRoots: [this._extensionUri],
-
-            // retainContextWhenHidden: true
         };
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         webviewView.webview.onDidReceiveMessage(this._handleWebviewMessage);
+
+        const themeChangeListener = onDidChangeActiveColorTheme(
+            this._handleThemeChange
+        );
+
+        const gitHandler = new GitHandler(webviewView);
+
+        webviewView.onDidDispose(() => {
+            themeChangeListener.dispose();
+            gitHandler.dispose();
+        });
     };
 
     private _handleWebviewMessage = (message: WebviewMessage) => {
-        const { command, data } = message;
+        const { type, payload } = message;
 
-        switch (command) {
+        switch (type) {
             case OPEN_BROWSER:
                 const { openExternal } = env;
 
-                const { url } = data;
+                const { url } = payload;
 
                 openExternal(Uri.parse(url));
+            default:
+                return;
         }
+    };
+
+    private _handleThemeChange = () => {
+        this._view?.webview.postMessage({
+            type: CHANGE_THEME,
+        });
     };
 
     private _getHtmlForWebview = (webview: Webview) => {
@@ -73,12 +94,6 @@ class QuiltViewProvider implements WebviewViewProvider {
                     <link rel="stylesheet" type="text/css" href="${styleUri}" media="screen" />
                     <title>Quilt</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <script>
-                        /*
-                        window.acquireVsCodeApi = acquireVsCodeApi;
-                        console.log('Called');
-                        */
-                    </script>
                 </head>
                 <body>
                     <div id="root"></div>

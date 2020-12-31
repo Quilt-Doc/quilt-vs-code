@@ -45,10 +45,9 @@ const ContextPanelIconContainer = styled.div`
 
     display: flex;
 
-    background-color: ${chroma("#090B10").set(
-        "hsl.l",
-        "+0.18"
-    )}; /*REPLACE COLOR*/
+    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+
+    /*${chroma("#090B10").set("hsl.l", "+0.18")};*/ /*REPLACE COLOR*/
 
     align-items: center;
 

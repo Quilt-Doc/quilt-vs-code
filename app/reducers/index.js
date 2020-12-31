@@ -1,9 +1,9 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from "redux";
 
-import referenceReducer from './Reference_Reducer';
-import uiReducer from './UI_Reducer';
+import themeReducer from "./ThemeReducer";
+import globalReducer from "./GlobalReducer";
 
 export default combineReducers({
-    references: referenceReducer,
-    ui: uiReducer
-})
+    theme: themeReducer,
+    global: globalReducer,
+});

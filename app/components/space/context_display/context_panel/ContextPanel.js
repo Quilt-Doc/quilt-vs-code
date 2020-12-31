@@ -6,7 +6,9 @@ import styled from "styled-components";
 //components
 import ContextPanelNavbar from "./ContextPanelNavbar";
 import ContextListItem from "./ContextListItem";
-import { Panel } from "../../../../elements/containers";
+
+//import { Panel } from "../../../../elements/containers";
+import { Panel } from "../../../../elements/elements";
 
 const ContextPanel = () => {
     return (

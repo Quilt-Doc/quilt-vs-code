@@ -65,7 +65,7 @@ const ContextListItemContainer = styled.div`
     cursor: pointer;
 
     &:hover {
-        background-color: ${chroma("#090B10").set("hsl.l", "+0.1")};
+        background-color: ${(props) => props.theme.HOVER_COLOR};
     }
 `;
 
@@ -96,8 +96,6 @@ const ContextListItemContent = styled.div`
 const ContextListItemHeader = styled.div`
     font-weight: 600;
 
-    color: white;
-
     opacity: 0.7;
 
     font-size: 1.2rem;
@@ -108,8 +106,6 @@ const ContextListItemHeader = styled.div`
 const ContextListItemSubHeader = styled.div`
     font-weight: 500;
 
-    color: white;
-
     opacity: 0.5;
 
     font-size: 1rem;
@@ -117,8 +113,6 @@ const ContextListItemSubHeader = styled.div`
 
 const ContextListItemDate = styled.div`
     font-weight: 500;
-
-    color: white;
 
     opacity: 0.5;
 
