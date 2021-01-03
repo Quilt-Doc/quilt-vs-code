@@ -9,7 +9,7 @@ const Space = () => {
     return (
         <>
             <SpaceNavbar />
-            <ContextDisplay />
+            <IntegrationPanel />
         </>
     );
 };

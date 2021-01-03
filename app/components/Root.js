@@ -70,7 +70,7 @@ class Root extends Component {
                 <Switch>
                     <Route path="/onboard" component={OnboardFlow} />
                     <Route path="/login" component={Login} />
-                    <Route path="/space" component={Space} />
+                    <Route path="/space/:workspaceId" component={Space} />
                 </Switch>
             </ThemeProvider>
         );

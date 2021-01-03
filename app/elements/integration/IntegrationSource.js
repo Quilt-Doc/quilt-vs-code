@@ -2,8 +2,10 @@ import React from "react";
 import styled from "styled-components";
 
 //icons
-import { RiGithubFill, RiGitlabFill } from "react-icons/ri";
+import { RiGithubFill, RiGitlabFill, RiTrelloFill } from "react-icons/ri";
 import { IoLogoBitbucket } from "react-icons/io";
+import { DiGoogleDrive } from "react-icons/di";
+import { SiJira } from "react-icons/si";
 
 // INTEGRATION SOURCE COMPONENT
 const IntegrationSource = ({ inactive, type, onClick }) => {
@@ -11,11 +13,31 @@ const IntegrationSource = ({ inactive, type, onClick }) => {
         github: <RiGithubFill />,
         bitbucket: <IoLogoBitbucket />,
         gitlab: <RiGitlabFill />,
+        "google-drive": <DiGoogleDrive />,
+        trello: <RiTrelloFill />,
+        jira: <SiJira />,
+    };
+
+    const fontSize =
+        type === "google-drive"
+            ? "2.7rem"
+            : type === "jira"
+            ? "2rem"
+            : "2.4rem";
+    //icons
+
+    const colors = {
+        bitbucket: "#2684ff",
+        trello: "#1776c0",
+        jira: "#2684ff",
+        "google-drive": "#33a853",
     };
 
     return (
         <IntegrationSourceContainer onClick={onClick} inactive={inactive}>
-            <IntegrationSourceIcon>{icons[type]}</IntegrationSourceIcon>
+            <IntegrationSourceIcon color={colors[type]} fontSize={fontSize}>
+                {icons[type]}
+            </IntegrationSourceIcon>
         </IntegrationSourceContainer>
     );
 };
@@ -39,7 +61,8 @@ const IntegrationSourceContainer = styled.div`
 
     border-radius: 0.3rem;
 
-    margin-right: 2rem;
+    margin-right: ${(props) =>
+        props.marginRight ? props.marginRight : "2rem"};
 
     opacity: ${(props) => (props.inactive ? 0.5 : 1)};
 
@@ -57,5 +80,5 @@ const IntegrationSourceIcon = styled.div`
 
     justify-content: center;
 
-    font-size: 2.2rem;
+    font-size: ${(props) => props.fontSize};
 `;

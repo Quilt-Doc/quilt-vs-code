@@ -5,12 +5,18 @@ import styled from "styled-components";
 import chroma from "chroma-js";
 
 //components
-import { Panel } from "../../../../elements";
+import {
+    Panel,
+    Header,
+    SubHeader,
+    IntegrationItem,
+} from "../../../../elements";
 import IntegrationModal from "./IntegrationModal";
 
 //icons
 import { RiTrelloFill, RiGithubFill } from "react-icons/ri";
 import { FiPlus } from "react-icons/fi";
+import { CgMathPlus } from "react-icons/cg";
 
 const IntegrationPanel = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,13 +25,10 @@ const IntegrationPanel = () => {
         <>
             <IntegrationPanelContainer>
                 <IntegrationPanelNavbar>
-                    <IntegrationPanelHeader>
-                        Integrations
-                    </IntegrationPanelHeader>
+                    <Header>Integrations</Header>
                     <IntegrationPanelAddButton>
-                        <FiPlus
+                        <CgMathPlus
                             onClick={() => {
-                                console.log("OPEN");
                                 setIsModalOpen(true);
                             }}
                         />
@@ -33,31 +36,16 @@ const IntegrationPanel = () => {
                 </IntegrationPanelNavbar>
 
                 <IntegrationTypeBlock>
-                    <IntegrationPanelSubHeader>
-                        Code Hosting
-                    </IntegrationPanelSubHeader>
-                    <IntegrationSourceItem>
-                        <IntegrationSourceIcon>
-                            <RiGithubFill />
-                        </IntegrationSourceIcon>
-                        <IntegrationSourceName>
-                            Quilt Docs / quilt-vs-code
-                        </IntegrationSourceName>
-                    </IntegrationSourceItem>
+                    <SubHeader marginBottom={"0.8rem"}>Code Hosting</SubHeader>
+                    <IntegrationItem
+                        type={"github"}
+                        name={"Quilt Docs / quilt-vs-code"}
+                    />
                 </IntegrationTypeBlock>
 
                 <IntegrationTypeBlock>
-                    <IntegrationPanelSubHeader>
-                        Issue Providers
-                    </IntegrationPanelSubHeader>
-                    <IntegrationSourceItem>
-                        <IntegrationSourceIcon>
-                            <RiTrelloFill />
-                        </IntegrationSourceIcon>
-                        <IntegrationSourceName>
-                            Quilt Product
-                        </IntegrationSourceName>
-                    </IntegrationSourceItem>
+                    <SubHeader marginBottom={"1rem"}>Issue Providers</SubHeader>
+                    <IntegrationItem type={"trello"} name={"Quilt Product"} />
                 </IntegrationTypeBlock>
             </IntegrationPanelContainer>
             {isModalOpen && (
@@ -69,20 +57,10 @@ const IntegrationPanel = () => {
 
 export default IntegrationPanel;
 
-const IntegrationPanelHeader = styled.div`
-    font-weight: 500;
-
-    opacity: 0.7;
-
-    font-size: 1.1rem;
-
-    text-transform: uppercase;
-`;
-
 const IntegrationPanelAddButton = styled.div`
-    height: 2.5rem;
+    height: 3.5rem;
 
-    width: 2.5rem;
+    width: 3.5rem;
 
     display: flex;
 
@@ -92,11 +70,17 @@ const IntegrationPanelAddButton = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
-    margin-left: auto;
+    /*margin-left: auto;*/
 
-    font-size: 1.5rem;
+    position: absolute;
 
-    border-radius: 0.3rem;
+    right: 0;
+
+    top: -29%;
+
+    font-size: 1.55rem;
+
+    border-radius: 50%;
 
     box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
 
@@ -110,75 +94,22 @@ const IntegrationPanelAddButton = styled.div`
 const IntegrationPanelNavbar = styled.div`
     display: flex;
 
-    align-items: center;
+    position: relative;
+    /*align-items: center;*/
 
-    margin-bottom: 1rem;
+    margin-bottom: 0.7rem;
 `;
 
 const IntegrationTypeBlock = styled.div`
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 
     &:last-of-type {
         margin-bottom: 0rem;
     }
 `;
 
-const IntegrationSourceItem = styled.div`
-    display: flex;
-
-    height: 3.5rem;
-
-    align-items: center;
-
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-
-    border-radius: 0.5rem;
-
-    padding: 0rem 1rem;
-`;
-
-const IntegrationSourceIcon = styled.div`
-    width: 2.5rem;
-
-    display: flex;
-
-    font-size: 1.8rem;
-
-    opacity: 0.85;
-`;
-
-const IntegrationSourceName = styled.div`
-    font-weight: 500;
-
-    opacity: 0.7;
-
-    font-size: 1.25rem;
-`;
-
 const IntegrationPanelContainer = styled(Panel)`
     margin-top: 1.5rem;
 
-    padding: 1rem 1rem;
-`;
-
-const IntegrationPanelSubHeader = styled.div`
-    padding: 1rem 0rem;
-
-    font-weight: 600;
-
-    opacity: 0.7;
-
-    font-size: 1.2rem;
-
-    margin-bottom: 0.5rem;
-`;
-
-const IntegrationSourceBlock = styled.div`
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-
-    height: 10rem;
-
-    width: 100%;
-
-    border-radius: 0.5rem;
+    padding: 2rem 2rem;
 `;

@@ -1,11 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-import { RiGithubFill, RiCheckboxCircleFill } from "react-icons/ri";
+import {
+    RiGithubFill,
+    RiCheckboxCircleFill,
+    RiTrelloFill,
+} from "react-icons/ri";
 
 const IntegrationItem = ({ type, name, active, onClick }) => {
     const icons = {
         github: <RiGithubFill />,
+        trello: <RiTrelloFill />,
     };
 
     return (
@@ -34,7 +39,7 @@ const IntegrationItemContainer = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 
     padding: 0rem 1rem;
 

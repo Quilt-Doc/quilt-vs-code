@@ -4,10 +4,13 @@ import styled from "styled-components";
 
 import chroma from "chroma-js";
 
-const BOX_SHADOW_1 =
-    "0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12),0 3px 3px -2px rgba(0, 0, 0, 0.4)";
-
-import { RiSearchLine, RiMenu4Line, RiStackFill } from "react-icons/ri";
+import {
+    RiSearchLine,
+    RiMenu4Line,
+    RiStackFill,
+    RiHome2Line,
+    RiHome2Fill,
+} from "react-icons/ri";
 import { GrIntegration } from "react-icons/gr";
 
 const SpaceNavbar = () => {
@@ -20,7 +23,9 @@ const SpaceNavbar = () => {
                 <SpaceNavbarButton active={true}>
                     <RiStackFill />
                 </SpaceNavbarButton>
-                <WorkspaceButton>F</WorkspaceButton>
+                <SpaceNavbarButton>
+                    <RiHome2Fill />
+                </SpaceNavbarButton>
             </SpaceNavbarButtonsContainer>
         </SpaceNavbarContainer>
     );
@@ -32,22 +37,30 @@ const SpaceNavbarContainer = styled.div`
     display: flex;
 
     align-items: center;
+
+    /*justify-content: center;*/
 `;
 
 const SpaceNavbarButtonsContainer = styled.div`
-    height: 3rem;
+    padding-top: 0rem;
+
+    padding: 0.3rem 1rem;
 
     display: flex;
 
     align-items: center;
 
     margin-left: auto;
+
+    /*   background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
+
+    border-radius: 0.5rem;
 `;
 
 const SpaceNavbarButton = styled.div`
-    margin-left: 0.7rem;
+    margin-right: 2.3rem;
 
-    height: 2.8rem;
+    height: 2.8rem; /*2.8*/
 
     width: 2.8rem;
 
@@ -57,12 +70,28 @@ const SpaceNavbarButton = styled.div`
 
     justify-content: center;
 
-    border-radius: 0.3rem;
-
     font-size: 1.7rem;
 
-    color: ${(props) => chroma(props.theme.TEXT_COLOR).alpha(0.85)};
+    opacity: ${(props) => (props.active ? 1 : 0.4)};
 
+    /*
+    border-bottom: ${(props) =>
+        props.active
+            ? `1px solid ${chroma(props.theme.TEXT_COLOR).alpha(0.9)}`
+            : "1px solid transparent"};
+    */
+
+    &:hover {
+        opacity: 1;
+    }
+
+    cursor: pointer;
+
+    transition: opacity 0.1s ease-in;
+
+    &:last-of-type {
+        margin-right: 0rem;
+    }
     /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
     /*
     opacity: 0.9;
