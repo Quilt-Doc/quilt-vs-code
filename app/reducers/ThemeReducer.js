@@ -29,7 +29,7 @@ const INITIAL_STATE = {
 
     PRIMARY_ACCENT_COLOR_SHADE_1: chroma(computeAccentColor()).set(
         "hsl.l",
-        "+0.1"
+        "+0.07"
     ),
 
     HOVER_COLOR: chroma(computeAccentColor()).set("hsl.l", "+0.05"),

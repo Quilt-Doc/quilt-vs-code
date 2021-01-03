@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, Component } from "react";
 
 //styles
 import styled, { ThemeProvider } from "styled-components";
@@ -6,10 +6,12 @@ import styled, { ThemeProvider } from "styled-components";
 //components
 import Login from "./login/Login";
 import Space from "./space/Space";
+import OnboardFlow from "./setup/onboarding/OnboardFlow";
 
 //actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
+
 //types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
 import { SET_GIT_INFO } from "../actions/types/GlobalTypes";
@@ -17,45 +19,77 @@ import { SET_GIT_INFO } from "../actions/types/GlobalTypes";
 //redux
 import { connect } from "react-redux";
 
-const Root = ({ changeTheme, setGitInfo, theme }) => {
-    useEffect(() => {
-        window.addEventListener("message", handleExtensionMessage);
+//router
+import { Route, Switch, withRouter } from "react-router-dom";
 
-        return () =>
-            window.removeEventListener("message", handleExtensionMessage);
-    }, []);
+class Root extends Component {
+    componentDidMount = () => {
+        window.addEventListener("message", this.handleExtensionMessage);
 
-    const handleExtensionMessage = useMemo(
-        () => ({ data: message }) => {
-            const { type, payload } = message;
+        this.handleRouting();
+    };
 
-            console.log("MESSAGE", message);
+    handleRouting = () => {
+        const { isAuthorized, user, history } = this.props;
 
-            switch (type) {
-                case CHANGE_THEME:
-                    changeTheme();
-                case SET_GIT_INFO:
-                    setGitInfo(payload);
-                default:
-                    return;
-            }
-        },
-        [changeTheme]
-    );
+        if (!isAuthorized || !user) return history.push("/login");
 
-    return (
-        <ThemeProvider theme={theme}>
-            <Space />
-        </ThemeProvider>
-    );
-};
+        const { isOnboarded, workspaces } = user;
+
+        if (!isOnboarded) return history.push("/onboard");
+
+        return history.push(`/space/${workspaces[0]}`);
+    };
+
+    componentWillUnmount = () => {
+        window.removeEventListener("message", this.handleExtensionMessage);
+    };
+
+    handleExtensionMessage = ({ data: message }) => {
+        const { changeTheme, setGitInfo } = this.props;
+
+        const { type, payload } = message;
+
+        switch (type) {
+            case CHANGE_THEME:
+                changeTheme();
+
+            case SET_GIT_INFO:
+                setGitInfo(payload);
+
+            default:
+                return;
+        }
+    };
+
+    render() {
+        const { theme } = this.props;
+
+        return (
+            <ThemeProvider theme={theme}>
+                <Switch>
+                    <Route path="/onboard" component={OnboardFlow} />
+                    <Route path="/login" component={Login} />
+                    <Route path="/space" component={Space} />
+                </Switch>
+            </ThemeProvider>
+        );
+    }
+}
 
 const mapStateToProps = (state) => {
-    const { theme } = state;
+    const {
+        theme,
+        auth: { isAuthorized, user },
+    } = state;
 
     return {
         theme,
+        isAuthorized,
+        user,
     };
 };
 
-export default connect(mapStateToProps, { changeTheme, setGitInfo })(Root);
+export default withRouter(
+    connect(mapStateToProps, { changeTheme, setGitInfo })(Root)
+);

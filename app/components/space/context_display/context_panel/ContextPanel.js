@@ -8,7 +8,7 @@ import ContextPanelNavbar from "./ContextPanelNavbar";
 import ContextListItem from "./ContextListItem";
 
 //import { Panel } from "../../../../elements/containers";
-import { Panel } from "../../../../elements/elements";
+import { Panel } from "../../../../elements";
 
 const ContextPanel = () => {
     return (

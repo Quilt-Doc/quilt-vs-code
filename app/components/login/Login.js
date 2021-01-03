@@ -13,15 +13,20 @@ import Pusher from "pusher-js";
 //vscode api
 import vscode from "../../vscode/vscode";
 
+//react-redux
+import { connect } from "react-redux";
+
 //containers
-import { Panel } from "../../elements/elements";
+import { Panel } from "../../elements";
 
 //constants
 import { API_ENDPOINT } from "../../constants/constants";
-
 import { OPEN_BROWSER } from "../../vscode/types/messageTypes";
 
-const Login = () => {
+//actions
+import { authenticateUser } from "../../actions/AuthActions";
+
+const Login = ({ authenticateUser, history }) => {
     const pusher = useMemo(
         () =>
             new Pusher("8a6c058f2c0eb1d4d237", {
@@ -33,49 +38,49 @@ const Login = () => {
 
     const tryLogin = useMemo(
         () => () => {
-            console.log("CLICKED");
-
             const ideToken = new Date().getTime();
-
-            console.log("IDE TOKEN", ideToken);
 
             const channelName = `private-${ideToken}`;
 
-            console.log("CHANNEL NAME", channelName);
-
             const tokenListener = pusher.subscribe(channelName);
 
+            const timeout = setTimeout(() => {
+                console.log(
+                    "Request timed out.. Please reload authentication or reclick to authenticate."
+                );
+
+                pusher.unsubscribe(channelName);
+            }, 150000);
+
             tokenListener.bind("pusher:subscription_succeeded", () => {
-                console.log("SUBSCRIPTION SUCCEEDED -- ABOUT TO OPEN");
-
-                console.log("VSCODE", vscode);
-
                 vscode.postMessage({
                     type: OPEN_BROWSER,
                     payload: {
                         url: `${API_ENDPOINT}/auth/github?ide_token=${ideToken}`,
                     },
                 });
-                //const vscode = acquireVsCodeApi();
-
-                //console.log("VSCODE", vscode);
-
-                //vscode.env.openExternal(vscode.Uri.parse(url));
-
-                /*
-                window.open(
-                    `${API_ENDPOINT}/auth/github?ide_token=${ideToken}`,
-                    "_self"
-                );*/
 
                 tokenListener.bind(
                     "vscode-user-authorized",
                     ({ jwt, user, isAuthorized }) => {
-                        if (isAuthorized) {
+                        if (isAuthorized && user) {
                             pusher.unsubscribe(channelName);
+
+                            clearTimeout(timeout);
+
                             console.log("JWT", jwt);
+
                             console.log("USER", user);
-                            console.log("ISAUTHORIZED", isAuthorized);
+
+                            authenticateUser({ jwt, user, isAuthorized });
+
+                            const { isOnboarded, workspaces } = user;
+
+                            if (!isOnboarded) {
+                                history.push("/onboard");
+                            } else {
+                                history.push(`/space/${workspaces[0]}`);
+                            }
                         }
                     }
                 );
@@ -84,20 +89,14 @@ const Login = () => {
             tokenListener.bind("pusher:subscription_error", () => {
                 pusher.unsubscribe(channelName);
 
+                clearTimeout(timeout);
+
                 console.log(
                     "Please reload authentication or reclick to authenticate."
                 );
             });
-
-            setTimeout(() => {
-                console.log(
-                    "Request timed out.. Please reload authentication or reclick to authenticate."
-                );
-
-                pusher.unsubscribe(channelName);
-            }, 40000);
         },
-        []
+        [authenticateUser]
     );
 
     return (
@@ -112,7 +111,11 @@ const Login = () => {
     );
 };
 
-export default Login;
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(mapStateToProps, { authenticateUser })(Login);
 
 const LoginBackground = styled.div`
     display: flex;
@@ -136,7 +139,7 @@ const LoginButton = styled.div`
     display: inline-flex;
     border-radius: 0.3rem;
     /* margin-top: 2rem;*/
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     display: inline-flex;
     align-items: center;
     padding-left: 2rem;

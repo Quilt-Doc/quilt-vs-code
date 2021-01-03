@@ -1,10 +1,12 @@
-import Reac, { useState } from "react";
+import React, { useState } from "react";
 
 //styles
 import styled from "styled-components";
+import chroma from "chroma-js";
 
 //components
-import { Panel } from "../../../../elements/elements";
+import { Panel } from "../../../../elements";
+import IntegrationModal from "./IntegrationModal";
 
 //icons
 import { RiTrelloFill, RiGithubFill } from "react-icons/ri";
@@ -23,6 +25,7 @@ const IntegrationPanel = () => {
                     <IntegrationPanelAddButton>
                         <FiPlus
                             onClick={() => {
+                                console.log("OPEN");
                                 setIsModalOpen(true);
                             }}
                         />
@@ -57,7 +60,9 @@ const IntegrationPanel = () => {
                     </IntegrationSourceItem>
                 </IntegrationTypeBlock>
             </IntegrationPanelContainer>
-            {isModalOpen && <IntegrationModal />}
+            {isModalOpen && (
+                <IntegrationModal closeModal={() => setIsModalOpen(false)} />
+            )}
         </>
     );
 };
@@ -94,6 +99,12 @@ const IntegrationPanelAddButton = styled.div`
     border-radius: 0.3rem;
 
     box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+
+    &:hover {
+        background-color: ${(props) => props.theme.HOVER_COLOR};
+    }
+
+    cursor: pointer;
 `;
 
 const IntegrationPanelNavbar = styled.div`

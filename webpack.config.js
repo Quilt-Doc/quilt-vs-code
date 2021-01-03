@@ -1,10 +1,15 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
-
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
     entry: "./app/index.js",
     mode: "development",
+    devtool: "eval-source-map",
+    devServer: {
+        contentBase: "./dist",
+        hot: true,
+    },
     module: {
         rules: [
             {
@@ -22,9 +27,18 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/,
+                use: [
+                    {
+                        loader: "url-loader?limit=100000",
+                    },
+                ],
+            },
         ],
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new HtmlWebPackPlugin({
             template: "./app/index.html",
             filename: "./index.html",
