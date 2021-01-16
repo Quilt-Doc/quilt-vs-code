@@ -50,6 +50,8 @@ class Root extends Component {
 
         const { type, payload } = message;
 
+        console.log("MESSAGE ENTERED", message);
+
         switch (type) {
             case CHANGE_THEME:
                 changeTheme();

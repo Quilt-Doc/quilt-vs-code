@@ -8,6 +8,7 @@ import {
     RiFileList2Fill,
     RiLayoutTop2Fill,
     RiFileExcel2Fill,
+    RiFileList2Line,
 } from "react-icons/ri";
 
 class ContextListItem extends Component {
@@ -20,9 +21,11 @@ class ContextListItem extends Component {
     };
 
     renderContent = () => {
+        const { name } = this.props;
+
         return (
             <ContextListItemContent>
-                <ContextListItemHeader>Marketing assets</ContextListItemHeader>
+                <ContextListItemHeader>{name}</ContextListItemHeader>
                 <ContextListItemSubHeader>John Smith</ContextListItemSubHeader>
             </ContextListItemContent>
         );
@@ -72,15 +75,17 @@ const ContextListItemContainer = styled.div`
 const ContextListItemIcon = styled.div`
     height: 3rem;
 
+    min-width: 4rem;
+
     width: 4rem;
 
     display: flex;
 
     justify-content: center;
 
-    margin-top: 0.05rem;
+    margin-top: 0rem;
 
-    font-size: 2rem;
+    font-size: 2.1rem;
 
     /*margin-left: 1rem;*/
 
@@ -101,6 +106,14 @@ const ContextListItemHeader = styled.div`
     font-size: 1.2rem;
 
     margin-bottom: 0.5rem;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    width: 60vw;
 `;
 
 const ContextListItemSubHeader = styled.div`

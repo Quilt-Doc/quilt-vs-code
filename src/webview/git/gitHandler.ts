@@ -31,7 +31,9 @@ class GitHandler {
             this.handleGitInformation();
         } else {
             this.gitStateListener = this.git?.onDidChangeState((e) => {
-                if (e === "initialized") this.handleGitInformation();
+                if (e === "initialized") {
+                    this.handleGitInformation();
+                }
             });
         }
 

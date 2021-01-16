@@ -45,10 +45,6 @@ class Space extends Component {
 
         const currentWorkspace = workspaces[workspaceId];
 
-        console.log("WORKSPACES", workspaces);
-
-        console.log("WORKSPACEID", workspaceId);
-
         const { repositories } = currentWorkspace;
 
         setRepositories({ repositories });

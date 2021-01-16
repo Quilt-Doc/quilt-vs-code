@@ -11,6 +11,7 @@ import authReducer from "./AuthReducer";
 
 //integration specific
 import githubReducer from "./GithubReducer";
+import trelloReducer from "./TrelloReducer";
 
 export default combineReducers({
     workspaces: workspaceReducer,
@@ -21,4 +22,5 @@ export default combineReducers({
     auth: authReducer,
 
     github: githubReducer,
+    trello: trelloReducer,
 });

@@ -10,16 +10,20 @@ import ContextListItem from "./ContextListItem";
 //import { Panel } from "../../../../elements/containers";
 import { Panel } from "../../../../elements";
 
-const ContextPanel = () => {
+const ContextPanel = ({ context, integration }) => {
+    const listItems =
+        integration == "github"
+            ? context["commits"].map((commit) => {
+                  return <ContextListItem name={commit.commitMessage} />;
+              })
+            : context["tickets"].map((ticket) => {
+                  return <ContextListItem name={ticket.name} />;
+              });
+
     return (
         <ContextPanelContainer>
-            <ContextPanelNavbar />
-            <ContextPanelList>
-                <ContextListItem />
-                <ContextListItem />
-                <ContextListItem />
-                <ContextListItem />
-            </ContextPanelList>
+            <ContextPanelNavbar integration={integration} />
+            <ContextPanelList>{listItems}</ContextPanelList>
         </ContextPanelContainer>
     );
 };

@@ -1,6 +1,7 @@
 import {
     CHECK_GITHUB_INSTALLATIONS,
     RETRIEVE_GITHUB_REPOSITORIES,
+    UPDATE_GITHUB_FILE_CONTEXT,
 } from "../actions/types/GithubTypes";
 
 const INITIAL_STATE = {
@@ -11,11 +12,9 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case CHECK_GITHUB_INSTALLATIONS:
-            console.log("ABOUT TO BE", {
-                ...state,
-                installations: action.payload,
-            });
             return { ...state, installations: action.payload };
+        case UPDATE_GITHUB_FILE_CONTEXT:
+            return { ...state, ...action.payload };
         case RETRIEVE_GITHUB_REPOSITORIES:
             return { ...state, repositories: action.payload };
         default:
