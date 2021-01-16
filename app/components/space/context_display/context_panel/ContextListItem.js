@@ -113,7 +113,7 @@ const ContextListItemHeader = styled.div`
 
     overflow: hidden;
 
-    width: 60vw;
+    width: 70vw;
 `;
 
 const ContextListItemSubHeader = styled.div`
