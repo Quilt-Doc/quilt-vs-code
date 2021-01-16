@@ -4,7 +4,8 @@ import Button from "./general/Button";
 import Input from "./general/Input";
 import Modal from "./general/Modal";
 import Panel from "./general/Panel";
-import Loader from "./general//Loader";
+import Loader from "./general/Loader";
+import Menu from "./general/Menu";
 
 //INTEGRATION ELEMENTS
 import IntegrationItem from "./integration/IntegrationItem";
@@ -22,6 +23,7 @@ export {
     Modal,
     Panel,
     Loader,
+    Menu,
     //INTEGRATION ELEMENTS
     IntegrationItem,
     IntegrationSource,

@@ -7,6 +7,7 @@ const Panel = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};
 
+    box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
     /* box-shadow: ${(props) => props.theme.BOX_SHADOW_1};*/
 `;
 

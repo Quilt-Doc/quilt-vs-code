@@ -32,6 +32,11 @@ const INITIAL_STATE = {
         "+0.07"
     ),
 
+    PRIMARY_ACCENT_COLOR_SHADE_2: chroma(computeAccentColor()).set(
+        "hsl.l",
+        "+0.15"
+    ),
+
     HOVER_COLOR: chroma(computeAccentColor()).set("hsl.l", "+0.05"),
 
     SECONDARY_COLOR: getComputedStyle(document.body).getPropertyValue(
@@ -44,6 +49,10 @@ const INITIAL_STATE = {
     TEXT_COLOR: getComputedStyle(document.body).color,
 
     BOX_SHADOW_1: DARK_BOX_SHADOW_1,
+
+    BOX_SHADOW_MENU: "rgb(1, 4, 9) 0px 8px 24px 0px", //DARK
+
+    PLAIN_BORDER: chroma("white").alpha(0.5),
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -64,6 +73,11 @@ export default (state = INITIAL_STATE, action) => {
                     "+0.1"
                 ),
 
+                PRIMARY_ACCENT_COLOR_SHADE_2: chroma(computeAccentColor()).set(
+                    "hsl.l",
+                    "+0.15"
+                ),
+
                 SECONDARY_COLOR: getComputedStyle(
                     document.body
                 ).getPropertyValue("--vscode-activityBarBadge-background"),
@@ -73,6 +87,8 @@ export default (state = INITIAL_STATE, action) => {
                 TEXT_COLOR: getComputedStyle(document.body).color,
 
                 BOX_SHADOW_1: DARK_BOX_SHADOW_1,
+
+                PLAIN_BORDER: chroma("white").alpha(0.3),
             };
 
         default:

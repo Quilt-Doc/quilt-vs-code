@@ -23,13 +23,11 @@ class WaitCreation extends Component {
     pollWorkspace = async () => {
         const { workspaceId, getWorkspace } = this.props;
 
-        await getWorkspace(workspaceId);
+        await getWorkspace({ workspaceId });
 
         const {
             workspace: { setupComplete },
         } = this.props;
-
-        console.log("POLLING SETUPCOMPLETE", setupComplete);
 
         if (setupComplete) {
             const {
@@ -44,11 +42,7 @@ class WaitCreation extends Component {
                 isOnboarded: true,
             });
 
-            console.log("NEW USER", this.props.user);
-
             history.push(`/space/${workspaceId}`);
-
-            console.log("NEW LOCATION", location);
         } else {
             setTimeout(this.pollWorkspace, 2000);
         }

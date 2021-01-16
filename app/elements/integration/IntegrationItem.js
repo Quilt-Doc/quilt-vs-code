@@ -5,16 +5,29 @@ import {
     RiGithubFill,
     RiCheckboxCircleFill,
     RiTrelloFill,
+    RiLayoutColumnLine,
 } from "react-icons/ri";
 
-const IntegrationItem = ({ type, name, active, onClick }) => {
+const IntegrationItem = ({
+    type,
+    name,
+    active,
+    onClick,
+    flat,
+    marginBottom,
+}) => {
     const icons = {
         github: <RiGithubFill />,
         trello: <RiTrelloFill />,
+        column: <RiLayoutColumnLine />,
     };
 
     return (
-        <IntegrationItemContainer onClick={onClick}>
+        <IntegrationItemContainer
+            marginBottom={marginBottom}
+            flat={flat}
+            onClick={onClick}
+        >
             <IntegrationItemIcon type={type}>{icons[type]}</IntegrationItemIcon>
             <IntegrationItemName>{name}</IntegrationItemName>
             {active != null && active != undefined && (
@@ -41,9 +54,14 @@ const IntegrationItemContainer = styled.div`
 
     border-radius: 0.4rem;
 
+    border-bottom-left-radius: ${(props) => (props.flat ? "0rem" : "")};
+
+    border-bottom-right-radius: ${(props) => (props.flat ? "0rem" : "")};
+
     padding: 0rem 1rem;
 
-    margin-bottom: 1rem;
+    margin-bottom: ${(props) =>
+        props.marginBottom ? props.marginBottom : "1rem"};
 
     cursor: pointer;
 `;
@@ -84,4 +102,6 @@ const IntegrationItemCheck = styled.div`
     opacity: ${(props) => (props.active ? 1 : 0.2)};
 
     color: ${(props) => (props.active ? "#19e5be" : "")};
+
+    margin-top: 0.25rem;
 `;

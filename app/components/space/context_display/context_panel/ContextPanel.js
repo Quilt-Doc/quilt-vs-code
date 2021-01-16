@@ -16,6 +16,9 @@ const ContextPanel = () => {
             <ContextPanelNavbar />
             <ContextPanelList>
                 <ContextListItem />
+                <ContextListItem />
+                <ContextListItem />
+                <ContextListItem />
             </ContextPanelList>
         </ContextPanelContainer>
     );
@@ -33,7 +36,7 @@ const ContextPanelList = styled.div`
 
     flex-direction: column;
 
-    max-height: 18rem;
+    max-height: 20rem;
 
     overflow-y: scroll;
 

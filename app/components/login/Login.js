@@ -79,7 +79,11 @@ const Login = ({ authenticateUser, history }) => {
                             if (!isOnboarded) {
                                 history.push("/onboard");
                             } else {
-                                history.push(`/space/${workspaces[0]}`);
+                                history.push(
+                                    `/space/${
+                                        workspaces[workspaces.length - 1]
+                                    }`
+                                );
                             }
                         }
                     }

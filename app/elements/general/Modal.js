@@ -45,8 +45,9 @@ const ModalContent = styled.div`
     width: 90vw; /* Could be more or less, depending on screen size */
     min-height: ${(props) => props.contentHeight};
     border-radius: 0.5rem;
-    box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
-        rgba(15, 15, 15, 0.1) 0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px;
+    /*box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
+        rgba(15, 15, 15, 0.1) 0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px;*/
+    box-shadow: ${(props) => props.theme.BOX_SHADOW_MENU}
     display: flex;
     flex-direction: column;
     max-width: 95rem;

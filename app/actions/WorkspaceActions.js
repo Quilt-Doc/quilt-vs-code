@@ -1,4 +1,8 @@
-import { CREATE_WORKSPACE, GET_WORKSPACE } from "./types/WorkspaceTypes";
+import {
+    CREATE_WORKSPACE,
+    GET_WORKSPACE,
+    RETRIEVE_WORKSPACES,
+} from "./types/WorkspaceTypes";
 
 import getAPI from "../api/api";
 
@@ -26,7 +30,7 @@ export const createWorkspace = (formValues, passback) => async (dispatch) => {
     }
 };
 
-export const getWorkspace = (workspaceId) => async (dispatch) => {
+export const getWorkspace = ({ workspaceId }) => async (dispatch) => {
     const api = getAPI();
 
     if (!workspaceId) {
@@ -39,5 +43,27 @@ export const getWorkspace = (workspaceId) => async (dispatch) => {
         throw new Error(response.data.error.toString());
     } else {
         dispatch({ type: GET_WORKSPACE, payload: response.data.result });
+    }
+};
+
+export const retrieveWorkspaces = ({ userId }) => async (dispatch) => {
+    const api = getAPI();
+
+    if (!userId) {
+        throw new Error("retrieveWorkspaces: workspaceId not provided");
+    }
+
+    const response = await api.post(`/workspaces/retrieve`, {
+        memberUserIds: [userId],
+    });
+
+    const { success, result, trace } = response.data;
+
+    console.log("WORKSPACE RESULT", result);
+
+    if (!success) {
+        throw new Error(trace);
+    } else {
+        dispatch({ type: RETRIEVE_WORKSPACES, payload: result });
     }
 };

@@ -37,6 +37,8 @@ export const retrieveGithubRepositories = (formValues) => async (dispatch) => {
         formValues
     );
 
+    console.log("REPOS", response.data);
+
     if (response.data.success == false) {
         throw new Error(response.data.error.toString());
     } else {

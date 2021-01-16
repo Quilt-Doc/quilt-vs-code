@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 //styles
 import styled from "styled-components";
-import chroma from "chroma-js";
 
 //components
 import {
@@ -11,11 +10,9 @@ import {
     SubHeader,
     IntegrationItem,
 } from "../../../../elements";
-import IntegrationModal from "./IntegrationModal";
+import IntegrationModal from "./integration_modal/IntegrationModal";
 
 //icons
-import { RiTrelloFill, RiGithubFill } from "react-icons/ri";
-import { FiPlus } from "react-icons/fi";
 import { CgMathPlus } from "react-icons/cg";
 
 const IntegrationPanel = () => {
@@ -44,7 +41,9 @@ const IntegrationPanel = () => {
                 </IntegrationTypeBlock>
 
                 <IntegrationTypeBlock>
-                    <SubHeader marginBottom={"1rem"}>Issue Providers</SubHeader>
+                    <SubHeader marginBottom={"0.8rem"}>
+                        Issue Providers
+                    </SubHeader>
                     <IntegrationItem type={"trello"} name={"Quilt Product"} />
                 </IntegrationTypeBlock>
             </IntegrationPanelContainer>
@@ -97,11 +96,11 @@ const IntegrationPanelNavbar = styled.div`
     position: relative;
     /*align-items: center;*/
 
-    margin-bottom: 0.7rem;
+    margin-bottom: 1rem;
 `;
 
 const IntegrationTypeBlock = styled.div`
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 
     &:last-of-type {
         margin-bottom: 0rem;

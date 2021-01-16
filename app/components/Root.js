@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, Component } from "react";
+import React, { Component } from "react";
 
 //styles
-import styled, { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 
 //components
 import Login from "./login/Login";
@@ -38,7 +38,7 @@ class Root extends Component {
 
         if (!isOnboarded) return history.push("/onboard");
 
-        return history.push(`/space/${workspaces[0]}`);
+        return history.push(`/space/${workspaces[workspaces.length - 1]}`);
     };
 
     componentWillUnmount = () => {

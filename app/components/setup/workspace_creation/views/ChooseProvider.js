@@ -38,6 +38,8 @@ class ChooseProvider extends Component {
 
         let installed = await this.checkInstall();
 
+        console.log("INSTALLED");
+
         if (installed) {
             await this.retrieveRepositoryChoices();
 
