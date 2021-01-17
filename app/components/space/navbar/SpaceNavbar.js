@@ -25,6 +25,8 @@ import { GrIntegration } from "react-icons/gr";
 import { CgSearch } from "react-icons/cg";
 import { HiOutlineViewGrid } from "react-icons/hi";
 
+import { VscLibrary } from "react-icons/vsc";
+
 const SpaceNavbar = () => {
     return (
         <SpaceNavbarContainer>
@@ -36,8 +38,8 @@ const SpaceNavbar = () => {
                 <SpaceNavbarButton fontSize={"2rem"} active={true}>
                     <IoLayersOutline />
                 </SpaceNavbarButton>
-                <SpaceNavbarButton fontSize={"2.1rem"}>
-                    <IoMdBook />
+                <SpaceNavbarButton fontSize={"2rem"}>
+                    <VscLibrary />
                 </SpaceNavbarButton>
                 <SpaceNavbarButton fontSize={"2.1rem"}>
                     <HiOutlineViewGrid />
@@ -127,6 +129,8 @@ const WorkspaceButton = styled(SpaceNavbarButton)`
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
     opacity: 0.9;
+
+    min-width: 2.8rem;
 `;
 /*
  background-color: ${chroma("#090B10").set("hsl.l", "+0.08")};*/
