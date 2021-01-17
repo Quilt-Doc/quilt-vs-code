@@ -8,23 +8,39 @@ import {
     RiSearchLine,
     RiMenu4Line,
     RiStackFill,
-    RiHome2Line,
+    RiHomeLine,
     RiHome2Fill,
+    RiSettings3Line,
+    RiSearch2Line,
+    RiStackLine,
+    RiHomeGearLine,
 } from "react-icons/ri";
+
+import { IoLayers, IoLayersOutline } from "react-icons/io5";
+import { IoMdBook } from "react-icons/io";
+
+import { FiLayers, FiSettings, FiSearch, FiBookOpen } from "react-icons/fi";
+
 import { GrIntegration } from "react-icons/gr";
+import { CgSearch } from "react-icons/cg";
+import { HiOutlineViewGrid } from "react-icons/hi";
 
 const SpaceNavbar = () => {
     return (
         <SpaceNavbarContainer>
+            <WorkspaceButton>Q</WorkspaceButton>
             <SpaceNavbarButtonsContainer>
-                <SpaceNavbarButton>
-                    <RiSearchLine />
+                <SpaceNavbarButton fontSize={"2.1rem"}>
+                    <RiSearch2Line />
                 </SpaceNavbarButton>
-                <SpaceNavbarButton active={true}>
-                    <RiStackFill />
+                <SpaceNavbarButton fontSize={"2rem"} active={true}>
+                    <IoLayersOutline />
                 </SpaceNavbarButton>
-                <SpaceNavbarButton>
-                    <RiHome2Fill />
+                <SpaceNavbarButton fontSize={"2.1rem"}>
+                    <IoMdBook />
+                </SpaceNavbarButton>
+                <SpaceNavbarButton fontSize={"2.1rem"}>
+                    <HiOutlineViewGrid />
                 </SpaceNavbarButton>
             </SpaceNavbarButtonsContainer>
         </SpaceNavbarContainer>
@@ -52,13 +68,11 @@ const SpaceNavbarButtonsContainer = styled.div`
 
     margin-left: auto;
 
-    /*   background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
-
-    border-radius: 0.5rem;
+    /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
 `;
 
 const SpaceNavbarButton = styled.div`
-    margin-right: 2.3rem;
+    margin-right: 2.2rem;
 
     height: 2.8rem; /*2.8*/
 
@@ -70,9 +84,11 @@ const SpaceNavbarButton = styled.div`
 
     justify-content: center;
 
-    font-size: 1.7rem;
+    font-size: ${(props) => (props.fontSize ? props.fontSize : "1.7rem")};
 
     opacity: ${(props) => (props.active ? 1 : 0.4)};
+
+    border-radius: 0.5rem;
 
     /*
     border-bottom: ${(props) =>
@@ -92,7 +108,9 @@ const SpaceNavbarButton = styled.div`
     &:last-of-type {
         margin-right: 0rem;
     }
-    /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
+
+    /*background-color: ${(props) =>
+        props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
     /*
     opacity: 0.9;
 
@@ -102,11 +120,13 @@ const SpaceNavbarButton = styled.div`
 `;
 
 const WorkspaceButton = styled(SpaceNavbarButton)`
-    font-weight: 500;
+    font-weight: 300;
 
     font-size: 1.6rem;
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+
+    opacity: 0.9;
 `;
 /*
  background-color: ${chroma("#090B10").set("hsl.l", "+0.08")};*/
