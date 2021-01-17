@@ -11,11 +11,34 @@ import {
     RiFileList2Line,
 } from "react-icons/ri";
 
+import { BsCardChecklist } from "react-icons/bs";
+
+import { BiGitCommit } from "react-icons/bi";
+
+import { VscGitPullRequest } from "react-icons/vsc";
+
+import { FiGitBranch, FiGitPullRequest } from "react-icons/fi";
+
 class ContextListItem extends Component {
     renderIcon = () => {
+        const { integration } = this.props;
+        console.log("INTEGRATION", integration);
+
+        const icon =
+            integration === "trello" ? (
+                <BsCardChecklist />
+            ) : (
+                <VscGitPullRequest /> //<RiFileList2Line />
+            );
+
+        //<BiGitCommit />
+        const color = integration === "trello" ? "#6762df" : "white"; //"#4284f4";
+
+        const size = integration === "trello" ? "2.1rem" : "1.8rem";
+        //<RiFileList2Line />;
         return (
-            <ContextListItemIcon>
-                <RiFileList2Fill />
+            <ContextListItemIcon size={size} color={color}>
+                {icon}
             </ContextListItemIcon>
         );
     };
@@ -32,7 +55,7 @@ class ContextListItem extends Component {
     };
 
     renderDate = () => {
-        return <ContextListItemDate>11/25/2020</ContextListItemDate>;
+        return <ContextListItemDate>Nov 25, 2020</ContextListItemDate>;
     };
 
     render() {
@@ -70,6 +93,8 @@ const ContextListItemContainer = styled.div`
     &:hover {
         background-color: ${(props) => props.theme.HOVER_COLOR};
     }
+
+    position: relative;
 `;
 
 const ContextListItemIcon = styled.div`
@@ -85,13 +110,14 @@ const ContextListItemIcon = styled.div`
 
     margin-top: 0rem;
 
-    font-size: 2.1rem;
+    font-size: ${(props) => props.size}; /*2.1rem;*/
 
     /*margin-left: 1rem;*/
 
-    color: #4284f4; /*#4284f4 - doc  #f27448 - card  #0D9D58 - spreadsheet*/
+    color: ${(props) =>
+        props.color}; /* #4284f4*/ /*#4284f4 - doc  #f27448 - card  #0D9D58 - spreadsheet*/
 
-    opacity: 0.5;
+    opacity: 0.7;
 `;
 
 const ContextListItemContent = styled.div`
@@ -113,13 +139,13 @@ const ContextListItemHeader = styled.div`
 
     overflow: hidden;
 
-    width: 70vw;
+    width: calc(100vw - 4rem - 14.5rem);
 `;
 
 const ContextListItemSubHeader = styled.div`
     font-weight: 500;
 
-    opacity: 0.5;
+    opacity: 0.55;
 
     font-size: 1rem;
 `;
@@ -127,7 +153,7 @@ const ContextListItemSubHeader = styled.div`
 const ContextListItemDate = styled.div`
     font-weight: 500;
 
-    opacity: 0.5;
+    opacity: 0.55;
 
     font-size: 1rem;
 

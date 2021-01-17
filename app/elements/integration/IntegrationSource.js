@@ -8,7 +8,13 @@ import { DiGoogleDrive } from "react-icons/di";
 import { SiJira } from "react-icons/si";
 
 // INTEGRATION SOURCE COMPONENT
-const IntegrationSource = ({ inactive, type, onClick }) => {
+const IntegrationSource = ({
+    inactive,
+    type,
+    onClick,
+    width,
+    borderRadius,
+}) => {
     const icons = {
         github: <RiGithubFill />,
         bitbucket: <IoLogoBitbucket />,
@@ -34,7 +40,12 @@ const IntegrationSource = ({ inactive, type, onClick }) => {
     };
 
     return (
-        <IntegrationSourceContainer onClick={onClick} inactive={inactive}>
+        <IntegrationSourceContainer
+            width={width}
+            borderRadius={borderRadius}
+            onClick={onClick}
+            inactive={inactive}
+        >
             <IntegrationSourceIcon color={colors[type]} fontSize={fontSize}>
                 {icons[type]}
             </IntegrationSourceIcon>
@@ -47,7 +58,7 @@ export default IntegrationSource;
 const IntegrationSourceContainer = styled.div`
     height: 4.5rem;
 
-    width: 4.5rem;
+    width: ${(props) => (props.width ? props.width : "4.5rem")};
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
@@ -59,7 +70,8 @@ const IntegrationSourceContainer = styled.div`
 
     box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
 
-    border-radius: 0.3rem;
+    border-radius: ${(props) =>
+        props.borderRadius ? props.borderRadius : "0.3rem"};
 
     margin-right: ${(props) =>
         props.marginRight ? props.marginRight : "2rem"};

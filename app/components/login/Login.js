@@ -68,10 +68,6 @@ const Login = ({ authenticateUser, history }) => {
 
                             clearTimeout(timeout);
 
-                            console.log("JWT", jwt);
-
-                            console.log("USER", user);
-
                             authenticateUser({ jwt, user, isAuthorized });
 
                             const { isOnboarded, workspaces } = user;

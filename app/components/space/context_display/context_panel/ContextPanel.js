@@ -14,10 +14,20 @@ const ContextPanel = ({ context, integration }) => {
     const listItems =
         integration == "github"
             ? context["commits"].map((commit) => {
-                  return <ContextListItem name={commit.commitMessage} />;
+                  return (
+                      <ContextListItem
+                          integration={integration}
+                          name={commit.commitMessage}
+                      />
+                  );
               })
             : context["tickets"].map((ticket) => {
-                  return <ContextListItem name={ticket.name} />;
+                  return (
+                      <ContextListItem
+                          integration={integration}
+                          name={ticket.name}
+                      />
+                  );
               });
 
     return (

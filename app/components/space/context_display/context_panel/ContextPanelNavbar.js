@@ -8,6 +8,8 @@ import chroma from "chroma-js";
 import { DiGoogleDrive } from "react-icons/di";
 import { RiGithubFill, RiTrelloFill } from "react-icons/ri";
 
+import { IntegrationSource } from "../../../../elements";
+
 //constants
 const TRELLO_ICON_SIZE = "2.1rem";
 const GOOGLE_DRIVE_ICON_SIZE = "2.5rem";
@@ -18,6 +20,13 @@ class ContextPanelNavbar extends Component {
 
         return (
             <ContextPanelNavbarContainer>
+                <IntegrationSource
+                    width={"5.5rem"}
+                    borderRadius={"0.5rem"}
+                    type={integration}
+                />
+
+                {/*
                 <ContextPanelIconContainer>
                     <ContextPanelIcon>
                         {integration === "trello" ? (
@@ -26,7 +35,7 @@ class ContextPanelNavbar extends Component {
                             <RiGithubFill />
                         )}
                     </ContextPanelIcon>
-                </ContextPanelIconContainer>
+                </ContextPanelIconContainer>*/}
             </ContextPanelNavbarContainer>
         );
     }
