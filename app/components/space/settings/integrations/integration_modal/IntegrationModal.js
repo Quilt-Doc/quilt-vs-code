@@ -53,7 +53,6 @@ class IntegrationModal extends Component {
                         changePage={this.changePage}
                     />
                 )}
-
                 {page === 2 && (
                     <IntegrationContextSpecification
                         integration={integration}

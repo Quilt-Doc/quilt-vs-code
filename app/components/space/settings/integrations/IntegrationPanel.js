@@ -23,15 +23,14 @@ const IntegrationPanel = () => {
             <IntegrationPanelContainer>
                 <IntegrationPanelNavbar>
                     <Header>Integrations</Header>
-                    <IntegrationPanelAddButton>
-                        <CgMathPlus
-                            onClick={() => {
-                                setIsModalOpen(true);
-                            }}
-                        />
+                    <IntegrationPanelAddButton
+                        onClick={() => {
+                            setIsModalOpen(true);
+                        }}
+                    >
+                        <CgMathPlus />
                     </IntegrationPanelAddButton>
                 </IntegrationPanelNavbar>
-
                 <IntegrationTypeBlock>
                     <SubHeader marginBottom={"0.8rem"}>Code Hosting</SubHeader>
                     <IntegrationItem
