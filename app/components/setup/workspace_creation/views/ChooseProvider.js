@@ -62,10 +62,14 @@ class ChooseProvider extends Component {
 
         const { installations } = this.props;
 
+        console.log("NORMAL INSTALLS", installations);
+
         let installs = installations.filter(
             (inst) =>
                 inst.account.type === "User" && inst.account.id == profileId
         );
+
+        console.log("INSTALLS", installs);
 
         return installs.length !== 0;
     };
@@ -76,6 +80,8 @@ class ChooseProvider extends Component {
             user: { _id: userId },
             installations,
         } = this.props;
+
+        console.log("INSTALLATIONS", installations);
 
         await retrieveGithubRepositories({
             installationIds: installations.map((installObj) => installObj.id),

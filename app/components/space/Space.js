@@ -58,7 +58,7 @@ class Space extends Component {
         return (
             <>
                 <SpaceNavbar />
-                {loaded && <ContextDisplay />}
+                {loaded && <IntegrationPanel />}
             </>
         );
     }

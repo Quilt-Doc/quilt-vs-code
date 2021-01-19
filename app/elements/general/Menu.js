@@ -58,7 +58,7 @@ class Menu extends Component {
                     ref={(node) => (this.menuRef = node)}
                 >
                     <SubHeader marginBottom={"1rem"}>{title}</SubHeader>
-                    {this.renderListItems()}
+                    <ListItems>{this.renderListItems()}</ListItems>
                 </MenuContainer>
             </>
         );
@@ -124,6 +124,16 @@ const MenuContainer = styled.div`
     border-radius: 0.4rem;
 
     width: 70vw;
+`;
+
+const ListItems = styled.div`
+    max-height: 28rem;
+
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 `;
 
 const MenuBackground = styled.div`
