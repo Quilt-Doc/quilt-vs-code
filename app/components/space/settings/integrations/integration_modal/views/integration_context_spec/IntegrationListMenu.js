@@ -122,6 +122,7 @@ const Button = styled.div`
     width: calc(50% - 2rem);
 
     position: relative;
+
     /*
     &:last-of-type {
         width: calc(50% - 2rem);

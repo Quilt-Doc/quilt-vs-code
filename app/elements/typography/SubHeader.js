@@ -10,6 +10,12 @@ const SubHeader = styled.div`
     opacity: 0.8;
 
     margin-bottom: ${(props) => props.marginBottom};
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    overflow: hidden;
 `;
 
 export default SubHeader;
