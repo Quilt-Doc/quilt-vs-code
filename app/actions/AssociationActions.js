@@ -1,11 +1,13 @@
-import { UPDATE_GITHUB_FILE_CONTEXT } from "./types/GithubTypes";
-import { UPDATE_TRELLO_FILE_CONTEXT } from "./types/TrelloTypes";
+import { POPULATE_GITHUB_CONTEXT } from "./types/GithubTypes";
+import { POPULATE_TRELLO_CONTEXT } from "./types/TrelloTypes";
+import { POPULATE_JIRA_CONTEXT } from "./types/JiraTypes";
 
 import getAPI from "../api/api";
 
 const types = {
-    github: UPDATE_GITHUB_FILE_CONTEXT,
-    trello: UPDATE_TRELLO_FILE_CONTEXT,
+    github: POPULATE_GITHUB_CONTEXT,
+    trello: POPULATE_TRELLO_CONTEXT,
+    jira: POPULATE_JIRA_CONTEXT,
 };
 
 export const generateAssociations = ({ workspaceId, contexts }) => async (
@@ -42,17 +44,6 @@ export const getFileContext = ({
 
     if (!filePath) throw new Error("No filePath is specified");
 
-    console.log("PARAMS", {
-        workspaceId,
-        repositoryId,
-        filePath,
-    });
-
-    console.log(
-        "PATH",
-        `/associations/${workspaceId}/${repositoryId}/get_file_context`
-    );
-
     const response = await api.post(
         `/associations/${workspaceId}/${repositoryId}/get_file_context`,
         { filePath }
@@ -60,19 +51,10 @@ export const getFileContext = ({
 
     const { result, success, error } = response.data;
 
-    console.log("FINAL", { result, success, error });
-
     if (!success) {
         throw new Error(error);
     } else {
-        console.log("RESULT", result);
-
         Object.keys(result).map((integration) => {
-            console.log("DISPATCH", {
-                type: types[integration],
-                payload: result[integration],
-            });
-
             dispatch({
                 type: types[integration],
                 payload: result[integration],

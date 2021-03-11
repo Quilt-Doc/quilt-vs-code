@@ -35,12 +35,15 @@ class WaitCreation extends Component {
                 editUser,
                 history,
                 location,
+                onboarding,
             } = this.props;
 
-            await editUser({
-                userId,
-                isOnboarded: true,
-            });
+            if (onboarding) {
+                await editUser({
+                    userId,
+                    isOnboarded: true,
+                });
+            }
 
             history.push(`/space/${workspaceId}`);
         } else {

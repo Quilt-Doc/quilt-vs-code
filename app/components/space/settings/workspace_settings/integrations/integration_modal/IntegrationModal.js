@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 
 //components
-import { Modal } from "../../../../../elements";
+import { Modal } from "../../../../../../elements";
 
 //react-router
 import { withRouter } from "react-router-dom";

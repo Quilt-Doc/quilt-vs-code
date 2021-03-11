@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import styled from "styled-components";
 
-import { Header, IntegrationSource } from "../../../../../../elements";
+import { Header, IntegrationSource } from "../../../../../../../elements";
 
 class IntegrationSourceSelection extends Component {
     handleClick = (integration) => {
@@ -16,7 +16,7 @@ class IntegrationSourceSelection extends Component {
     renderSources = () => {
         let JSX = [];
 
-        const integrations = ["google-drive", "trello", "jira"];
+        const integrations = ["google", "trello", "jira"];
 
         let integrationsJSX = [];
 

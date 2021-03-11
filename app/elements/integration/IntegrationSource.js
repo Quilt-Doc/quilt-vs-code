@@ -19,24 +19,20 @@ const IntegrationSource = ({
         github: <RiGithubFill />,
         bitbucket: <IoLogoBitbucket />,
         gitlab: <RiGitlabFill />,
-        "google-drive": <DiGoogleDrive />,
+        google: <DiGoogleDrive />,
         trello: <RiTrelloFill />,
         jira: <SiJira />,
     };
 
     const fontSize =
-        type === "google-drive"
-            ? "2.7rem"
-            : type === "jira"
-            ? "2rem"
-            : "2.4rem";
+        type === "google" ? "2.7rem" : type === "jira" ? "2rem" : "2.4rem";
     //icons
 
     const colors = {
         bitbucket: "#2684ff",
         trello: "#1776c0",
         jira: "#2684ff",
-        "google-drive": "#33a853",
+        google: "#33a853",
     };
 
     return (

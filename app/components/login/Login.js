@@ -6,6 +6,7 @@ import chroma from "chroma-js";
 
 //icons
 import { ImGithub } from "react-icons/im";
+import { AiOutlineRedo } from "react-icons/ai";
 
 //pusher
 import Pusher from "pusher-js";
@@ -17,16 +18,26 @@ import vscode from "../../vscode/vscode";
 import { connect } from "react-redux";
 
 //containers
-import { Panel } from "../../elements";
+import { Panel, Logo, SubHeader } from "../../elements";
+import LoginButton from "./LoginButton";
 
 //constants
 import { API_ENDPOINT } from "../../constants/constants";
-import { OPEN_BROWSER } from "../../vscode/types/messageTypes";
+import {
+    OPEN_BROWSER,
+    SET_VALUE_GLOBAL_STORAGE,
+} from "../../vscode/types/messageTypes";
 
 //actions
-import { authenticateUser } from "../../actions/AuthActions";
+import { authenticateUser, encryptAuthToken } from "../../actions/AuthActions";
 
-const Login = ({ authenticateUser, history }) => {
+const Login = ({ authenticateUser, encryptAuthToken, history }) => {
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+    const [requestTimeout, setRequestTimeout] = useState(null);
+
+    const [requestChannelName, setChannelName] = useState(null);
+
     const pusher = useMemo(
         () =>
             new Pusher("8a6c058f2c0eb1d4d237", {
@@ -36,13 +47,38 @@ const Login = ({ authenticateUser, history }) => {
         []
     );
 
-    const tryLogin = useMemo(
+    const renewLogin = useMemo(
         () => () => {
-            const ideToken = new Date().getTime();
+            if (requestChannelName) {
+                pusher.unsubscribe(requestChannelName);
+
+                setChannelName(null);
+            }
+
+            if (requestTimeout) {
+                clearTimeout(requestTimeout);
+
+                setRequestTimeout(null);
+            }
+
+            setIsLoggingIn(false);
+
+            console.log(
+                "Please reload authentication or reclick to authenticate."
+            );
+        },
+        [isLoggingIn, requestTimeout, requestChannelName]
+    );
+
+    const tryLogin = useMemo(
+        () => async () => {
+            const { ideToken, encryptedToken } = await encryptAuthToken();
 
             const channelName = `private-${ideToken}`;
 
             const tokenListener = pusher.subscribe(channelName);
+
+            setChannelName(channelName);
 
             const timeout = setTimeout(() => {
                 console.log(
@@ -50,13 +86,25 @@ const Login = ({ authenticateUser, history }) => {
                 );
 
                 pusher.unsubscribe(channelName);
+
+                setChannelName(null);
+
+                setRequestTimeout(null);
+
+                setIsLoggingIn(false);
             }, 150000);
+
+            setRequestTimeout(timeout);
+
+            setIsLoggingIn(true);
 
             tokenListener.bind("pusher:subscription_succeeded", () => {
                 vscode.postMessage({
                     type: OPEN_BROWSER,
                     payload: {
-                        url: `${API_ENDPOINT}/auth/github?ide_token=${ideToken}`,
+                        url: `${API_ENDPOINT}/auth/github?ide_token=${encodeURIComponent(
+                            encryptedToken
+                        )}`,
                     },
                 });
 
@@ -70,15 +118,30 @@ const Login = ({ authenticateUser, history }) => {
 
                             authenticateUser({ jwt, user, isAuthorized });
 
+                            /*
+                            vscode.postMessage({
+                                type: SET_VALUE_GLOBAL_STORAGE,
+                                payload: {
+                                    key: "auth",
+                                    value: { jwt, user, isAuthorized },
+                                },
+                            });*/
+
                             const { isOnboarded, workspaces } = user;
 
+                            console.log(
+                                "ROUTE",
+                                `/space/${
+                                    workspaces[workspaces.length - 1]._id
+                                }/settings/workspace`
+                            );
                             if (!isOnboarded) {
                                 history.push("/onboard");
                             } else {
                                 history.push(
                                     `/space/${
-                                        workspaces[workspaces.length - 1]
-                                    }`
+                                        workspaces[workspaces.length - 1]._id
+                                    }/settings/workspace`
                                 );
                             }
                         }
@@ -87,25 +150,44 @@ const Login = ({ authenticateUser, history }) => {
             });
 
             tokenListener.bind("pusher:subscription_error", () => {
+                clearTimeout(timeout);
+
                 pusher.unsubscribe(channelName);
 
-                clearTimeout(timeout);
+                setChannelName(null);
+
+                setRequestTimeout(null);
+
+                setIsLoggingIn(false);
 
                 console.log(
                     "Please reload authentication or reclick to authenticate."
                 );
             });
         },
-        [authenticateUser]
+        [authenticateUser, isLoggingIn, requestTimeout, requestChannelName]
     );
 
     return (
         <LoginBackground>
             <LoginContainer>
-                <LoginButton onClick={tryLogin}>
-                    <ImGithub style={{ marginRight: "1rem" }} />
+                <Logo />
+                <BrandName>quilt</BrandName>
+                <LoginButton loading={isLoggingIn} onClick={tryLogin}>
+                    <ImGithub
+                        style={{
+                            marginRight: "1.1rem",
+                            fontSize: "1.6rem",
+                        }}
+                    />
                     Continue with Github
                 </LoginButton>
+                {isLoggingIn && (
+                    <RedoButton onClick={renewLogin}>
+                        <AiOutlineRedo style={{ marginRight: "0.4rem" }} />
+                        <SubHeader>Retry Login</SubHeader>
+                    </RedoButton>
+                )}
             </LoginContainer>
         </LoginBackground>
     );
@@ -115,7 +197,37 @@ const mapStateToProps = () => {
     return {};
 };
 
-export default connect(mapStateToProps, { authenticateUser })(Login);
+export default connect(mapStateToProps, { authenticateUser, encryptAuthToken })(
+    Login
+);
+
+const RedoButton = styled.div`
+    display: flex;
+
+    align-items: center;
+
+    margin-top: 1rem;
+
+    cursor: pointer;
+
+    opacity: 0.7;
+
+    &:hover {
+        opacity: 1;
+    }
+`;
+
+const BrandName = styled.div`
+    font-size: 3rem;
+
+    letter-spacing: 1px;
+
+    font-weight: 400;
+
+    margin-bottom: 5rem;
+
+    margin-top: -1.2rem;
+`;
 
 const LoginBackground = styled.div`
     display: flex;
@@ -124,21 +236,26 @@ const LoginBackground = styled.div`
 `;
 
 const LoginContainer = styled(Panel)`
-    height: 25rem;
+    padding: 2rem 2rem;
 
     display: flex;
+
+    flex-direction: column;
 
     align-items: center;
 
     justify-content: center;
+
+    height: 30rem;
 `;
 
+/*
 const LoginButton = styled.div`
     background-color: ${chroma("#090B10").set("hsl.l", "+0.05")};
     height: 4rem;
     display: inline-flex;
     border-radius: 0.3rem;
-    /* margin-top: 2rem;*/
+   
     font-size: 1.4rem;
     display: inline-flex;
     align-items: center;
@@ -150,4 +267,4 @@ const LoginButton = styled.div`
     &:hover {
         background-color: #2e323d;
     }
-`;
+`;*/

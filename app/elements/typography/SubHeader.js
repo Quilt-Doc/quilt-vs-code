@@ -5,7 +5,7 @@ const SubHeader = styled.div`
 
     font-weight: 500;
 
-    line-height: 1.6;
+    line-height: 1.8;
 
     opacity: 0.8;
 

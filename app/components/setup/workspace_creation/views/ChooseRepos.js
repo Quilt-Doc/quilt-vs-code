@@ -62,9 +62,13 @@ class ChooseRepos extends Component {
     };
 
     handleButtonClick = () => {
-        const { history } = this.props;
+        const { history, onboarding } = this.props;
 
-        history.push("/onboard/create_workspace/choose_name");
+        const route = `${
+            onboarding ? "/onboard" : ""
+        }/create_workspace/choose_name`;
+
+        history.push(route);
     };
 
     render() {

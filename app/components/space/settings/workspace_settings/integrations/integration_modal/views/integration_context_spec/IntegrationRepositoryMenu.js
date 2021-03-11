@@ -4,10 +4,10 @@ import React, { Component } from "react";
 import styled from "styled-components";
 
 //elements
-import { SubHeader, IntegrationItem } from "../../../../../../../elements";
+import { SubHeader, IntegrationItem } from "../../../../../../../../elements";
 
 //components
-import { Menu } from "../../../../../../../elements";
+import { Menu } from "../../../../../../../../elements";
 
 //icons
 import { CgMathPlus } from "react-icons/cg";

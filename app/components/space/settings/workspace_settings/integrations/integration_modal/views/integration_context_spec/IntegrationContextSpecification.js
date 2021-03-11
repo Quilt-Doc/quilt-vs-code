@@ -9,21 +9,15 @@ import {
     IntegrationItem,
     SubHeader,
     Button,
-} from "../../../../../../../elements";
+} from "../../../../../../../../elements";
 
 //components
-import IntegrationListMenu from "./IntegrationListMenu";
 import IntegrationRepositoryMenu from "./IntegrationRepositoryMenu";
 
-//icons
-import { HiArrowNarrowRight } from "react-icons/hi";
-
-//constants
-import { START_TYPE, END_TYPE } from "../../../../../../../constants/constants";
-
 //actions
-import { triggerTrelloScrape } from "../../../../../../../actions/TrelloActions";
-import { generateAssociations } from "../../../../../../../actions/AssociationActions";
+import { triggerTrelloScrape } from "../../../../../../../../actions/TrelloActions";
+import { triggerJiraScrape } from "../../../../../../../../actions/JiraActions";
+import { generateAssociations } from "../../../../../../../../actions/AssociationActions";
 
 //router
 import { withRouter } from "react-router-dom";
@@ -36,60 +30,12 @@ class IntegrationContextSpecification extends Component {
         super(props);
 
         this.state = {};
-    }
 
-    acquireListId = (boardId, type) => {
-        const board = this.state[boardId];
-
-        if (board) {
-            return board[type];
-        } else {
-            return null;
-        }
-    };
-
-    selectList = (boardId, type, value) => {
-        let board = this.state[boardId] ? this.state[boardId] : {};
-
-        board = { ...board, [type]: value };
-
-        this.setState({ [boardId]: board });
-    };
-
-    renderActivitySpec = (item) => {
-        const { id: boardId } = item;
-
-        const startValue = this.acquireListId(boardId, START_TYPE);
-
-        const endValue = this.acquireListId(boardId, END_TYPE);
-
-        const selectListGen = (type) => (value) => {
-            this.selectList(boardId, type, value);
+        this.triggerScrape = {
+            trello: this.props.triggerTrelloScrape,
+            jira: this.props.triggerJiraScrape,
         };
-
-        return (
-            <Specification>
-                <SubHeader>List Activity</SubHeader>
-                <ActivityContainer>
-                    <IntegrationListMenu
-                        board={item}
-                        type={START_TYPE}
-                        value={startValue}
-                        selectValue={selectListGen(START_TYPE)}
-                    />
-                    <Arrow>
-                        <HiArrowNarrowRight />
-                    </Arrow>
-                    <IntegrationListMenu
-                        board={item}
-                        type={END_TYPE}
-                        value={endValue}
-                        selectValue={selectListGen(END_TYPE)}
-                    />
-                </ActivityContainer>
-            </Specification>
-        );
-    };
+    }
 
     selectRepository = (boardId, repositoryId) => {
         let board = this.state[boardId];
@@ -147,10 +93,7 @@ class IntegrationContextSpecification extends Component {
                         flat={true}
                         marginBottom={"0rem"}
                     />
-                    <Data>
-                        {this.renderActivitySpec(item)}
-                        {this.renderRepositorySpec(item)}
-                    </Data>
+                    <Data>{this.renderRepositorySpec(item)}</Data>
                 </Block>
             );
         });
@@ -161,18 +104,18 @@ class IntegrationContextSpecification extends Component {
             user: { _id: userId },
             active,
             match,
-            triggerTrelloScrape,
+            integration,
             generateAssociations,
         } = this.props;
 
         const { workspaceId } = match.params;
 
-        let contexts = [];
+        let inputs = [];
 
         for (let i = 0; i < active.length; i++) {
             const item = active[i];
 
-            const { id, lists } = item;
+            const { id } = item;
 
             const board = this.state[id];
 
@@ -182,42 +125,28 @@ class IntegrationContextSpecification extends Component {
 
             if (!repositories) return;
 
-            if (lists && lists.length >= 2) {
-                if (!board[START_TYPE] || !board[END_TYPE]) return;
-            }
-
-            const beginListId = board[START_TYPE];
-
-            const endListId = board[END_TYPE];
-
-            const event =
-                beginListId && endListId ? { beginListId, endListId } : null;
-
-            const context = {
-                board: id,
-                repositories: Array.from(repositories),
-                event,
+            const input = {
+                sourceId: id,
+                repositoryIds: Array.from(repositories),
             };
 
-            contexts.push(context);
+            inputs.push(input);
         }
 
-        contexts = await triggerTrelloScrape({
-            userId,
+        const scraped = await this.triggerScrape[integration]({
             workspaceId,
-            contexts,
+            userId,
+            boards: inputs,
         });
 
-        console.log("CONTEXTS", contexts);
-
-        console.log("ABOUT TO GENERATE ASSOCS");
-
+        /*
         const associations = await generateAssociations({
             workspaceId,
-            contexts,
+            boards,
         });
 
-        console.log("GENERATED ASSOCIATIONS", associations);
+        console.log("ASSOCIATIONS", associations);
+        */
     };
 
     render() {
@@ -242,9 +171,11 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(
-    connect(mapStateToProps, { triggerTrelloScrape, generateAssociations })(
-        IntegrationContextSpecification
-    )
+    connect(mapStateToProps, {
+        triggerTrelloScrape,
+        triggerJiraScrape,
+        generateAssociations,
+    })(IntegrationContextSpecification)
 );
 
 const Specification = styled.div`
@@ -273,6 +204,8 @@ const Arrow = styled.div`
 
 const Data = styled.div`
     padding: 1.5rem 1rem;
+
+    padding-bottom: 0.5rem;
 
     border: 2px solid ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 

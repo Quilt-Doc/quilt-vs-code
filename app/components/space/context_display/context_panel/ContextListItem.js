@@ -21,20 +21,19 @@ import { FiGitBranch, FiGitPullRequest } from "react-icons/fi";
 
 class ContextListItem extends Component {
     renderIcon = () => {
-        const { integration } = this.props;
-        console.log("INTEGRATION", integration);
+        const { source } = this.props;
 
         const icon =
-            integration === "trello" ? (
+            source === "trello" ? (
                 <BsCardChecklist />
             ) : (
                 <VscGitPullRequest /> //<RiFileList2Line />
             );
 
         //<BiGitCommit />
-        const color = integration === "trello" ? "#6762df" : "white"; //"#4284f4";
+        const color = source === "trello" ? "#6762df" : "white"; //"#4284f4";
 
-        const size = integration === "trello" ? "2.1rem" : "1.8rem";
+        const size = source === "trello" ? "2.1rem" : "1.8rem";
         //<RiFileList2Line />;
         return (
             <ContextListItemIcon size={size} color={color}>

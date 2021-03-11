@@ -10,9 +10,10 @@ const Input = ({
     defaultValue,
     autoFocus,
     spellCheck,
+    marginTop,
 }) => {
     return (
-        <InputContainer>
+        <InputContainer marginTop={marginTop}>
             <InputLabel>{label}</InputLabel>
             <InputField
                 ref={setRef}
@@ -28,10 +29,10 @@ const Input = ({
 export default Input;
 
 const InputContainer = styled.div`
-    margin-top: 1.5rem;
+    margin-top: ${(props) => (props.marginTop ? props.marginTop : "1.5rem")};
 
     &:first-of-type {
-        margin-top: 2rem;
+        margin-top: ${(props) => (props.marginTop ? props.marginTop : "2rem")};
     }
 `;
 
@@ -69,6 +70,6 @@ const InputField = styled.input`
 
         font-weight: 500;
 
-        opacity: 0.4;
+        opacity: 0.6;
     }
 `;

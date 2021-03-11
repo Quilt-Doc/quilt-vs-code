@@ -1,0 +1,3 @@
+export const CREATE_INVITE = "CREATE_INVITE";
+
+export const RETRIEVE_INVITES = "RETRIEVE_INVITES";

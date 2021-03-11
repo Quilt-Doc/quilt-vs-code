@@ -10,12 +10,21 @@ import {
     ExtensionContext,
     env,
     window,
+    Memento,
 } from "vscode";
 
+import SnippetDecorator from "./snippet_decorator/snippetDecorator";
 import GitHandler from "./git/gitHandler";
 import WebviewMessage from "./webviewMessage";
+import LocalStorageService from "./local_storage/localStorageService";
 
-import { OPEN_BROWSER, CHANGE_THEME } from "./types/MessageTypes";
+import {
+    OPEN_BROWSER,
+    CHANGE_THEME,
+    GET_VALUE_GLOBAL_STORAGE,
+    SET_VALUE_GLOBAL_STORAGE,
+    SEND_VALUE_GLOBAL_STORAGE,
+} from "./types/MessageTypes";
 import { EXTENSION_NAME } from "../constants/constants";
 
 const { onDidChangeActiveColorTheme } = window;
@@ -25,7 +34,11 @@ class QuiltViewProvider implements WebviewViewProvider {
 
     private _view?: WebviewView;
 
-    constructor(private readonly _extensionUri: Uri) {}
+    private _globalStore?: LocalStorageService;
+
+    constructor(private readonly _extensionUri: Uri, globalState: Memento) {
+        this._globalStore = new LocalStorageService(globalState);
+    }
 
     public resolveWebviewView = (
         webviewView: WebviewView,
@@ -50,24 +63,55 @@ class QuiltViewProvider implements WebviewViewProvider {
 
         const gitHandler = new GitHandler(webviewView);
 
+        const snippetDecorator = new SnippetDecorator(webviewView);
+
         webviewView.onDidDispose(() => {
             themeChangeListener.dispose();
             gitHandler.dispose();
+            snippetDecorator.dispose();
         });
     };
 
     private _handleWebviewMessage = (message: WebviewMessage) => {
+        console.log("MESSAGE ENTERED", message);
+
         const { type, payload } = message;
 
-        switch (type) {
-            case OPEN_BROWSER:
-                const { openExternal } = env;
+        if (type == OPEN_BROWSER) {
+            const { openExternal } = env;
 
-                const { url } = payload;
+            const { url } = payload;
 
-                openExternal(Uri.parse(url));
-            default:
-                return;
+            openExternal(Uri.parse(url));
+        }
+
+        if (type == GET_VALUE_GLOBAL_STORAGE) {
+            console.log(
+                `ENTERED GET_VALUE_GLOBAL_STORAGE WITH KEY : ${payload.key} WITH TYPE : ${type}`
+            );
+
+            this._globalStore?.getValue(payload.key);
+
+            console.log("TO BE PAYLOAD TO EXTENSION", {
+                value: this._globalStore?.getValue(payload.key),
+                dispatchType: payload.dispatchType,
+            });
+
+            this._view?.webview.postMessage({
+                type: SEND_VALUE_GLOBAL_STORAGE,
+                payload: {
+                    value: this._globalStore?.getValue(payload.key),
+                    dispatchType: payload.dispatchType,
+                },
+            });
+        }
+
+        if (type == SET_VALUE_GLOBAL_STORAGE) {
+            console.log(
+                `ENTERED SET_VALUE_GLOBAL_STORAGE WITH KEY : ${payload.key} WITH VALUE : ${payload.value} WITH TYPE : ${type}`
+            );
+
+            this._globalStore?.setValue(payload.key, payload.value);
         }
     };
 

@@ -9,9 +9,9 @@ const { registerCommand } = commands;
 const { showInformationMessage, registerWebviewViewProvider } = window;
 
 export const activate = (context: ExtensionContext) => {
-    const { extensionUri } = context;
+    const { extensionUri, globalState } = context;
 
-    const provider = new QuiltViewProvider(extensionUri);
+    const provider = new QuiltViewProvider(extensionUri, globalState);
 
     const { quiltViewId } = QuiltViewProvider;
 

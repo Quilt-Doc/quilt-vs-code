@@ -1,10 +1,10 @@
-import React from "react";
+import React, { Component } from "react";
 
 //styles
 import styled from "styled-components";
 
 //vscode api
-import vscode from "../../../../../../vscode/vscode";
+import vscode from "../../../../../../../vscode/vscode";
 
 //react-redux
 import { connect } from "react-redux";
@@ -13,10 +13,12 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
 //actions
-import { getExternalTrelloBoards } from "../../../../../../actions/TrelloActions";
+import { getExternalTrelloBoards } from "../../../../../../../actions/TrelloActions";
+import { getExternalJiraBoards } from "../../../../../../../actions/JiraActions";
+import { getExternalGoogleDrives } from "../../../../../../../actions/GoogleActions";
 
 //types
-import { OPEN_BROWSER } from "../../../../../../vscode/types/messageTypes";
+import { OPEN_BROWSER } from "../../../../../../../vscode/types/messageTypes";
 
 //components
 import {
@@ -24,21 +26,25 @@ import {
     Header,
     IntegrationItem,
     Button,
-} from "../../../../../../elements";
+} from "../../../../../../../elements";
+import IntegrationRequestInformation from "./IntegrationRequestInformation";
 
 const BASE_URL = "http://localhost:3001/api/integrations/connect";
 
-class IntegrationItemSelection extends React.Component {
+class IntegrationItemSelection extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             loaded: false,
+            requestInformation: false,
             items: null,
         };
 
         this.getItems = {
             trello: this.props.getExternalTrelloBoards,
+            jira: this.props.getExternalJiraBoards,
+            google: this.props.getExternalGoogleDrives,
         };
     }
 
@@ -60,26 +66,32 @@ class IntegrationItemSelection extends React.Component {
             userId,
         });
 
-        console.log("RESULT OF POLL", result);
-
         if (!result) {
             if (initial) this.handleAuthorization();
 
             setTimeout(() => this.pollItems(false), 2000);
         } else {
-            this.setState({ loaded: true, items: result });
+            if (integration == "jira") {
+                this.setState({ requestInformation: true, items: result });
+            } else {
+                this.setState({ loaded: true, items: result });
+            }
         }
     };
 
     handleAuthorization = () => {
         const {
             user: { _id: userId },
+            match,
+            integration,
         } = this.props;
+
+        const { workspaceId } = match.params;
 
         vscode.postMessage({
             type: OPEN_BROWSER,
             payload: {
-                url: `${BASE_URL}/trello?&user_id=${userId}`,
+                url: `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`,
             },
         });
     };
@@ -153,9 +165,19 @@ class IntegrationItemSelection extends React.Component {
     };
 
     render() {
-        const { loaded } = this.state;
+        const { loaded, requestInformation } = this.state;
 
-        return loaded ? this.renderItems() : this.renderLoader();
+        if (loaded) {
+            return this.renderItems();
+        } else if (requestInformation) {
+            return (
+                <IntegrationRequestInformation
+                    setLoaded={() => this.setState({ loaded: true })}
+                />
+            );
+        } else {
+            return this.renderLoader();
+        }
     }
 }
 
@@ -170,9 +192,11 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(
-    connect(mapStateToProps, { getExternalTrelloBoards })(
-        IntegrationItemSelection
-    )
+    connect(mapStateToProps, {
+        getExternalTrelloBoards,
+        getExternalJiraBoards,
+        getExternalGoogleDrives,
+    })(IntegrationItemSelection)
 );
 
 const IntegrationList = styled.div`
