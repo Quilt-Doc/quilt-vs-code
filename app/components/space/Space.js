@@ -16,6 +16,7 @@ import { connect } from "react-redux";
 
 //router
 import { withRouter, Switch, Route } from "react-router-dom";
+import BlameDisplay from "./blame_display/BlameDisplay";
 
 class Space extends Component {
     constructor(props) {
@@ -32,6 +33,7 @@ class Space extends Component {
             match,
         } = this.props;
 
+        /*
         const {
             retrieveWorkspaces,
             retrieveContexts,
@@ -62,6 +64,7 @@ class Space extends Component {
         const { repositories } = currentWorkspace;
 
         setRepositories({ repositories });
+        */
 
         this.setState({ loaded: true });
     };
@@ -72,6 +75,10 @@ class Space extends Component {
                 <Route
                     path="/space/:workspaceId/settings"
                     component={Settings}
+                />
+                <Route
+                    path="/space/:workspaceId/blame"
+                    component={BlameDisplay}
                 />
                 <Route path="/space/:workspaceId/context" component={Test} />
             </Switch>

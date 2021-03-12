@@ -41,7 +41,7 @@ class SpaceNavbar extends Component {
                 icon: <RiSearch2Line />,
                 fontSize: "2.1rem",
             },
-            context: {
+            blame: {
                 icon: <IoLayersOutline />,
                 fontSize: "2rem",
             },

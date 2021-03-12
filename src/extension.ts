@@ -1,4 +1,4 @@
-import { ExtensionContext, commands, window } from "vscode";
+import { ExtensionContext, commands, window, Disposable } from "vscode";
 
 import QuiltViewProvider from "./webview/quiltViewProvider";
 
@@ -7,6 +7,8 @@ import { EXTENSION_NAME } from "./constants/constants";
 const { registerCommand } = commands;
 
 const { showInformationMessage, registerWebviewViewProvider } = window;
+
+let disposables: Disposable[] = [];
 
 export const activate = (context: ExtensionContext) => {
     const { extensionUri, globalState } = context;
@@ -34,4 +36,12 @@ export const activate = (context: ExtensionContext) => {
     context.subscriptions.push(helloExample);
 };
 
-export const deactivate = () => {};
+export const deactivate = () => {
+    if (disposables) {
+        console.log("QUILT: Disposables", disposables);
+
+        disposables.forEach((item) => item.dispose());
+    }
+
+    disposables = [];
+};

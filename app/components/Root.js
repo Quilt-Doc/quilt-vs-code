@@ -76,9 +76,11 @@ class Root extends Component {
 
         console.log("Workspaces", workspaces);
 
+        return history.push(`/space/12345678/blame`);
+        /*
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
-        }
+        }*/
 
         return history.push(`/space/${workspaces[0]._id}/settings/user`);
     };
@@ -96,9 +98,11 @@ class Root extends Component {
             case CHANGE_THEME:
                 changeTheme();
 
+                break;
             case SET_GIT_INFO:
                 setGitInfo(payload);
 
+                break;
             case SEND_VALUE_GLOBAL_STORAGE:
                 if (payload.value != null) {
                     console.log("IS THERE A PAYLOAD VALUE", payload.value);
@@ -112,6 +116,7 @@ class Root extends Component {
                     this.handleRouting();
                 }
 
+                break;
             default:
                 return;
         }

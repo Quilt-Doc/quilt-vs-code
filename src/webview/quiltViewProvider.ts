@@ -13,7 +13,7 @@ import {
     Memento,
 } from "vscode";
 
-import SnippetDecorator from "./snippet_decorator/snippetDecorator";
+import BlameController from "./blame/blameController";
 import GitHandler from "./git/gitHandler";
 import WebviewMessage from "./webviewMessage";
 import LocalStorageService from "./local_storage/localStorageService";
@@ -35,6 +35,8 @@ class QuiltViewProvider implements WebviewViewProvider {
     private _view?: WebviewView;
 
     private _globalStore?: LocalStorageService;
+
+    private _blameController?: BlameController;
 
     constructor(private readonly _extensionUri: Uri, globalState: Memento) {
         this._globalStore = new LocalStorageService(globalState);
@@ -63,18 +65,16 @@ class QuiltViewProvider implements WebviewViewProvider {
 
         const gitHandler = new GitHandler(webviewView);
 
-        const snippetDecorator = new SnippetDecorator(webviewView);
+        this._blameController = new BlameController(webviewView);
 
         webviewView.onDidDispose(() => {
             themeChangeListener.dispose();
             gitHandler.dispose();
-            snippetDecorator.dispose();
+            this._blameController.dispose();
         });
     };
 
     private _handleWebviewMessage = (message: WebviewMessage) => {
-        console.log("MESSAGE ENTERED", message);
-
         const { type, payload } = message;
 
         if (type == OPEN_BROWSER) {
@@ -86,16 +86,7 @@ class QuiltViewProvider implements WebviewViewProvider {
         }
 
         if (type == GET_VALUE_GLOBAL_STORAGE) {
-            console.log(
-                `ENTERED GET_VALUE_GLOBAL_STORAGE WITH KEY : ${payload.key} WITH TYPE : ${type}`
-            );
-
             this._globalStore?.getValue(payload.key);
-
-            console.log("TO BE PAYLOAD TO EXTENSION", {
-                value: this._globalStore?.getValue(payload.key),
-                dispatchType: payload.dispatchType,
-            });
 
             this._view?.webview.postMessage({
                 type: SEND_VALUE_GLOBAL_STORAGE,
@@ -107,12 +98,10 @@ class QuiltViewProvider implements WebviewViewProvider {
         }
 
         if (type == SET_VALUE_GLOBAL_STORAGE) {
-            console.log(
-                `ENTERED SET_VALUE_GLOBAL_STORAGE WITH KEY : ${payload.key} WITH VALUE : ${payload.value} WITH TYPE : ${type}`
-            );
-
             this._globalStore?.setValue(payload.key, payload.value);
         }
+
+        this._blameController.handleWebviewBlameMessage(message);
     };
 
     private _handleThemeChange = () => {

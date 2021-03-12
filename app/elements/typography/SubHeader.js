@@ -11,11 +11,12 @@ const SubHeader = styled.div`
 
     margin-bottom: ${(props) => props.marginBottom};
 
-    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    /*text-overflow: ellipsis;
 
     white-space: nowrap;
 
-    overflow: hidden;
+    overflow: hidden;*/
 `;
 
 export default SubHeader;
