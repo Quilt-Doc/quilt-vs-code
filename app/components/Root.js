@@ -51,7 +51,6 @@ class Root extends Component {
     };
 
     getAuthenticationDetails = () => {
-        console.log("POSTING FROM WEBVIEW: GET_VALUE_GLOBAL_STORAGE");
         vscode.postMessage({
             type: GET_VALUE_GLOBAL_STORAGE,
             payload: {

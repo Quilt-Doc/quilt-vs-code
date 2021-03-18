@@ -10,6 +10,7 @@ import BasicMenu from "./general/BasicMenu";
 import Step from "./general/Step";
 import ExternalLink from "./general/ExternalLink";
 import Logo from "./general/Logo";
+import UserIcon from "./general/UserIcon";
 
 //INTEGRATION ELEMENTS
 import IntegrationItem from "./integration/IntegrationItem";
@@ -33,6 +34,7 @@ export {
     Step,
     ExternalLink,
     Logo,
+    UserIcon,
     //INTEGRATION ELEMENTS
     IntegrationItem,
     IntegrationSource,

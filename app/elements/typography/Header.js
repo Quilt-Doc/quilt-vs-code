@@ -5,7 +5,8 @@ const Header = styled.div`
 
     font-weight: 500;
 
-    margin-bottom: 1rem;
+    margin-bottom: ${(props) =>
+        props.marginBottom ? props.marginBottom : "1rem"};
 `;
 
 export default Header;
