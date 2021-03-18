@@ -55,9 +55,13 @@ class ChooseName extends Component {
         if (workspace) {
             setCreatedWorkspaceId(workspace._id);
 
-            const { history } = this.props;
+            const { history, onboarding } = this.props;
 
-            history.push("/onboard/create_workspace/wait_creation");
+            const route = `${
+                onboarding ? "/onboard" : ""
+            }/create_workspace/wait_creation`;
+
+            history.push(route);
         } else {
             console.log("USER MESSAGE: ERROR");
         }

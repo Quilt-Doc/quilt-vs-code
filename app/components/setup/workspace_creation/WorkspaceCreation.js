@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 
 //components
-import { Header } from "../../../elements";
+import { FormPanel, Header } from "../../../elements";
 import ChooseProvider from "./views/ChooseProvider";
 import ChooseRepos from "./views/ChooseRepos";
 import ChooseName from "./views/ChooseName";
@@ -23,20 +23,29 @@ class WorkspaceCreation extends Component {
     }
 
     componentDidMount() {
-        const { history } = this.props;
+        const { history, onboarding } = this.props;
 
-        history.push("/onboard/create_workspace/choose_provider");
+        const route = onboarding
+            ? "/onboard/create_workspace/choose_provider"
+            : "/create_workspace/choose_provider";
+
+        history.push(route);
     }
 
     renderChooseProvider = () => {
-        return <ChooseProvider />;
+        const { onboarding } = this.props;
+
+        return <ChooseProvider onboarding={onboarding} />;
     };
 
     renderChooseRepos = () => {
+        const { onboarding } = this.props;
+
         const { active } = this.state;
 
         return (
             <ChooseRepos
+                onboarding={onboarding}
                 active={active}
                 setActive={(newActive) => this.setState({ active: newActive })}
             />
@@ -44,10 +53,13 @@ class WorkspaceCreation extends Component {
     };
 
     renderChooseName = () => {
+        const { onboarding } = this.props;
+
         const { active } = this.state;
 
         return (
             <ChooseName
+                onboarding={onboarding}
                 active={active}
                 setCreatedWorkspaceId={(workspaceId) =>
                     this.setState({ workspaceId })
@@ -57,35 +69,67 @@ class WorkspaceCreation extends Component {
     };
 
     renderWaitCreation = () => {
+        const { onboarding } = this.props;
+
         const { workspaceId } = this.state;
 
-        return <WaitCreation workspaceId={workspaceId} />;
+        return (
+            <WaitCreation onboarding={onboarding} workspaceId={workspaceId} />
+        );
     };
 
-    render() {
+    renderContent = () => {
         return (
             <>
                 <Header>Create your personal workspace.</Header>
                 <Switch>
                     <Route
-                        path="/onboard/create_workspace/choose_provider"
+                        path={[
+                            "/onboard/create_workspace/choose_provider",
+                            "/create_workspace/choose_provider",
+                        ]}
                         render={this.renderChooseProvider}
                     />
                     <Route
-                        path="/onboard/create_workspace/choose_repos"
+                        path={[
+                            "/onboard/create_workspace/choose_repos",
+                            "/create_workspace/choose_repos",
+                        ]}
                         render={this.renderChooseRepos}
                     />
                     <Route
-                        path="/onboard/create_workspace/choose_name"
+                        path={[
+                            "/onboard/create_workspace/choose_name",
+                            "/create_workspace/choose_name",
+                        ]}
                         render={this.renderChooseName}
                     />
                     <Route
-                        path="/onboard/create_workspace/wait_creation"
+                        path={[
+                            "/onboard/create_workspace/wait_creation",
+                            "/create_workspace/wait_creation",
+                        ]}
                         render={this.renderWaitCreation}
                     />
                 </Switch>
             </>
         );
+    };
+
+    renderAll = () => {
+        const { onboarding } = this.props;
+
+        const content = this.renderContent();
+
+        if (onboarding) {
+            return content;
+        } else {
+            return <FormPanel>{content}</FormPanel>;
+        }
+    };
+
+    render() {
+        return this.renderAll();
     }
 }
 

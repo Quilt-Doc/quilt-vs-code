@@ -2,7 +2,13 @@ import {
     CREATE_WORKSPACE,
     GET_WORKSPACE,
     RETRIEVE_WORKSPACES,
+    EDIT_WORKSPACE,
+    DELETE_WORKSPACE,
 } from "./types/WorkspaceTypes";
+
+import { CREATE_INVITE } from "./types/WorkspaceInviteTypes";
+
+import { EDIT_USER } from "./types/UserTypes";
 
 import getAPI from "../api/api";
 
@@ -59,11 +65,94 @@ export const retrieveWorkspaces = ({ userId }) => async (dispatch) => {
 
     const { success, result, trace } = response.data;
 
-    console.log("WORKSPACE RESULT", result);
-
     if (!success) {
         throw new Error(trace);
     } else {
         dispatch({ type: RETRIEVE_WORKSPACES, payload: result });
+    }
+};
+
+export const editWorkspace = (formValues) => async (dispatch) => {
+    const api = getAPI();
+
+    const { workspaceId } = formValues;
+
+    if (!workspaceId) {
+        throw new Error("editWorkspaces: workspaceId not provided");
+    }
+
+    const response = await api.put(
+        `/workspaces/edit/${workspaceId}`,
+        formValues
+    );
+
+    const { success, result, message, trace } = response.data;
+
+    if (!success) {
+        if (trace) {
+            throw new Error(trace);
+        } else if (message) {
+            console.log("NEED TO ALERT", message);
+        }
+    } else {
+        dispatch({ type: EDIT_WORKSPACE, payload: result });
+    }
+};
+
+export const deleteWorkspace = (formValues) => async (dispatch) => {
+    const api = getAPI();
+
+    const { workspaceId } = formValues;
+
+    if (!workspaceId) {
+        throw new Error("deleteWorkspaces: workspaceId not provided");
+    }
+
+    const response = await api.delete(
+        `/workspaces/delete/${workspaceId}`,
+        formValues
+    );
+
+    const { success, result, error } = response.data;
+
+    if (!success) {
+        throw new Error(error);
+    } else {
+        dispatch({ type: DELETE_WORKSPACE, payload: result });
+    }
+};
+
+export const sendInvite = (formValues) => async (dispatch) => {
+    const api = getAPI();
+
+    const { workspaceId, email } = formValues;
+
+    if (!workspaceId) {
+        throw new Error("sendInvite: workspaceId not provided");
+    }
+
+    if (!email) {
+        throw new Error("sendInvite: email not provided");
+    }
+
+    const response = await api.post(`/invites/${workspaceId}`, formValues);
+
+    const { success, result, error } = response.data;
+
+    if (success === false) {
+        throw new Error(error);
+    } else {
+        if ("workspace" in result) {
+            dispatch({ type: EDIT_WORKSPACE, payload: result["workspace"] });
+        }
+
+        if ("user" in result) {
+            dispatch({ type: EDIT_USER, payload: result["user"] });
+        }
+
+        // need to retrieve invites on componentDidMount
+        if ("invite" in result) {
+            dispatch({ type: CREATE_INVITE, payload: result["invite"] });
+        }
     }
 };

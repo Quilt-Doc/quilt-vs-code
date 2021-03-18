@@ -16,16 +16,22 @@ const GOOGLE_DRIVE_ICON_SIZE = "2.5rem";
 
 class ContextPanelNavbar extends Component {
     render() {
-        const { integration } = this.props;
+        const { source, data } = this.props;
+
+        const models = Object.keys(data);
 
         return (
             <ContextPanelNavbarContainer>
                 <IntegrationSource
                     width={"5.5rem"}
                     borderRadius={"0.5rem"}
-                    type={integration}
+                    type={source}
                 />
-
+                <IntegrationModelSelection>
+                    {models.map((model) => {
+                        return <div>{model}</div>;
+                    })}
+                </IntegrationModelSelection>
                 {/*
                 <ContextPanelIconContainer>
                     <ContextPanelIcon>
@@ -42,6 +48,14 @@ class ContextPanelNavbar extends Component {
 }
 
 export default ContextPanelNavbar;
+
+const IntegrationModelSelection = styled.div`
+    margin-left: auto;
+
+    display: flex;
+
+    align-items: center;
+`;
 
 const ContextPanelNavbarContainer = styled.div`
     width: 100%;

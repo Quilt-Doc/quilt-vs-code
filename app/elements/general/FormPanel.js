@@ -2,14 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 import Panel from "./Panel";
+import { Logo } from "../index";
 
 const FormPanel = ({ children }) => {
     return (
         <FormPanelBackground>
             <FormPanelContainer>
-                <LogoContainer>
-                    <LogoIconContainer></LogoIconContainer>
-                </LogoContainer>
+                <Logo />
                 {children}
             </FormPanelContainer>
         </FormPanelBackground>
@@ -32,6 +31,7 @@ const FormPanelContainer = styled(Panel)`
     padding: 2rem 2rem;
 `;
 
+/*
 const LogoContainer = styled.div`
     width: 100%;
     display: flex;
@@ -49,4 +49,4 @@ const LogoIconContainer = styled.div`
     height: 6rem;
     width: 6rem;
     border-radius: 0.5rem;
-`;
+`;*/

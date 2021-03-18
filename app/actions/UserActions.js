@@ -16,6 +16,8 @@ export const editUser = (formValues) => async (dispatch) => {
     if (!success) {
         throw new Error(error);
     } else {
+        console.log("RESULT OF EDIT USER", result);
+
         dispatch({ type: EDIT_USER, payload: result });
     }
 };

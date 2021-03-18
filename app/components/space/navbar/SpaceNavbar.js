@@ -1,55 +1,85 @@
-import React from "react";
+import React, { Component } from "react";
 
+import WorkspaceButton from "./workspace_button/WorkspaceButton";
+
+//styles
 import styled from "styled-components";
-
 import chroma from "chroma-js";
 
-import {
-    RiSearchLine,
-    RiMenu4Line,
-    RiStackFill,
-    RiHomeLine,
-    RiHome2Fill,
-    RiSettings3Line,
-    RiSearch2Line,
-    RiStackLine,
-    RiHomeGearLine,
-} from "react-icons/ri";
-
-import { IoLayers, IoLayersOutline } from "react-icons/io5";
-import { IoMdBook } from "react-icons/io";
-
-import { FiLayers, FiSettings, FiSearch, FiBookOpen } from "react-icons/fi";
-
-import { GrIntegration } from "react-icons/gr";
-import { CgSearch } from "react-icons/cg";
-import { HiOutlineViewGrid } from "react-icons/hi";
-
+//icons
+import { RiSearch2Line } from "react-icons/ri";
+import { IoLayersOutline } from "react-icons/io5";
 import { VscLibrary } from "react-icons/vsc";
 
-const SpaceNavbar = () => {
-    return (
-        <SpaceNavbarContainer>
-            <WorkspaceButton>Q</WorkspaceButton>
-            <SpaceNavbarButtonsContainer>
-                <SpaceNavbarButton fontSize={"2.1rem"}>
-                    <RiSearch2Line />
-                </SpaceNavbarButton>
-                <SpaceNavbarButton fontSize={"2rem"} active={true}>
-                    <IoLayersOutline />
-                </SpaceNavbarButton>
-                <SpaceNavbarButton fontSize={"2rem"}>
-                    <VscLibrary />
-                </SpaceNavbarButton>
-                <SpaceNavbarButton fontSize={"2.1rem"}>
-                    <HiOutlineViewGrid />
-                </SpaceNavbarButton>
-            </SpaceNavbarButtonsContainer>
-        </SpaceNavbarContainer>
-    );
-};
+//router
+import { withRouter } from "react-router-dom";
 
-export default SpaceNavbar;
+class SpaceNavbar extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    renderButtons = () => {
+        const {
+            location: { pathname },
+            history,
+            match,
+        } = this.props;
+
+        let buttonIdentifier;
+
+        const split = pathname.split("/");
+
+        if (split.length > 3) {
+            buttonIdentifier = split[3];
+        }
+
+        const { workspaceId } = match.params;
+
+        const buttonData = {
+            search: {
+                icon: <RiSearch2Line />,
+                fontSize: "2.1rem",
+            },
+            blame: {
+                icon: <IoLayersOutline />,
+                fontSize: "2rem",
+            },
+            docs: {
+                icon: <VscLibrary />,
+                fontSize: "2rem",
+            },
+        };
+
+        return Object.keys(buttonData).map((key) => {
+            const { icon, fontSize } = buttonData[key];
+
+            return (
+                <SpaceNavbarButton
+                    key={key}
+                    onClick={() => history.push(`/space/${workspaceId}/${key}`)}
+                    active={key == buttonIdentifier}
+                    fontSize={fontSize}
+                >
+                    {icon}
+                </SpaceNavbarButton>
+            );
+        });
+    };
+
+    render() {
+        return (
+            <SpaceNavbarContainer>
+                <WorkspaceButton />
+                <SpaceNavbarButtonsContainer>
+                    {this.renderButtons()}
+                </SpaceNavbarButtonsContainer>
+            </SpaceNavbarContainer>
+        );
+    }
+}
+
+export default withRouter(SpaceNavbar);
 
 const SpaceNavbarContainer = styled.div`
     display: flex;
@@ -120,17 +150,3 @@ const SpaceNavbarButton = styled.div`
         props.active ? `1px solid ${props.theme.SECONDARY_COLOR}` : ""};
     */
 `;
-
-const WorkspaceButton = styled(SpaceNavbarButton)`
-    font-weight: 300;
-
-    font-size: 1.6rem;
-
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-
-    opacity: 0.9;
-
-    min-width: 2.8rem;
-`;
-/*
- background-color: ${chroma("#090B10").set("hsl.l", "+0.08")};*/
