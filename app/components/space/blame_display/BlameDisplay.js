@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { VscGitPullRequest } from "react-icons/vsc";
 
 import chroma from "chroma-js";
 
@@ -7,6 +6,9 @@ import styled from "styled-components";
 
 import vscode from "../../../vscode/vscode";
 
+import DetailCard from "../detail_display/DetailCard";
+
+import { VscGitPullRequest } from "react-icons/vsc";
 import { BsCardChecklist, BsFileText } from "react-icons/bs";
 import { ImFileText, ImFileText2 } from "react-icons/im";
 import { RiFile2Line, RiFileList2Line, RiFileTextLine } from "react-icons/ri";
@@ -25,6 +27,7 @@ class BlameDisplay extends Component {
         super(props);
 
         this.state = {
+            focusedChunk: 36,
             blameChunks: [
                 { start: 0, end: 20 },
                 { start: 21, end: 35 },
@@ -33,16 +36,26 @@ class BlameDisplay extends Component {
                 { start: 109, end: 140 },
             ],
         };
+
+        this.annotations = {};
     }
 
     componentDidMount = () => {
-        this.setupTextListener();
+        this.setupListeners();
 
         this.getDocumentText();
     };
 
-    setupTextListener = () => {
+    componentWillUnmount = () => {
+        window.removeEventListener("message", this.handleTextMessage);
+
+        window.removeEventListener("keydown", this.handleKeyDown);
+    };
+
+    setupListeners = () => {
         window.addEventListener("message", this.handleTextMessage);
+
+        window.addEventListener("keydown", this.handleKeyDown);
     };
 
     handleTextMessage = ({ data: message }) => {
@@ -52,24 +65,59 @@ class BlameDisplay extends Component {
 
         switch (type) {
             case "RECEIVE_DOCUMENT_TEXT":
-                console.log(
-                    "Quilt Blame: Entered with message RECEIVE_DOCUMENT_TEXT"
-                );
-
                 this.retrieveContextBlame(payload);
 
                 break;
             case "FOCUS_BLAME_ANNOTATION":
-                console.log(type == "FOCUS_BLAME_ANNOTATION");
+                this.focusChunk(payload);
 
+                break;
+
+            case "SELECT_BLAME_ANNOTATION":
                 console.log(
-                    "Quilt Blame: Entered with message FOCUS_BLAME_ANNOATION",
-                    payload
+                    "Quilt Blame: Entered with message SELECT_BLAME_ANNOTATION"
                 );
+
+                this.focusChunk(payload, false);
 
                 break;
             default:
                 return;
+        }
+    };
+
+    handleKeyDown = (e) => {
+        const { focusedChunk, blameChunks } = this.state;
+
+        if (e.keyCode == "38") {
+            e.preventDefault();
+
+            // up
+            let newIndex = blameChunks.length - 1;
+
+            blameChunks.map((chunk, i) => {
+                if (chunk.start == focusedChunk && i != 0) {
+                    newIndex = i - 1;
+                }
+            });
+
+            this.focusChunk(blameChunks[newIndex].start);
+        } else if (e.keyCode == "40") {
+            e.preventDefault();
+
+            // down
+            let newIndex = 0;
+
+            blameChunks.map((chunk, i) => {
+                if (
+                    chunk.start == focusedChunk &&
+                    i != blameChunks.length - 1
+                ) {
+                    newIndex = i + 1;
+                }
+            });
+
+            this.focusChunk(blameChunks[newIndex].start);
         }
     };
 
@@ -89,223 +137,184 @@ class BlameDisplay extends Component {
             this.state.blameChunks
         );
 
+        const { blameChunks, focusedChunk } = this.state;
+
         vscode.postMessage({
             type: "COMMUNICATE_BLAME",
-            payload: this.state.blameChunks,
+            payload: {
+                blameChunks,
+                focusedChunk,
+            },
+        });
+    };
+
+    focusChunk = (start, shouldScroll = true) => {
+        if (start == this.state.focusedChunk) return;
+
+        this.setState({
+            focusedChunk: start,
+        });
+
+        vscode.postMessage({
+            type: "FOCUS_CHUNK",
+            payload: {
+                focusedChunk: start,
+                shouldScroll,
+            },
+        });
+
+        this.annotations[start].scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "start",
+        });
+    };
+
+    renderChunkAnnotations = () => {
+        const { blameChunks, focusedChunk } = this.state;
+
+        return blameChunks.map((chunk) => {
+            const { start, end } = chunk;
+
+            return (
+                <BlameContainer
+                    isFocused={focusedChunk == start}
+                    onClick={() => this.focusChunk(start)}
+                    ref={(node) => (this.annotations[start] = node)}
+                >
+                    <AnnotationNavbar>
+                        <Left>
+                            <Header>CheckController.js</Header>
+                            <LineNumber>{`Lines ${start + 1}-${
+                                end + 1
+                            }`}</LineNumber>
+                        </Left>
+                        <People>
+                            <PersonIcon>FS</PersonIcon>
+                        </People>
+                    </AnnotationNavbar>
+                    <AnnotationContent>
+                        <DataTypeContainer>
+                            <DataHeader bg={"rgb(93, 106, 210)"}>
+                                Tickets
+                            </DataHeader>
+                            <DataList>
+                                <DataItem>
+                                    <DataIcon op={0.9} size={"1.8rem"}>
+                                        <BsCardChecklist />
+                                    </DataIcon>
+                                    <DataText>Backend Query Checklist</DataText>
+                                </DataItem>
+                                <DataItem>
+                                    <DataIcon op={0.9} size={"1.8rem"}>
+                                        <BsCardChecklist />
+                                    </DataIcon>
+                                    <DataText>
+                                        Cross-Platform Data Model Spec
+                                    </DataText>
+                                </DataItem>
+                            </DataList>
+                        </DataTypeContainer>
+                        <DataTypeContainer>
+                            <DataHeader bg={"rgb(77,183,130)"}>
+                                Pull Requests
+                            </DataHeader>
+                            <DataList>
+                                <DataItem>
+                                    <DataIcon top={"-0.12rem"}>
+                                        <VscGitPullRequest />
+                                    </DataIcon>
+                                    <DataText>
+                                        Fixed a11y failing contrasts on greys
+                                    </DataText>
+                                    {/*focusedChunk == start && <DetailCard />*/}
+                                </DataItem>
+                                <DataItem>
+                                    <DataIcon top={"-0.12rem"}>
+                                        <VscGitPullRequest />
+                                    </DataIcon>
+                                    <DataText>
+                                        Implemented Github Webhooks
+                                    </DataText>
+                                </DataItem>
+                            </DataList>
+                        </DataTypeContainer>
+                        <DataTypeContainer>
+                            <DataHeader bg={"rgb(242,201,75)"}>
+                                Commits
+                            </DataHeader>
+                            <DataList>
+                                <DataItem>
+                                    <DataIcon top={"-0.05rem"}>
+                                        <BiGitCommit />
+                                    </DataIcon>
+                                    <DataText>
+                                        {
+                                            "[QD-278] Validate Trello Lifecycle Tests Progress.."
+                                        }
+                                    </DataText>
+                                </DataItem>
+                                <DataItem>
+                                    <DataIcon top={"-0.05rem"}>
+                                        <BiGitCommit />
+                                    </DataIcon>
+                                    <DataText>
+                                        {
+                                            "Outdated reference check preventing repository.scanned…"
+                                        }
+                                    </DataText>
+                                </DataItem>
+                            </DataList>
+                        </DataTypeContainer>
+                        <DataTypeContainer>
+                            <DataHeader bg={"#58a5ff"}>Documents</DataHeader>
+                            <DataList>
+                                <DataItem>
+                                    <DataIcon
+                                        top={"0.05rem"}
+                                        op={0.9}
+                                        size={"1.8rem"}
+                                    >
+                                        <RiFile2Line />
+                                    </DataIcon>
+                                    <DataText>Backend Query Checklist</DataText>
+                                </DataItem>
+                            </DataList>
+                        </DataTypeContainer>
+                    </AnnotationContent>
+                </BlameContainer>
+            );
         });
     };
 
     render() {
-        return (
-            <>
-                <BlameContainer>
-                    <AnnotationNavbar>
-                        <Left>
-                            <Header>CheckController.js</Header>
-                            <LineNumber>Lines 1-29</LineNumber>
-                        </Left>
-                        <People>
-                            <PersonIcon>FS</PersonIcon>
-                        </People>
-                    </AnnotationNavbar>
-                    <AnnotationContent>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(93, 106, 210)"}>
-                                Tickets
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>
-                                        Cross-Platform Data Model Spec
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(77,183,130)"}>
-                                Pull Requests
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Fixed a11y failing contrasts on greys
-                                    </DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Implemented Github Webhooks
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(242,201,75)"}>
-                                Commits
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "[QD-278] Validate Trello Lifecycle Tests Progress.."
-                                        }
-                                    </DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "Outdated reference check preventing repository.scanned…"
-                                        }
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"#58a5ff"}>Documents</DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon
-                                        top={"0.05rem"}
-                                        op={0.9}
-                                        size={"1.8rem"}
-                                    >
-                                        <RiFile2Line />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                    </AnnotationContent>
-                </BlameContainer>
-                <BlameContainer>
-                    <AnnotationNavbar>
-                        <Left>
-                            <Header>CheckController.js</Header>
-                            <LineNumber>Lines 8-35</LineNumber>
-                        </Left>
-
-                        <People>
-                            <PersonIcon>FS</PersonIcon>
-                        </People>
-                    </AnnotationNavbar>
-                    <AnnotationContent>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(93, 106, 210)"}>
-                                Tickets
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>
-                                        Cross-Platform Data Model Spec
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(77,183,130)"}>
-                                Pull Requests
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Fixed a11y failing contrasts on greys
-                                    </DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Implemented Github Webhooks
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(242,201,75)"}>
-                                Commits
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "[QD-278] Validate Trello Lifecycle Tests Progress.."
-                                        }
-                                    </DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "Outdated reference check preventing repository.scanned…"
-                                        }
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"#58a5ff"}>Documents</DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon
-                                        top={"0.05rem"}
-                                        op={0.9}
-                                        size={"1.8rem"}
-                                    >
-                                        <RiFile2Line />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                    </AnnotationContent>
-                </BlameContainer>
-            </>
-        );
+        return <Container>{this.renderChunkAnnotations()}</Container>;
     }
-} // bg: "rgb(242,201,75)", bo: "rgba(242,201,75,0.15)" },
+}
+// bg: "rgb(242,201,75)", bo: "rgba(242,201,75,0.15)" },
 
 // People related -> actual counts
 //
 
 export default BlameDisplay;
+
+const Container = styled.div`
+    height: calc(100vh - 4rem);
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow-y: scroll;
+
+    margin-top: 1.5rem;
+
+    padding-bottom: 30rem;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+`;
 
 const Left = styled.div`
     display: flex;
@@ -319,6 +328,8 @@ const LineNumber = styled.span`
     font-weight: 500;
 
     font-size: 1.23rem;
+
+    margin-top: 0.8rem;
 `;
 
 const Header = styled.div`
@@ -326,7 +337,7 @@ const Header = styled.div`
 
     font-weight: 500;
 
-    margin-bottom: 0.6rem;
+    /*margin-bottom: 0.6rem;*/
 `;
 
 const People = styled.div`
@@ -398,6 +409,8 @@ const DataHeader = styled.div`
     border-radius: 0.4rem;
 
     display: inline-flex;
+
+    margin-bottom: 0.8rem;
 `;
 
 const DataList = styled.div`
@@ -411,13 +424,34 @@ const DataItem = styled.div`
 
     align-items: center;
 
-    margin-top: 1.3rem;
-
+    position: relative;
+    /*
     margin-left: 0.5rem;
 
-    opacity: 0.95;
+    margin-top: 1.3rem;
 
-    height: 2.5rem;
+    height: 2.5rem
+    
+    */
+
+    padding-left: 0.7rem;
+
+    margin-left: -0.3rem;
+
+    border-radius: 0.4rem;
+
+    margin-top: 0.3rem;
+
+    height: 3.2rem;
+
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${(props) =>
+            props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+    }
+
+    transition: background-color 0.08s ease-in;
 `;
 
 const DataIcon = styled.div`
@@ -428,6 +462,8 @@ const DataIcon = styled.div`
     min-width: 2.7rem;
 
     max-width: 2.7rem;
+
+    opacity: 0.95;
 
     opacity: ${(props) => props.op};
 
@@ -467,8 +503,19 @@ const BlameContainer = styled.div`
 
     padding: 2rem;
 
+    &:first-of-type {
+        margin-top: 0rem;
+    }
+
     &:last-of-type {
         margin-top: 1.6rem;
-        opacity: 0.55;
     }
+
+    opacity: ${(props) => (props.isFocused ? "1" : "0.55")};
+
+    &:hover {
+        opacity: ${(props) => (props.isFocused ? "1" : "0.75")};
+    }
+
+    cursor: pointer;
 `;

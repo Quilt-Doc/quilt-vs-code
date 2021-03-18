@@ -8,9 +8,14 @@ import {
     TextEditor,
     languages,
     commands,
+    Range,
 } from "vscode";
 
-const { onDidChangeActiveTextEditor, activeTextEditor } = window;
+const {
+    onDidChangeActiveTextEditor,
+    activeTextEditor,
+    onDidChangeTextEditorSelection,
+} = window;
 
 const { onDidChangeTextDocument } = workspace;
 
@@ -28,11 +33,15 @@ class BlameController {
 
     private textDocumentListener?: Disposable;
 
+    private editorSelectionListener?: Disposable;
+
     private blameDecorator?: BlameDecorator;
 
     private blameCodeLensProvider?: BlameCodeLensProvider;
 
     private blameChunks: BlameChunk[] = [];
+
+    private focusedChunk: number = 0;
 
     constructor(private _view: WebviewView) {
         this.blameDecorator = new BlameDecorator();
@@ -77,6 +86,28 @@ class BlameController {
             //this.updateBlame();
         });
 
+        this.editorSelectionListener = onDidChangeTextEditorSelection(
+            (event) => {
+                const { selections } = event;
+
+                if (selections.length == 0) return;
+
+                const {
+                    start: { line },
+                } = selections[0];
+
+                this.blameChunks.map((chunk) => {
+                    const { start, end } = chunk;
+
+                    if (line >= start && line <= end) {
+                        this._view?.webview.postMessage({
+                            type: "SELECT_BLAME_ANNOTATION",
+                            payload: start,
+                        });
+                    }
+                });
+            }
+        );
         /*
         this.textDocumentListener = onDidChangeTextDocument((event) => {
             if (
@@ -113,11 +144,46 @@ class BlameController {
                 "\nQuilt Blame: Received blame with message COMMUNICATE_BLAME"
             );
 
-            this.blameChunks = payload;
+            const { blameChunks, focusedChunk } = payload;
+
+            this.blameChunks = blameChunks;
+
+            this.focusedChunk = focusedChunk;
+
+            this.updateBlame();
+        }
+
+        if (type == "FOCUS_CHUNK") {
+            console.log(
+                "\nQuilt Blame: Focused chunk with message FOCUS_CHUNK"
+            );
+
+            const { focusedChunk, shouldScroll } = payload;
+
+            this.focusedChunk = focusedChunk;
+
+            if (shouldScroll) this.scrollToChunk();
 
             this.updateBlame();
         }
     }
+
+    scrollToChunk = () => {
+        const focusedChunk = this.blameChunks.filter(
+            (chunk) => chunk.start == this.focusedChunk
+        )[0];
+
+        let { start, end } = focusedChunk;
+
+        if (start != 0) start -= 1;
+
+        const range = new Range(
+            this.activeEditor.document.lineAt(start).range.start,
+            this.activeEditor.document.lineAt(end).range.end
+        );
+
+        this.activeEditor.revealRange(range);
+    };
 
     updateBlame() {
         if (
@@ -127,7 +193,8 @@ class BlameController {
         ) {
             this.blameDecorator.updateBlameDisplay(
                 this.activeEditor,
-                this.blameChunks
+                this.blameChunks,
+                this.focusedChunk
             );
 
             this.blameCodeLensProvider.setChunks(this.blameChunks);
