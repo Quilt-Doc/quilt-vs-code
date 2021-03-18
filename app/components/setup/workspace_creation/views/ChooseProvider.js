@@ -43,9 +43,13 @@ class ChooseProvider extends Component {
         if (installed) {
             await this.retrieveRepositoryChoices();
 
-            const { history } = this.props;
+            const { history, onboarding } = this.props;
 
-            history.push("/onboard/create_workspace/choose_repos");
+            const route = `${
+                onboarding ? "/onboard" : ""
+            }/create_workspace/choose_repos`;
+
+            history.push(route);
         } else {
             this.pollInterval = setInterval(this.pollInstall, 3000);
 
@@ -104,9 +108,13 @@ class ChooseProvider extends Component {
 
                 await this.retrieveRepositoryChoices();
 
-                const { history } = this.props;
+                const { history, onboarding } = this.props;
 
-                history.push("/onboard/create_workspace/choose_repos");
+                const route = `${
+                    onboarding ? "/onboard" : ""
+                }/create_workspace/choose_repos`;
+
+                history.push(route);
             }
 
             return true;

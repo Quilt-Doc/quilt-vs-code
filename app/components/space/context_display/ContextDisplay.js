@@ -70,16 +70,25 @@ class ContextDisplay extends Component {
     };
 
     renderPanels = () => {
-        const { contexts } = this.props;
+        const { integrations } = this.props;
 
-        console.log("ENTERED HERE", contexts);
+        return Object.keys(integrations).map((source) => {
+            const data = integrations[source];
 
-        return Object.keys(contexts).map((integration) => {
-            const context = contexts[integration];
-            if (!_.isEmpty(context)) {
-                return (
-                    <ContextPanel integration={integration} context={context} />
-                );
+            // checks if there is integration data
+            let hasData = false;
+
+            // for every model..
+            Object.keys(data).map((model) => {
+                // if hasData is still false so far
+                if (!hasData) {
+                    // if the data for that model is not empty, set hasData to true
+                    hasData = !_.isEmpty(data[model]);
+                }
+            });
+
+            if (hasData) {
+                return <ContextPanel source={source} data={data} />;
             }
         });
     };
@@ -97,15 +106,20 @@ const mapStateToProps = (state) => {
         repositories,
         github,
         trello,
+        jira,
     } = state;
 
-    github = _.pick(github, ["pullRequests", "commits"]);
+    github = _.pick(github, ["pullRequests", "commits", "branches", "tickets"]);
+
+    trello = _.pick(trello, ["tickets"]);
+
+    jira = _.pick(jira, ["tickets"]);
 
     return {
         repositoryFullName,
         activeFilePath,
         repositories: Object.values(repositories),
-        contexts: { github, trello },
+        integrations: { github, trello, jira },
     };
 };
 

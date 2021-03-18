@@ -52,7 +52,7 @@ const IntegrationItemContainer = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
-    border-radius: 0.4rem;
+    border-radius: 0.3rem;
 
     border-bottom-left-radius: ${(props) => (props.flat ? "0rem" : "")};
 

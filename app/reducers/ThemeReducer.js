@@ -20,12 +20,38 @@ const computeAccentColor = () => {
     return accentColor;
 };
 
+const getShade = (hsl) => {
+    hsl = `+${hsl.toString()}`;
+
+    return chroma(computeAccentColor()).set("hsl.l", hsl);
+};
+
 const INITIAL_STATE = {
     PRIMARY_COLOR: getComputedStyle(document.body).getPropertyValue(
         "--vscode-activityBar-background" //VSCODE_BACKGROUND_COLOR
     ),
 
     PRIMARY_ACCENT_COLOR: computeAccentColor(), //VSCODE_EDITOR_BACKGROUND_COLOR
+
+    SHADE_1: getShade(0.01),
+
+    SHADE_2: getShade(0.02),
+
+    SHADE_3: getShade(0.03),
+
+    SHADE_4: getShade(0.04),
+
+    SHADE_5: getShade(0.05),
+
+    SHADE_6: getShade(0.06),
+
+    SHADE_7: getShade(0.07),
+
+    SHADE_8: getShade(0.08),
+
+    SHADE_9: getShade(0.09),
+
+    SHADE_15: getShade(0.15),
 
     PRIMARY_ACCENT_COLOR_SHADE_1: chroma(computeAccentColor()).set(
         "hsl.l",

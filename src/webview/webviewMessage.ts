@@ -1,8 +1,14 @@
-interface OpenBrowserMessagePayload {
+interface MessagePayload {
     url: string;
+
+    key: string;
+
+    dispatchType: string;
+
+    value: string;
 }
 
-type WebviewMessagePayload = OpenBrowserMessagePayload;
+type WebviewMessagePayload = MessagePayload;
 
 export default interface WebviewMessage {
     type: string;

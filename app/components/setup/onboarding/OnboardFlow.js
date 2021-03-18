@@ -13,8 +13,10 @@ class OnboardFlow extends Component {
         const { history, location } = this.props;
 
         history.push("/onboard/setup");
+    };
 
-        console.log("LOCATION", location);
+    renderWorkspaceCreation = () => {
+        return <WorkspaceCreation onboarding={true} />;
     };
 
     render() {
@@ -24,7 +26,7 @@ class OnboardFlow extends Component {
                     <Route path="/onboard/setup" component={OnboardForm} />
                     <Route
                         path="/onboard/create_workspace"
-                        component={WorkspaceCreation}
+                        render={this.renderWorkspaceCreation}
                     />
                 </Switch>
             </FormPanel>

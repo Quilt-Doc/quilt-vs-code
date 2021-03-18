@@ -5,17 +5,18 @@ const SubHeader = styled.div`
 
     font-weight: 500;
 
-    line-height: 1.6;
+    line-height: 1.8;
 
     opacity: 0.8;
 
     margin-bottom: ${(props) => props.marginBottom};
 
-    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    /*text-overflow: ellipsis;
 
     white-space: nowrap;
 
-    overflow: hidden;
+    overflow: hidden;*/
 `;
 
 export default SubHeader;

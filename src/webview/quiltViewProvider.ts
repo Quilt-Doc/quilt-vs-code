@@ -10,12 +10,21 @@ import {
     ExtensionContext,
     env,
     window,
+    Memento,
 } from "vscode";
 
+import BlameController from "./blame/blameController";
 import GitHandler from "./git/gitHandler";
 import WebviewMessage from "./webviewMessage";
+import LocalStorageService from "./local_storage/localStorageService";
 
-import { OPEN_BROWSER, CHANGE_THEME } from "./types/MessageTypes";
+import {
+    OPEN_BROWSER,
+    CHANGE_THEME,
+    GET_VALUE_GLOBAL_STORAGE,
+    SET_VALUE_GLOBAL_STORAGE,
+    SEND_VALUE_GLOBAL_STORAGE,
+} from "./types/MessageTypes";
 import { EXTENSION_NAME } from "../constants/constants";
 
 const { onDidChangeActiveColorTheme } = window;
@@ -25,7 +34,13 @@ class QuiltViewProvider implements WebviewViewProvider {
 
     private _view?: WebviewView;
 
-    constructor(private readonly _extensionUri: Uri) {}
+    private _globalStore?: LocalStorageService;
+
+    private _blameController?: BlameController;
+
+    constructor(private readonly _extensionUri: Uri, globalState: Memento) {
+        this._globalStore = new LocalStorageService(globalState);
+    }
 
     public resolveWebviewView = (
         webviewView: WebviewView,
@@ -50,25 +65,43 @@ class QuiltViewProvider implements WebviewViewProvider {
 
         const gitHandler = new GitHandler(webviewView);
 
+        this._blameController = new BlameController(webviewView);
+
         webviewView.onDidDispose(() => {
             themeChangeListener.dispose();
             gitHandler.dispose();
+            this._blameController.dispose();
         });
     };
 
     private _handleWebviewMessage = (message: WebviewMessage) => {
         const { type, payload } = message;
 
-        switch (type) {
-            case OPEN_BROWSER:
-                const { openExternal } = env;
+        if (type == OPEN_BROWSER) {
+            const { openExternal } = env;
 
-                const { url } = payload;
+            const { url } = payload;
 
-                openExternal(Uri.parse(url));
-            default:
-                return;
+            openExternal(Uri.parse(url));
         }
+
+        if (type == GET_VALUE_GLOBAL_STORAGE) {
+            this._globalStore?.getValue(payload.key);
+
+            this._view?.webview.postMessage({
+                type: SEND_VALUE_GLOBAL_STORAGE,
+                payload: {
+                    value: this._globalStore?.getValue(payload.key),
+                    dispatchType: payload.dispatchType,
+                },
+            });
+        }
+
+        if (type == SET_VALUE_GLOBAL_STORAGE) {
+            this._globalStore?.setValue(payload.key, payload.value);
+        }
+
+        this._blameController.handleWebviewBlameMessage(message);
     };
 
     private _handleThemeChange = () => {
@@ -94,6 +127,7 @@ class QuiltViewProvider implements WebviewViewProvider {
                     <link rel="stylesheet" type="text/css" href="${styleUri}" media="screen" />
                     <link rel="preconnect" href="https://fonts.gstatic.com">
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
                     <title>Quilt</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 </head>

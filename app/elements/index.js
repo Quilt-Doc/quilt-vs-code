@@ -6,6 +6,10 @@ import Modal from "./general/Modal";
 import Panel from "./general/Panel";
 import Loader from "./general/Loader";
 import Menu from "./general/Menu";
+import BasicMenu from "./general/BasicMenu";
+import Step from "./general/Step";
+import ExternalLink from "./general/ExternalLink";
+import Logo from "./general/Logo";
 
 //INTEGRATION ELEMENTS
 import IntegrationItem from "./integration/IntegrationItem";
@@ -14,6 +18,7 @@ import IntegrationSource from "./integration/IntegrationSource";
 //TYPOGRAPHY ELEMENTS
 import Header from "./typography/Header";
 import SubHeader from "./typography/SubHeader";
+import WrappedSubHeader from "./typography/WrappedSubHeader";
 
 export {
     // GENERAL ELEMENTS
@@ -24,10 +29,15 @@ export {
     Panel,
     Loader,
     Menu,
+    BasicMenu,
+    Step,
+    ExternalLink,
+    Logo,
     //INTEGRATION ELEMENTS
     IntegrationItem,
     IntegrationSource,
     //TYPOGRAPHY ELEMENTS
     Header,
     SubHeader,
+    WrappedSubHeader,
 };

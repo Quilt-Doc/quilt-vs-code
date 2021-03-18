@@ -3,14 +3,20 @@ import React, { Component } from "react";
 //components
 import SpaceNavbar from "./navbar/SpaceNavbar";
 import ContextDisplay from "./context_display/ContextDisplay";
-import IntegrationPanel from "./settings/integrations/IntegrationPanel";
+import Settings from "./settings/Settings";
+import Test from "./Test";
 
 //actions
 import { setRepositories } from "../../actions/RepositoryActions";
 import { retrieveWorkspaces } from "../../actions/WorkspaceActions";
+import { retrieveContexts } from "../../actions/ContextActions";
 
 //redux
 import { connect } from "react-redux";
+
+//router
+import { withRouter, Switch, Route } from "react-router-dom";
+import BlameDisplay from "./blame_display/BlameDisplay";
 
 class Space extends Component {
     constructor(props) {
@@ -27,7 +33,12 @@ class Space extends Component {
             match,
         } = this.props;
 
-        const { retrieveWorkspaces, setRepositories } = this.props;
+        /*
+        const {
+            retrieveWorkspaces,
+            retrieveContexts,
+            setRepositories,
+        } = this.props;
 
         const { workspaceId } = match.params;
 
@@ -36,7 +47,10 @@ class Space extends Component {
         }
 
         try {
-            await retrieveWorkspaces({ userId });
+            await Promise.all([
+                retrieveWorkspaces({ userId }),
+                retrieveContexts({ workspaceId }),
+            ]);
         } catch (e) {
             throw new Error(e);
         }
@@ -45,11 +59,30 @@ class Space extends Component {
 
         const currentWorkspace = workspaces[workspaceId];
 
+        console.log("WORKSPACES", workspaces);
+
         const { repositories } = currentWorkspace;
 
         setRepositories({ repositories });
+        */
 
         this.setState({ loaded: true });
+    };
+
+    renderContent = () => {
+        return (
+            <Switch>
+                <Route
+                    path="/space/:workspaceId/settings"
+                    component={Settings}
+                />
+                <Route
+                    path="/space/:workspaceId/blame"
+                    component={BlameDisplay}
+                />
+                <Route path="/space/:workspaceId/context" component={Test} />
+            </Switch>
+        );
     };
 
     render() {
@@ -58,7 +91,7 @@ class Space extends Component {
         return (
             <>
                 <SpaceNavbar />
-                {loaded && <IntegrationPanel />}
+                {loaded && this.renderContent()}
             </>
         );
     }
@@ -76,7 +109,10 @@ const mapStateToProps = (state) => {
     };
 };
 
-export default connect(mapStateToProps, {
-    setRepositories,
-    retrieveWorkspaces,
-})(Space);
+export default withRouter(
+    connect(mapStateToProps, {
+        setRepositories,
+        retrieveWorkspaces,
+        retrieveContexts,
+    })(Space)
+);
