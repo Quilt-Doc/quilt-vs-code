@@ -10,19 +10,18 @@ import AnnotationCard from "./AnnotationCard";
 //redux
 import { connect } from "react-redux";
 
+//actions
+import { retrieveBlames } from "../../../actions/BlameActions";
+
+//router
+import { withRouter } from "react-router-dom";
+
 class BlameDisplay extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            focusedChunk: 36,
-            blameChunks: [
-                { start: 0, end: 20 },
-                { start: 21, end: 35 },
-                { start: 36, end: 51 },
-                { start: 52, end: 108 },
-                { start: 109, end: 140 },
-            ],
+            focusedChunk: 0,
         };
 
         this.annotations = {};
@@ -69,7 +68,9 @@ class BlameDisplay extends Component {
     };
 
     handleKeyDown = (e) => {
-        const { focusedChunk, blameChunks } = this.state;
+        const { blameChunks } = this.props;
+
+        const { focusedChunk } = this.state;
 
         if (e.keyCode == "38") {
             e.preventDefault();
@@ -109,8 +110,36 @@ class BlameDisplay extends Component {
         });
     };
 
-    retrieveContextBlame = (text) => {
-        const { blameChunks, focusedChunk } = this.state;
+    retrieveContextBlame = async (text) => {
+        const {
+            retrieveBlames,
+            repositoryFullName,
+            match,
+            workspaces,
+            activeFilePath,
+        } = this.props;
+
+        /*
+        const { workspaceId } = match.params;
+
+        const workspace = workspaces[workspaceId];
+
+        const repository = workspace.repositories.filter((repo) => {
+            const { fullName } = repo;
+
+            return fullName == repositoryFullName;
+        })[0];
+
+        await retrieveBlames({
+            filePath: activeFilePath,
+            fileContent: text,
+            workspaceId: workspace._id,
+            repositoryId: repository._id,
+        });*/
+
+        const { blameChunks } = this.props;
+
+        const { focusedChunk } = this.state;
 
         vscode.postMessage({
             type: "COMMUNICATE_BLAME",
@@ -144,7 +173,9 @@ class BlameDisplay extends Component {
     };
 
     renderChunkAnnotations = () => {
-        const { blameChunks, focusedChunk } = this.state;
+        const { blameChunks } = this.props;
+
+        const { focusedChunk } = this.state;
 
         const exampleData = {
             keyUser: "FS",
@@ -198,7 +229,11 @@ class BlameDisplay extends Component {
                     onClick={() => this.focusChunk(start)}
                     ref={(node) => (this.annotations[start] = node)}
                 >
-                    <AnnotationCard filename={filename} chunk={chunk} />
+                    <AnnotationCard
+                        isFocused={isFocused}
+                        filename={filename}
+                        chunk={chunk}
+                    />
                 </AnnotationCardContainer>
             );
         });
@@ -211,19 +246,27 @@ class BlameDisplay extends Component {
 
 const mapStateToProps = (state) => {
     const {
-        global: { activeFilePath },
+        global: { activeFilePath, repositoryFullName },
+        workspaces,
     } = state;
 
-    let values = {};
-
-    if (activeFilePath) {
-        values["filename"] = activeFilePath.split("/").pop();
-    }
-
-    return values;
+    return {
+        blameChunks: [
+            { start: 0, end: 20 },
+            { start: 21, end: 35 },
+            { start: 36, end: 51 },
+            { start: 52, end: 108 },
+            { start: 109, end: 140 },
+        ],
+        workspaces,
+        activeFilePath,
+        filename: activeFilePath ? activeFilePath.split("/").pop() : null,
+    };
 };
 
-export default connect(mapStateToProps, {})(BlameDisplay);
+export default withRouter(
+    connect(mapStateToProps, { retrieveBlames })(BlameDisplay)
+);
 
 const Container = styled.div`
     height: calc(100vh - 4rem);

@@ -15,7 +15,7 @@ import { BiGitCommit } from "react-icons/bi";
 
 class AnnotationCard extends Component {
     renderData = () => {
-        const { chunk } = this.props;
+        const { chunk, isFocused } = this.props;
 
         const metadatas = [
             {
@@ -75,7 +75,11 @@ class AnnotationCard extends Component {
                             <DataItem key={`${chunk._id}-${name}`}>
                                 {icon}
                                 <SubHeader noWrap={true}>{name}</SubHeader>
-                                {/*focusedChunk == start && <DetailCard />*/}
+                                {/*isFocused &&
+                                    name ==
+                                        "Fixed Modularization of Blame Display" && (
+                                        <DetailCard />
+                                    )*/}
                             </DataItem>
                         ))}
                     </DataList>
