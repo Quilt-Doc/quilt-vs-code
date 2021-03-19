@@ -23,7 +23,7 @@ import {
     CHANGE_THEME,
     GET_VALUE_GLOBAL_STORAGE,
     SET_VALUE_GLOBAL_STORAGE,
-    SEND_VALUE_GLOBAL_STORAGE,
+    RECEIVE_VALUE_GLOBAL_STORAGE,
 } from "./types/MessageTypes";
 import { EXTENSION_NAME } from "../constants/constants";
 
@@ -40,6 +40,8 @@ class QuiltViewProvider implements WebviewViewProvider {
 
     constructor(private readonly _extensionUri: Uri, globalState: Memento) {
         this._globalStore = new LocalStorageService(globalState);
+
+        this._globalStore?.setValue("auth", null);
     }
 
     public resolveWebviewView = (
@@ -89,7 +91,7 @@ class QuiltViewProvider implements WebviewViewProvider {
             this._globalStore?.getValue(payload.key);
 
             this._view?.webview.postMessage({
-                type: SEND_VALUE_GLOBAL_STORAGE,
+                type: RECEIVE_VALUE_GLOBAL_STORAGE,
                 payload: {
                     value: this._globalStore?.getValue(payload.key),
                     dispatchType: payload.dispatchType,
@@ -98,6 +100,9 @@ class QuiltViewProvider implements WebviewViewProvider {
         }
 
         if (type == SET_VALUE_GLOBAL_STORAGE) {
+            console.log("SETTING VALUE");
+            console.log(payload);
+
             this._globalStore?.setValue(payload.key, payload.value);
         }
 

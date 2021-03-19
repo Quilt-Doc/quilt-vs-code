@@ -13,7 +13,10 @@ import LoadingScreen from "./loading_screen/LoadingScreen";
 //actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
-import { sendExtensionMessage } from "../actions/ExtensionActions";
+import {
+    storeExtensionMessage,
+    extensionAuthenticateUser,
+} from "../actions/ExtensionActions";
 
 //types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
@@ -21,7 +24,7 @@ import { SET_GIT_INFO } from "../actions/types/GlobalTypes";
 import { AUTHENTICATE_USER } from "../actions/types/AuthTypes";
 import {
     GET_VALUE_GLOBAL_STORAGE,
-    SEND_VALUE_GLOBAL_STORAGE,
+    RECEIVE_VALUE_GLOBAL_STORAGE,
 } from "../vscode/types/messageTypes"; //"/vscode/types/messageTypes.js
 
 //vscode
@@ -75,21 +78,21 @@ class Root extends Component {
 
         console.log("Workspaces", workspaces);
 
-        return history.push(`/space/12345678/blame`);
-        /*
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
-        }*/
+        }
 
         return history.push(`/space/${workspaces[0]._id}/settings/user`);
+
+        //return history.push(`/space/12345678/blame`);
     };
 
     componentWillUnmount = () => {
         window.removeEventListener("message", this.handleExtensionMessage);
     };
 
-    handleExtensionMessage = ({ data: message }) => {
-        const { changeTheme, setGitInfo, sendExtensionMessage } = this.props;
+    handleExtensionMessage = async ({ data: message }) => {
+        const { changeTheme, setGitInfo } = this.props;
 
         const { type, payload } = message;
 
@@ -102,17 +105,20 @@ class Root extends Component {
                 setGitInfo(payload);
 
                 break;
-            case SEND_VALUE_GLOBAL_STORAGE:
-                if (payload.value != null) {
-                    console.log("IS THERE A PAYLOAD VALUE", payload.value);
+            case RECEIVE_VALUE_GLOBAL_STORAGE:
+                switch (payload.dispatchType) {
+                    case AUTHENTICATE_USER:
+                        const { extensionAuthenticateUser } = this.props;
 
-                    sendExtensionMessage(payload);
-                }
+                        if (payload.value) {
+                            await extensionAuthenticateUser(payload);
+                        }
 
-                if (payload.dispatchType == AUTHENTICATE_USER) {
-                    this.setState({ receivedAuth: true });
+                        this.setState({ receivedAuth: true });
 
-                    this.handleRouting();
+                        this.handleRouting();
+                    default:
+                        break;
                 }
 
                 break;
@@ -155,7 +161,10 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(
-    connect(mapStateToProps, { changeTheme, setGitInfo, sendExtensionMessage })(
-        Root
-    )
+    connect(mapStateToProps, {
+        changeTheme,
+        setGitInfo,
+        storeExtensionMessage,
+        extensionAuthenticateUser,
+    })(Root)
 );
