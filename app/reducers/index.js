@@ -16,11 +16,15 @@ import githubReducer from "./GithubReducer";
 import trelloReducer from "./TrelloReducer";
 import jiraReducer from "./JiraReducer";
 
+//view specific
+import blameReducer from "./BlameReducer";
+
 export default combineReducers({
     workspaces: workspaceReducer,
     repositories: repositoryReducer,
     contexts: contextReducer,
     workspaceInvites: workspaceInviteReducer,
+    blames: blameReducer,
 
     theme: themeReducer,
     global: globalReducer,
