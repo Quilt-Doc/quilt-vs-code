@@ -2,7 +2,11 @@ import React, { Component } from "react";
 
 import styled from "styled-components";
 
-import { Header, IntegrationSource } from "../../../../../../../elements";
+import {
+    Header,
+    IntegrationSource,
+    SubHeader,
+} from "../../../../../../../elements";
 
 class IntegrationSourceSelection extends Component {
     handleClick = (integration) => {
@@ -11,6 +15,101 @@ class IntegrationSourceSelection extends Component {
         setIntegration(integration);
 
         changePage(1);
+    };
+
+    renderVersionControl = () => {
+        const choices = ["github", "bitbucket", "gitlab"];
+
+        const integrationIcons = choices.map((choice, i) => {
+            return (
+                <IntegrationSource
+                    large={true}
+                    height={"5.1rem"}
+                    width={"5.1rem"}
+                    key={i}
+                    onClick={() => {
+                        if (i == 0) {
+                            this.handleClick(choice);
+                        }
+                    }}
+                    inactive={i !== 0}
+                    type={choice}
+                />
+            );
+        });
+
+        return (
+            <>
+                <OpaqueSubHeader>Version Control</OpaqueSubHeader>
+                <IntegrationRow>{integrationIcons}</IntegrationRow>
+            </>
+        );
+    };
+
+    renderProjectManagement = () => {
+        const choices = ["jira", "trello", "asana"];
+
+        const currentChoices = new Set(["jira", "trello"]);
+
+        const integrationIcons = choices.map((choice, i) => {
+            const active = currentChoices.has(choice);
+
+            return (
+                <IntegrationSource
+                    large={true}
+                    height={"5.1rem"}
+                    width={"5.1rem"}
+                    key={i}
+                    onClick={() => {
+                        if (active) {
+                            this.handleClick(choice);
+                        }
+                    }}
+                    inactive={!active}
+                    type={choice}
+                />
+            );
+        });
+
+        return (
+            <>
+                <OpaqueSubHeader>Project Management</OpaqueSubHeader>
+                <IntegrationRow>{integrationIcons}</IntegrationRow>
+            </>
+        );
+    };
+
+    renderDocumentation = () => {
+        const choices = ["google", "notion", "confluence"];
+
+        const currentChoices = new Set(["google"]);
+
+        const integrationIcons = choices.map((choice, i) => {
+            const active = currentChoices.has(choice);
+
+            return (
+                <IntegrationSource
+                    large={true}
+                    height={"5.1rem"}
+                    width={"5.1rem"}
+                    key={i}
+                    onClick={() => {
+                        if (active) {
+                            this.handleClick(choice);
+                        }
+                    }}
+                    inactive={!active}
+                    type={choice}
+                />
+            );
+        });
+
+        return (
+            <>
+                <OpaqueSubHeader>Documentation</OpaqueSubHeader>
+                <IntegrationRow>{integrationIcons}</IntegrationRow>
+            </>
+        );
     };
 
     renderSources = () => {
@@ -49,8 +148,11 @@ class IntegrationSourceSelection extends Component {
         return (
             <>
                 <Header>Add an Integration</Header>
+                <SubHeader>Select a source of integration data.</SubHeader>
                 <IntegrationsContainer>
-                    {this.renderSources()}
+                    {this.renderVersionControl()}
+                    {this.renderProjectManagement()}
+                    {this.renderDocumentation()}
                 </IntegrationsContainer>
             </>
         );
@@ -65,6 +167,8 @@ const IntegrationRow = styled.div`
     align-items: center;
 
     justify-content: center;
+
+    margin-bottom: 2.8rem;
 `;
 
 const IntegrationsContainer = styled.div`
@@ -79,4 +183,14 @@ const IntegrationsContainer = styled.div`
     padding-top: 2rem;
 
     /*padding-bottom: 1rem;*/
+`;
+
+const OpaqueSubHeader = styled(SubHeader)`
+    opacity: 1;
+
+    margin-bottom: 1.5rem;
+
+    text-align: center;
+
+    width: 100%;
 `;

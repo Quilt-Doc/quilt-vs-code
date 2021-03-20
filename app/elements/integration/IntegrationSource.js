@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { RiGithubFill, RiGitlabFill, RiTrelloFill } from "react-icons/ri";
 import { IoLogoBitbucket } from "react-icons/io";
 import { DiGoogleDrive } from "react-icons/di";
-import { SiJira } from "react-icons/si";
+import { SiJira, SiNotion, SiAsana, SiConfluence } from "react-icons/si";
 
 // INTEGRATION SOURCE COMPONENT
 const IntegrationSource = ({
@@ -13,7 +13,9 @@ const IntegrationSource = ({
     type,
     onClick,
     width,
+    height,
     borderRadius,
+    large,
 }) => {
     const icons = {
         github: <RiGithubFill />,
@@ -22,10 +24,51 @@ const IntegrationSource = ({
         google: <DiGoogleDrive />,
         trello: <RiTrelloFill />,
         jira: <SiJira />,
+        notion: <SiNotion />,
+        asana: <SiAsana />,
+        confluence: <SiConfluence />,
     };
 
-    const fontSize =
-        type === "google" ? "2.7rem" : type === "jira" ? "2rem" : "2.4rem";
+    const sizes = {
+        github: {
+            large: "2.7rem",
+            normal: "2.4rem",
+        },
+        bitbucket: {
+            large: "2.7rem",
+            normal: "2.4rem",
+        },
+        gitlab: {
+            large: "2.7rem",
+            normal: "2.4rem",
+        },
+        jira: {
+            large: "2.3rem",
+            normal: "2.1rem",
+        },
+        trello: {
+            large: "2.8rem",
+            normal: "2.4rem",
+        },
+        asana: {
+            large: "2.4rem",
+            normal: "2.1rem",
+        },
+        google: {
+            large: "3.1rem",
+            normal: "2.7rem",
+        },
+        notion: {
+            large: "2.6rem",
+            normal: "2.3rem",
+        },
+        confluence: {
+            large: "2.3rem",
+            normal: "2.1rem",
+        },
+    };
+
+    const fontSize = sizes[type][large ? "large" : "normal"];
     //icons
 
     const colors = {
@@ -38,6 +81,7 @@ const IntegrationSource = ({
     return (
         <IntegrationSourceContainer
             width={width}
+            height={height}
             borderRadius={borderRadius}
             onClick={onClick}
             inactive={inactive}
@@ -52,7 +96,7 @@ const IntegrationSource = ({
 export default IntegrationSource;
 
 const IntegrationSourceContainer = styled.div`
-    height: 4.5rem;
+    height: ${(props) => (props.height ? props.height : "4.5rem")};
 
     width: ${(props) => (props.width ? props.width : "4.5rem")};
 

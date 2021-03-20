@@ -25,7 +25,7 @@ class WorkspaceButton extends Component {
                 generateMenuButton={this.generateWorkspaceButton}
                 menuContents={menuContents}
                 width={"20rem"}
-                marginTop={"3rem"}
+                marginTop={"3.5rem"}
             />
         );
     };
@@ -46,20 +46,23 @@ class WorkspaceButton extends Component {
         history.push("/login");
     };
 
-    routeSettings = () => {
+    routeSettings = (suffix) => {
         const { history, match } = this.props;
 
         const { workspaceId } = match.params;
 
-        history.push(`/space/${workspaceId}/settings`);
+        history.push(`/space/${workspaceId}/settings/${suffix}`);
     };
 
     renderMenuContents = () => {
         return (
             <>
                 <WorkspaceSuggestionContainer />
-                <ThinButton onClick={this.routeSettings}>
-                    <SubHeader>Settings</SubHeader>
+                <ThinButton onClick={() => this.routeSettings("workspace")}>
+                    <SubHeader>Workspace Settings</SubHeader>
+                </ThinButton>
+                <ThinButton onClick={() => this.routeSettings("user")}>
+                    <SubHeader>User Settings</SubHeader>
                 </ThinButton>
                 <ThinButton onClick={this.logoutUser}>
                     <SubHeader>Log out</SubHeader>
