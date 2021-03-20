@@ -14,8 +14,18 @@ import { RiFile2Line } from "react-icons/ri";
 import { BiGitCommit } from "react-icons/bi";
 
 class AnnotationCard extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            openedDataItem: null,
+        };
+    }
+
     renderData = () => {
         const { chunk, isFocused } = this.props;
+
+        const { openedDataItem } = this.state;
 
         const metadatas = [
             {
@@ -72,14 +82,26 @@ class AnnotationCard extends Component {
                     <DataHeader bg={bg}>{header}</DataHeader>
                     <DataList>
                         {items.map(({ name }) => (
-                            <DataItem key={`${chunk._id}-${name}`}>
+                            <DataItem
+                                key={`${chunk._id}-${name}`}
+                                onClick={() =>
+                                    this.setState({
+                                        openedDataItem: `${chunk._id}-${name}`,
+                                    })
+                                }
+                            >
                                 {icon}
                                 <SubHeader noWrap={true}>{name}</SubHeader>
-                                {/*isFocused &&
-                                    name ==
-                                        "Fixed Modularization of Blame Display" && (
-                                        <DetailCard />
-                                    )*/}
+                                <DetailCard
+                                    isOpen={
+                                        openedDataItem == `${chunk._id}-${name}`
+                                    }
+                                    closeCard={() =>
+                                        this.setState({
+                                            openedDataItem: null,
+                                        })
+                                    }
+                                />
                             </DataItem>
                         ))}
                     </DataList>

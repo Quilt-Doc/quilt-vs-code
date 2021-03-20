@@ -100,9 +100,6 @@ class QuiltViewProvider implements WebviewViewProvider {
         }
 
         if (type == SET_VALUE_GLOBAL_STORAGE) {
-            console.log("SETTING VALUE");
-            console.log(payload);
-
             this._globalStore?.setValue(payload.key, payload.value);
         }
 

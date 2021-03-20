@@ -38,6 +38,18 @@ import { MdFormatAlignLeft } from "react-icons/md";
 //TODO: Need to set max lengths on everything
 
 class DetailCard extends Component {
+    handleOutsideClick = (e) => {
+        if (this.menuRef && !this.menuRef.contains(e.target)) {
+            e.stopPropagation();
+
+            e.preventDefault();
+
+            const { closeCard } = this.props;
+
+            closeCard();
+        }
+    };
+
     renderFormattedDateString = () => {
         return "#463 opened by kgodara 7 days ago";
 
@@ -396,6 +408,22 @@ class DetailCard extends Component {
     };
 
     render() {
+        const { isOpen } = this.props;
+
+        return (
+            <>
+                {isOpen && (
+                    <>
+                        <MenuBackground onMouseDown={this.handleOutsideClick} />
+                        <DetailCardContainer
+                            ref={(node) => (this.menuRef = node)}
+                        ></DetailCardContainer>
+                    </>
+                )}
+            </>
+        );
+
+        /*
         return (
             <DetailCardContainer>
                 {this.renderNavSection()}
@@ -405,7 +433,7 @@ class DetailCard extends Component {
                 {this.renderDescription()}
                 {this.renderCounts()}
             </DetailCardContainer>
-        );
+        );*/
     }
 }
 
@@ -429,6 +457,24 @@ class DetailCard extends Component {
 //colored icons
 
 export default DetailCard;
+
+const MenuBackground = styled.div`
+    position: fixed;
+
+    z-index: 1;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100vw;
+
+    height: 100vh;
+
+    overflow: hidden;
+
+    background-color: transparent;
+`;
 
 const CountIcon = styled.div`
     font-size: ${(props) => (props.size ? props.size : "1.5rem")};
@@ -632,7 +678,10 @@ const DetailCardSubHeaderContainer = styled.div`
     margin-top: 0.65rem;
 `;
 
+//TODO: REMOVE MIN-HEIGHT
 const DetailCardContainer = styled.div`
+    min-height: 30rem;
+
     position: absolute;
 
     width: 40rem;
