@@ -33,7 +33,6 @@ class Space extends Component {
             match,
         } = this.props;
 
-        /*
         const {
             retrieveWorkspaces,
             retrieveContexts,
@@ -64,7 +63,6 @@ class Space extends Component {
         const { repositories } = currentWorkspace;
 
         setRepositories({ repositories });
-        */
 
         this.setState({ loaded: true });
     };

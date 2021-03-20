@@ -15,8 +15,8 @@ export const storeExtensionMessage = (extensionMessagePayload) => (
     });
 };
 
-export const extensionAuthenticateUser = (payload) => {
-    const { values: formValues, dispatchType: type } = payload;
+export const extensionAuthenticateUser = (payload) => async (dispatch) => {
+    const { value: formValues, dispatchType: type } = payload;
 
     const { userId, isAuthorized, jwt } = formValues;
 
@@ -26,15 +26,17 @@ export const extensionAuthenticateUser = (payload) => {
 
     if (!jwt) console.log("No Jwt");
 
-    const response = axios.get(`${baseURL}/users/get/${userId}`, {
+    const response = await axios.get(`${baseURL}/users/get/${userId}`, {
         headers: {
             authorization: `Bearer ${jwt}`,
         },
     });
 
-    const { success, result } = response;
+    console.log("RESPONSE", response);
 
-    if (!success) {
+    const { success, result } = response.data;
+
+    if (success == false) {
         console.log("Error");
     } else {
         dispatch({

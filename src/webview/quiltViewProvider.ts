@@ -41,7 +41,7 @@ class QuiltViewProvider implements WebviewViewProvider {
     constructor(private readonly _extensionUri: Uri, globalState: Memento) {
         this._globalStore = new LocalStorageService(globalState);
 
-        this._globalStore?.setValue("auth", null);
+        //this._globalStore?.setValue("auth", null);
     }
 
     public resolveWebviewView = (
