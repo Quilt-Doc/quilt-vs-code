@@ -117,8 +117,14 @@ class BlameDecorator {
             };
         });
 
+        const documentLength = editor.document.lineCount;
+
         blameChunks.map((chunk, i) => {
             const { start, end } = chunk;
+
+            if (end >= documentLength) {
+                return;
+            }
 
             const range = new Range(
                 editor.document.lineAt(start + 1).range.start,
@@ -157,8 +163,6 @@ class BlameDecorator {
             botDecorations[i].decorationOptions.push({
                 range: botRange,
             });
-
-            const x = 5;
         });
 
         decorations = decorations.filter(

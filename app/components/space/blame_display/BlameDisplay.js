@@ -54,6 +54,7 @@ class BlameDisplay extends Component {
 
         switch (type) {
             case "RECEIVE_DOCUMENT_TEXT":
+                console.log("FILE PATH", this.props.activeFilePath);
                 this.retrieveContextBlame(payload);
 
                 break;
@@ -260,7 +261,7 @@ const mapStateToProps = (state) => {
             { start: 21, end: 35 },
             { start: 36, end: 51 },
             { start: 52, end: 108 },
-            { start: 109, end: 140 },
+            { start: 109, end: 123 },
         ],
         workspaces,
         activeFilePath,

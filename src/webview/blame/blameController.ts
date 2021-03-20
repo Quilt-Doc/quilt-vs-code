@@ -78,9 +78,11 @@ class BlameController {
         this.activeEditor = activeTextEditor;
 
         this.activeEditorListener = onDidChangeActiveTextEditor((editor) => {
+            this.removeBlame();
+
             this.activeEditor = editor;
 
-            //this.updateBlame();
+            this.requestBlame();
         });
 
         this.editorSelectionListener = onDidChangeTextEditorSelection(
@@ -113,15 +115,15 @@ class BlameController {
                 this.removeBlame();
             }
         });
-        /*
+
         this.textDocumentListener = onDidChangeTextDocument((event) => {
             if (
                 this.activeEditor &&
                 event.document === this.activeEditor.document
             ) {
-                this.updateBlame();
+                this.requestBlame();
             }
-        });*/
+        });
     }
 
     handleWebviewBlameMessage(message: any) {
