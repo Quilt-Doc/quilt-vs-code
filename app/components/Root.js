@@ -104,8 +104,6 @@ class Root extends Component {
 
                 break;
             case SET_GIT_INFO:
-                console.log("RECEIVED GIT INFO", payload);
-
                 setGitInfo(payload);
 
                 break;

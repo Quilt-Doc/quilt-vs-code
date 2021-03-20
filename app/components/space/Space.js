@@ -9,7 +9,6 @@ import Test from "./Test";
 //actions
 import { setRepositories } from "../../actions/RepositoryActions";
 import { retrieveWorkspaces } from "../../actions/WorkspaceActions";
-import { retrieveContexts } from "../../actions/ContextActions";
 
 //redux
 import { connect } from "react-redux";
@@ -35,7 +34,7 @@ class Space extends Component {
 
         const {
             retrieveWorkspaces,
-            retrieveContexts,
+
             setRepositories,
         } = this.props;
 
@@ -46,10 +45,7 @@ class Space extends Component {
         }
 
         try {
-            await Promise.all([
-                retrieveWorkspaces({ userId }),
-                retrieveContexts({ workspaceId }),
-            ]);
+            await retrieveWorkspaces({ userId });
         } catch (e) {
             throw new Error(e);
         }
@@ -109,6 +105,5 @@ export default withRouter(
     connect(mapStateToProps, {
         setRepositories,
         retrieveWorkspaces,
-        retrieveContexts,
     })(Space)
 );
