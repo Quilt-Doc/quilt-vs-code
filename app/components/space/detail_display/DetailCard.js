@@ -4,6 +4,10 @@ import styled from "styled-components";
 
 import chroma from "chroma-js";
 
+//components
+import { Header, SubHeader } from "../../../elements";
+
+//icons
 import { AiOutlineFileSearch } from "react-icons/ai";
 import {
     VscFileCode,
@@ -20,6 +24,8 @@ import {
     RiFileList2Line,
     RiFileTextLine,
     RiGithubFill,
+    RiCalendarCheckFill,
+    RiTrelloFill,
 } from "react-icons/ri";
 import { CgArrowLongRight } from "react-icons/cg";
 import { FiGitBranch } from "react-icons/fi";
@@ -30,9 +36,11 @@ import {
     BiAlignLeft,
     BiMessageSquareDetail,
     BiCodeCurly,
+    BiCalendarCheck,
 } from "react-icons/bi";
 import { TiTags } from "react-icons/ti";
 import { MdFormatAlignLeft } from "react-icons/md";
+
 //"rgb(242,201,75)"
 
 //TODO: Need to set max lengths on everything
@@ -163,6 +171,8 @@ class DetailCard extends Component {
 
         if (content) {
             return <NavSpec>{content}</NavSpec>;
+        } else {
+            return <Spacing />;
         }
     };
 
@@ -182,11 +192,23 @@ class DetailCard extends Component {
                     icon: <BiCheck />,
                 },
             },
-            ticket: {},
+            ticket: {
+                primaryIcon: {
+                    icon: <BsCardChecklist />,
+                    color: "rgb(93, 106, 210)",
+                    size: "1.9rem",
+                    top: "-0.04rem",
+                },
+                checkIcon: {
+                    color: "rgb(77, 183, 130)",
+                    icon: <RiCalendarCheckFill />,
+                    top: "-0.13rem",
+                },
+            },
             commit: {},
         };
 
-        const { primaryIcon, checkIcon } = metadata["kind"];
+        const { primaryIcon, checkIcon } = metadata[kind];
 
         const { name } = elem;
 
@@ -205,7 +227,10 @@ class DetailCard extends Component {
                     </Header>
                 </DetailCardHeaderContainer>
                 <DetailCardSubHeaderContainer>
-                    <DetailCardIcon color={checkIcon["color"]}>
+                    <DetailCardIcon
+                        color={checkIcon["color"]}
+                        top={primaryIcon["top"]}
+                    >
                         {checkIcon["icon"]}
                     </DetailCardIcon>
                     <SubHeader noWrap={true}>
@@ -237,6 +262,8 @@ class DetailCard extends Component {
         let status;
 
         let sourceObjName;
+
+        let statusColor;
 
         switch (kind) {
             case "pullRequest":
@@ -276,6 +303,28 @@ class DetailCard extends Component {
 
                 status = elem.column.name;
 
+                statusColor = "#58a5ff";
+
+                if (elem.source == "trello") {
+                    icon = (
+                        <RiTrelloFill
+                            style={{
+                                marginRight: "0.7rem",
+                                fontSize: "1.9rem",
+                            }}
+                        />
+                    );
+                } else if (elem.source == "jira") {
+                    icon = (
+                        <RiTrelloFill
+                            style={{
+                                marginRight: "0.7rem",
+                                fontSize: "1.9rem",
+                            }}
+                        />
+                    );
+                }
+
                 break;
             default:
                 return;
@@ -294,7 +343,7 @@ class DetailCard extends Component {
                 </DetailSourceObj>
                 {status && (
                     <DetailContent>
-                        <DetailStatus>
+                        <DetailStatus color={statusColor}>
                             <OpaqueSubHeader noWrap={true}>
                                 {status}
                             </OpaqueSubHeader>
@@ -356,9 +405,7 @@ class DetailCard extends Component {
                 <DetailCardDesc>
                     <DetailContent>
                         <DetailDesc>
-                            <OpaqueSubHeader noWrap={true}>
-                                {description}
-                            </OpaqueSubHeader>
+                            <OpaqueSubHeader>{description}</OpaqueSubHeader>
                         </DetailDesc>
                     </DetailContent>
                 </DetailCardDesc>
@@ -371,7 +418,7 @@ class DetailCard extends Component {
             <DetailCountsContainer>
                 <DetailCounts>
                     <Count color={"#f69700"}>
-                        <CountIcon top={"0.3rem"}>
+                        <CountIcon>
                             <BiGitCommit />
                         </CountIcon>
                         <OpaqueSubHeader marginLeft={"0.6rem"}>
@@ -379,7 +426,7 @@ class DetailCard extends Component {
                         </OpaqueSubHeader>
                     </Count>
                     <Count color={"rgb(93, 106, 210)"}>
-                        <CountIcon top={"0.11rem"}>
+                        <CountIcon top={"-0.1rem"}>
                             <VscIssues />
                         </CountIcon>
                         <OpaqueSubHeader marginLeft={"0.6rem"}>
@@ -387,7 +434,7 @@ class DetailCard extends Component {
                         </OpaqueSubHeader>
                     </Count>
                     <Count color={"#58a5ff"}>
-                        <CountIcon size={"1.3rem"} top={"0.1645rem"}>
+                        <CountIcon top={"0.03rem"} size={"1.3rem"}>
                             <BiCodeCurly />
                         </CountIcon>
                         <OpaqueSubHeader marginLeft={"0.6rem"}>
@@ -395,7 +442,7 @@ class DetailCard extends Component {
                         </OpaqueSubHeader>
                     </Count>
                     <Count color={"rgb(77, 183, 130)"}>
-                        <CountIcon top={"0.165rem"} size={"1.3rem"}>
+                        <CountIcon top={"0rem"} size={"1.3rem"}>
                             <BiMessageSquareDetail />
                         </CountIcon>
                         <OpaqueSubHeader marginLeft={"0.6rem"}>
@@ -417,7 +464,14 @@ class DetailCard extends Component {
                         <MenuBackground onMouseDown={this.handleOutsideClick} />
                         <DetailCardContainer
                             ref={(node) => (this.menuRef = node)}
-                        ></DetailCardContainer>
+                        >
+                            {this.renderNavSection()}
+                            <Divider />
+                            {this.renderStatus()}
+                            {this.renderTags()}
+                            {this.renderDescription()}
+                            {this.renderCounts()}
+                        </DetailCardContainer>
                     </>
                 )}
             </>
@@ -480,6 +534,12 @@ const CountIcon = styled.div`
     font-size: ${(props) => (props.size ? props.size : "1.5rem")};
 
     margin-top: ${(props) => props.top};
+
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
 `;
 
 //TODO: Give Max Length
@@ -501,21 +561,23 @@ const DetailSourceObj = styled.div`
     margin-right: 1rem;
 `;
 
-/*
 const OpaqueSubHeader = styled(SubHeader)`
     opacity: 1;
 
     margin-left: ${(props) => props.marginLeft};
-`;*/
+`;
 
 const DetailStatus = styled.div`
     height: 3rem;
 
     border-radius: 0.5rem;
 
-    background-color: ${chroma("#FC427B").alpha(0.2)};
+    background-color: ${(props) =>
+        props.color
+            ? chroma(props.color).alpha(0.2)
+            : chroma("#FC427B").alpha(0.2)};
 
-    color: #fc427b;
+    color: ${(props) => (props.color ? props.color : "#fc427b")};
 
     align-items: center;
 
@@ -636,6 +698,10 @@ const ElementSpec = styled.div`
     border-radius: 0.45rem;
 
     color: ${(props) => props.color};
+`;
+
+const Spacing = styled.div`
+    height: 0.2rem;
 `;
 
 const NavSpec = styled.div`

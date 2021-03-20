@@ -25,8 +25,6 @@ class AnnotationCard extends Component {
     renderData = () => {
         const { chunk, isFocused } = this.props;
 
-        const { openedDataItem } = this.state;
-
         const metadatas = [
             {
                 kind: "tickets",
@@ -81,31 +79,55 @@ class AnnotationCard extends Component {
                 <DataTypeContainer key={`${chunk._id}-${header}`}>
                     <DataHeader bg={bg}>{header}</DataHeader>
                     <DataList>
-                        {items.map(({ name }) => (
-                            <DataItem
-                                key={`${chunk._id}-${name}`}
-                                onClick={() =>
-                                    this.setState({
-                                        openedDataItem: `${chunk._id}-${name}`,
-                                    })
-                                }
-                            >
-                                {icon}
-                                <SubHeader noWrap={true}>{name}</SubHeader>
-                                <DetailCard
-                                    isOpen={
-                                        openedDataItem == `${chunk._id}-${name}`
-                                    }
-                                    closeCard={() =>
-                                        this.setState({
-                                            openedDataItem: null,
-                                        })
-                                    }
-                                />
-                            </DataItem>
-                        ))}
+                        {this.renderDataItems(chunk, items, kind, icon)}
                     </DataList>
                 </DataTypeContainer>
+            );
+        });
+    };
+
+    renderDataItems = (chunk, items, kind, icon) => {
+        const { openedDataItem } = this.state;
+
+        const exampleElem = {
+            name: "Cross-Platform Data Model Spec",
+            source: "trello",
+            column: {
+                name: "In Progress",
+            },
+            board: {
+                name: "Quilt Product",
+            },
+            labels: [{ name: "auth" }, { name: "blame" }],
+            description:
+                "It causes problems with some of our Azure extension commands because we don't expect that object. I know registerCommand doesn't make any guarantees about the type of arguments passed in to the command, but I couldn't find any VS Code API matching that object and I'm guessing you didn't mean to pass that along. We could adjust all of our commands to handle that object, or y'all could just pass undefined and fix it for us. 😊",
+        };
+
+        return items.map((item) => {
+            const { name } = item;
+
+            return (
+                <DataItem
+                    key={`${chunk._id}-${name}`}
+                    onClick={() =>
+                        this.setState({
+                            openedDataItem: `${chunk._id}-${name}`,
+                        })
+                    }
+                >
+                    {icon}
+                    <SubHeader noWrap={true}>{name}</SubHeader>
+                    <DetailCard
+                        elem={exampleElem}
+                        kind={kind.slice(0, kind.length - 1)}
+                        isOpen={openedDataItem == `${chunk._id}-${name}`}
+                        closeCard={() =>
+                            this.setState({
+                                openedDataItem: null,
+                            })
+                        }
+                    />
+                </DataItem>
             );
         });
     };

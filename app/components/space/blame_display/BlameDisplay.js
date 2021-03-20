@@ -34,6 +34,10 @@ class BlameDisplay extends Component {
     };
 
     componentWillUnmount = () => {
+        vscode.postMessage({
+            type: "REMOVE_BLAME",
+        });
+
         window.removeEventListener("message", this.handleTextMessage);
 
         window.removeEventListener("keydown", this.handleKeyDown);

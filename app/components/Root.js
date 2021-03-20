@@ -82,6 +82,8 @@ class Root extends Component {
             return history.push("/create_workspace");
         }
 
+        return history.push(`/space/${workspaces[0]._id}/blame`);
+
         return history.push(`/space/${workspaces[0]._id}/settings/user`);
 
         //return history.push(`/space/12345678/blame`);
