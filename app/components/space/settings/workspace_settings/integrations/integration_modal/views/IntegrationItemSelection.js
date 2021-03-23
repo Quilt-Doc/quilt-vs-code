@@ -26,6 +26,7 @@ import {
     Header,
     IntegrationItem,
     Button,
+    SubHeader,
 } from "../../../../../../../elements";
 import IntegrationRequestInformation from "./IntegrationRequestInformation";
 
@@ -88,10 +89,15 @@ class IntegrationItemSelection extends Component {
 
         const { workspaceId } = match.params;
 
+        const url =
+            integration == "jira"
+                ? `${BASE_URL}/${userId}/${workspaceId}/${integration}`
+                : `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`;
+
         vscode.postMessage({
             type: OPEN_BROWSER,
             payload: {
-                url: `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`,
+                url,
             },
         });
     };
@@ -153,11 +159,28 @@ class IntegrationItemSelection extends Component {
             );
         });
 
+        const sourceObjs = {
+            google: "Drives",
+            github: "Repositories",
+            jira: "Boards",
+            trello: "Boards",
+        };
+
+        const sourceObjs2 = {
+            google: "drives",
+            github: "repositories",
+            jira: "boards",
+            trello: "boards",
+        };
+
         return (
             <>
-                <Header>Select Relevant Boards</Header>
+                <Header>{`Select Relevant ${sourceObjs[integration]}`}</Header>
+                <SubHeader>
+                    {`Connect related ${sourceObjs2[integration]} to your workspace.`}
+                </SubHeader>
                 <IntegrationList>{itemsJSX}</IntegrationList>
-                <Button marginTop={"2.5rem"} onClick={this.handleButtonClick}>
+                <Button marginTop={"2rem"} onClick={this.handleButtonClick}>
                     Continue
                 </Button>
             </>

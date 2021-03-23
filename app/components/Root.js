@@ -2,6 +2,10 @@ import React, { Component } from "react";
 
 //styles
 import { ThemeProvider } from "styled-components";
+import styled from "styled-components";
+
+//sentry
+import * as Sentry from "@sentry/react";
 
 //components
 import Login from "./login/Login";
@@ -9,11 +13,15 @@ import Space from "./space/Space";
 import OnboardFlow from "./setup/onboarding/OnboardFlow";
 import WorkspaceCreation from "./setup/workspace_creation/WorkspaceCreation";
 import LoadingScreen from "./loading_screen/LoadingScreen";
+import ErrorDisplay from "./error_handling/ErrorDisplay";
 
 //actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
-import { sendExtensionMessage } from "../actions/ExtensionActions";
+import {
+    storeExtensionMessage,
+    extensionAuthenticateUser,
+} from "../actions/ExtensionActions";
 
 //types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
@@ -21,7 +29,7 @@ import { SET_GIT_INFO } from "../actions/types/GlobalTypes";
 import { AUTHENTICATE_USER } from "../actions/types/AuthTypes";
 import {
     GET_VALUE_GLOBAL_STORAGE,
-    SEND_VALUE_GLOBAL_STORAGE,
+    RECEIVE_VALUE_GLOBAL_STORAGE,
 } from "../vscode/types/messageTypes"; //"/vscode/types/messageTypes.js
 
 //vscode
@@ -51,7 +59,6 @@ class Root extends Component {
     };
 
     getAuthenticationDetails = () => {
-        console.log("POSTING FROM WEBVIEW: GET_VALUE_GLOBAL_STORAGE");
         vscode.postMessage({
             type: GET_VALUE_GLOBAL_STORAGE,
             payload: {
@@ -74,13 +81,15 @@ class Root extends Component {
 
         if (!isOnboarded) return history.push("/onboard");
 
-        console.log("Workspaces", workspaces);
-
-        return history.push(`/space/12345678/blame`);
-        /*
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
-        }*/
+        }
+
+        return history.push(`/space/${workspaces[0]._id}/context`);
+
+        //return history.push("/error");
+
+        return history.push(`/space/${workspaces[0]._id}/blame`);
 
         return history.push(`/space/${workspaces[0]._id}/settings/user`);
     };
@@ -89,8 +98,8 @@ class Root extends Component {
         window.removeEventListener("message", this.handleExtensionMessage);
     };
 
-    handleExtensionMessage = ({ data: message }) => {
-        const { changeTheme, setGitInfo, sendExtensionMessage } = this.props;
+    handleExtensionMessage = async ({ data: message }) => {
+        const { changeTheme, setGitInfo } = this.props;
 
         const { type, payload } = message;
 
@@ -103,17 +112,20 @@ class Root extends Component {
                 setGitInfo(payload);
 
                 break;
-            case SEND_VALUE_GLOBAL_STORAGE:
-                if (payload.value != null) {
-                    console.log("IS THERE A PAYLOAD VALUE", payload.value);
+            case RECEIVE_VALUE_GLOBAL_STORAGE:
+                switch (payload.dispatchType) {
+                    case AUTHENTICATE_USER:
+                        const { extensionAuthenticateUser } = this.props;
 
-                    sendExtensionMessage(payload);
-                }
+                        if (payload.value && payload.value.isAuthorized) {
+                            await extensionAuthenticateUser(payload);
+                        }
 
-                if (payload.dispatchType == AUTHENTICATE_USER) {
-                    this.setState({ receivedAuth: true });
+                        this.setState({ receivedAuth: true });
 
-                    this.handleRouting();
+                        this.handleRouting();
+                    default:
+                        break;
                 }
 
                 break;
@@ -122,21 +134,41 @@ class Root extends Component {
         }
     };
 
+    renderContent = () => {
+        const { hasError } = this.props;
+
+        console.log("HAS ERROR", hasError);
+
+        if (hasError) return <ErrorDisplay />;
+
+        return (
+            <Switch>
+                <Route path="/create_workspace" component={WorkspaceCreation} />
+                <Route path="/onboard" component={OnboardFlow} />
+                <Route path="/login" component={Login} />
+                <Route
+                    path="/space/:workspaceId"
+                    render={() => <Space testItem={this.state.testItem} />}
+                />
+                <Route path="/loading_screen" component={LoadingScreen} />
+            </Switch>
+        );
+    };
+
     render() {
         const { theme } = this.props;
 
         return (
             <ThemeProvider theme={theme}>
-                <Switch>
-                    <Route
-                        path="/create_workspace"
-                        component={WorkspaceCreation}
-                    />
-                    <Route path="/onboard" component={OnboardFlow} />
-                    <Route path="/login" component={Login} />
-                    <Route path="/space/:workspaceId" component={Space} />
-                    <Route path="/loading_screen" component={LoadingScreen} />
-                </Switch>
+                <Sentry.ErrorBoundary
+                    fallback={({ resetError }) => {
+                        return (
+                            <ErrorDisplay resetError={resetError} zIndex={-1} />
+                        );
+                    }}
+                >
+                    {this.renderContent()}
+                </Sentry.ErrorBoundary>
             </ThemeProvider>
         );
     }
@@ -146,17 +178,36 @@ const mapStateToProps = (state) => {
     const {
         theme,
         auth: { isAuthorized, user },
+        errors: { hasError },
     } = state;
 
     return {
         theme,
         isAuthorized,
         user,
+        hasError,
     };
 };
 
 export default withRouter(
-    connect(mapStateToProps, { changeTheme, setGitInfo, sendExtensionMessage })(
-        Root
-    )
+    connect(mapStateToProps, {
+        changeTheme,
+        setGitInfo,
+        storeExtensionMessage,
+        extensionAuthenticateUser,
+    })(Root)
 );
+
+function FallbackComponent() {
+    return <Box>An error has occurred</Box>;
+}
+
+const myFallback = <FallbackComponent />;
+
+const Box = styled.div`
+    background-color: red;
+
+    height: 50rem;
+
+    width: 40rem;
+`;

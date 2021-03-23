@@ -1,40 +1,27 @@
 import React, { Component } from "react";
 
-import chroma from "chroma-js";
-
 import styled from "styled-components";
 
 import vscode from "../../../vscode/vscode";
 
-import DetailCard from "../detail_display/DetailCard";
+//components
+import AnnotationCard from "./AnnotationCard";
 
-import { VscGitPullRequest } from "react-icons/vsc";
-import { BsCardChecklist, BsFileText } from "react-icons/bs";
-import { ImFileText, ImFileText2 } from "react-icons/im";
-import { RiFile2Line, RiFileList2Line, RiFileTextLine } from "react-icons/ri";
-import { GrDocumentText } from "react-icons/gr";
-import { BiGitCommit } from "react-icons/bi";
-//"rgb(242,201,75)"
+//redux
+import { connect } from "react-redux";
 
-/*
-    GET_DOCUMENT_TEXT
-    RECEIVE_DOCUMENT_TEXT
-    COMMUNICATE_BLAME
-    FOCUS_BLAME_ANNOTATION
-*/
+//actions
+import { retrieveBlames } from "../../../actions/BlameActions";
+
+//router
+import { withRouter } from "react-router-dom";
+
 class BlameDisplay extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            focusedChunk: 36,
-            blameChunks: [
-                { start: 0, end: 20 },
-                { start: 21, end: 35 },
-                { start: 36, end: 51 },
-                { start: 52, end: 108 },
-                { start: 109, end: 140 },
-            ],
+            focusedChunk: 0,
         };
 
         this.annotations = {};
@@ -47,6 +34,10 @@ class BlameDisplay extends Component {
     };
 
     componentWillUnmount = () => {
+        vscode.postMessage({
+            type: "REMOVE_BLAME",
+        });
+
         window.removeEventListener("message", this.handleTextMessage);
 
         window.removeEventListener("keydown", this.handleKeyDown);
@@ -59,12 +50,11 @@ class BlameDisplay extends Component {
     };
 
     handleTextMessage = ({ data: message }) => {
-        console.log("Quilt Blame: Entering with message", message);
-
         const { type, payload } = message;
 
         switch (type) {
             case "RECEIVE_DOCUMENT_TEXT":
+                console.log("FILE PATH", this.props.activeFilePath);
                 this.retrieveContextBlame(payload);
 
                 break;
@@ -74,10 +64,6 @@ class BlameDisplay extends Component {
                 break;
 
             case "SELECT_BLAME_ANNOTATION":
-                console.log(
-                    "Quilt Blame: Entered with message SELECT_BLAME_ANNOTATION"
-                );
-
                 this.focusChunk(payload, false);
 
                 break;
@@ -87,7 +73,9 @@ class BlameDisplay extends Component {
     };
 
     handleKeyDown = (e) => {
-        const { focusedChunk, blameChunks } = this.state;
+        const { blameChunks } = this.props;
+
+        const { focusedChunk } = this.state;
 
         if (e.keyCode == "38") {
             e.preventDefault();
@@ -122,22 +110,41 @@ class BlameDisplay extends Component {
     };
 
     getDocumentText = () => {
-        console.log("Quilt Blame: Sending message GET_DOCUMENT_TEXT");
-
         vscode.postMessage({
             type: "GET_DOCUMENT_TEXT",
         });
     };
 
-    retrieveContextBlame = (text) => {
-        console.log("Quilt Blame: Entered retrieveContextBlame with text:");
+    retrieveContextBlame = async (text) => {
+        const {
+            retrieveBlames,
+            repositoryFullName,
+            match,
+            workspaces,
+            activeFilePath,
+        } = this.props;
 
-        console.log(
-            "Quilt Blame: Sending message COMMUNICATE_BLAME",
-            this.state.blameChunks
-        );
+        /*
+        const { workspaceId } = match.params;
 
-        const { blameChunks, focusedChunk } = this.state;
+        const workspace = workspaces[workspaceId];
+
+        const repository = workspace.repositories.filter((repo) => {
+            const { fullName } = repo;
+
+            return fullName == repositoryFullName;
+        })[0];
+
+        await retrieveBlames({
+            filePath: activeFilePath,
+            fileContent: text,
+            workspaceId: workspace._id,
+            repositoryId: repository._id,
+        });*/
+
+        const { blameChunks } = this.props;
+
+        const { focusedChunk } = this.state;
 
         vscode.postMessage({
             type: "COMMUNICATE_BLAME",
@@ -171,118 +178,68 @@ class BlameDisplay extends Component {
     };
 
     renderChunkAnnotations = () => {
-        const { blameChunks, focusedChunk } = this.state;
+        const { blameChunks } = this.props;
 
-        return blameChunks.map((chunk) => {
-            const { start, end } = chunk;
+        const { focusedChunk } = this.state;
+
+        const exampleData = {
+            keyUser: "FS",
+            tickets: [
+                {
+                    name: "Backend Query Checklist",
+                },
+                {
+                    name: "Cross-Platform Data Model Spec",
+                },
+            ],
+            pullRequests: [
+                {
+                    name: "Fixed Modularization of Blame Display",
+                },
+                {
+                    name: "Implemented Github Webhooks",
+                },
+            ],
+            commits: [
+                {
+                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
+                },
+                {
+                    name:
+                        "Outdated reference check preventing repository.scanned…",
+                },
+            ],
+            documents: [
+                {
+                    name: "Async Document Update Flow",
+                },
+            ],
+        };
+
+        return blameChunks.map((chunk, i) => {
+            chunk = { ...chunk, ...exampleData };
+
+            chunk._id = i;
+
+            const { start } = chunk;
+
+            const isFocused = focusedChunk == start;
+
+            const filename = "BlameDisplay.js";
 
             return (
-                <BlameContainer
-                    isFocused={focusedChunk == start}
+                <AnnotationCardContainer
+                    key={chunk._id}
+                    isFocused={isFocused}
                     onClick={() => this.focusChunk(start)}
                     ref={(node) => (this.annotations[start] = node)}
                 >
-                    <AnnotationNavbar>
-                        <Left>
-                            <Header>CheckController.js</Header>
-                            <LineNumber>{`Lines ${start + 1}-${
-                                end + 1
-                            }`}</LineNumber>
-                        </Left>
-                        <People>
-                            <PersonIcon>FS</PersonIcon>
-                        </People>
-                    </AnnotationNavbar>
-                    <AnnotationContent>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(93, 106, 210)"}>
-                                Tickets
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon op={0.9} size={"1.8rem"}>
-                                        <BsCardChecklist />
-                                    </DataIcon>
-                                    <DataText>
-                                        Cross-Platform Data Model Spec
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(77,183,130)"}>
-                                Pull Requests
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Fixed a11y failing contrasts on greys
-                                    </DataText>
-                                    {/*focusedChunk == start && <DetailCard />*/}
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.12rem"}>
-                                        <VscGitPullRequest />
-                                    </DataIcon>
-                                    <DataText>
-                                        Implemented Github Webhooks
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"rgb(242,201,75)"}>
-                                Commits
-                            </DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "[QD-278] Validate Trello Lifecycle Tests Progress.."
-                                        }
-                                    </DataText>
-                                </DataItem>
-                                <DataItem>
-                                    <DataIcon top={"-0.05rem"}>
-                                        <BiGitCommit />
-                                    </DataIcon>
-                                    <DataText>
-                                        {
-                                            "Outdated reference check preventing repository.scanned…"
-                                        }
-                                    </DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                        <DataTypeContainer>
-                            <DataHeader bg={"#58a5ff"}>Documents</DataHeader>
-                            <DataList>
-                                <DataItem>
-                                    <DataIcon
-                                        top={"0.05rem"}
-                                        op={0.9}
-                                        size={"1.8rem"}
-                                    >
-                                        <RiFile2Line />
-                                    </DataIcon>
-                                    <DataText>Backend Query Checklist</DataText>
-                                </DataItem>
-                            </DataList>
-                        </DataTypeContainer>
-                    </AnnotationContent>
-                </BlameContainer>
+                    <AnnotationCard
+                        isFocused={isFocused}
+                        filename={filename}
+                        chunk={chunk}
+                    />
+                </AnnotationCardContainer>
             );
         });
     };
@@ -291,12 +248,30 @@ class BlameDisplay extends Component {
         return <Container>{this.renderChunkAnnotations()}</Container>;
     }
 }
-// bg: "rgb(242,201,75)", bo: "rgba(242,201,75,0.15)" },
 
-// People related -> actual counts
-//
+const mapStateToProps = (state) => {
+    const {
+        global: { activeFilePath, repositoryFullName },
+        workspaces,
+    } = state;
 
-export default BlameDisplay;
+    return {
+        blameChunks: [
+            { start: 0, end: 20 },
+            { start: 21, end: 35 },
+            { start: 36, end: 51 },
+            { start: 52, end: 108 },
+            { start: 109, end: 123 },
+        ],
+        workspaces,
+        activeFilePath,
+        filename: activeFilePath ? activeFilePath.split("/").pop() : null,
+    };
+};
+
+export default withRouter(
+    connect(mapStateToProps, { retrieveBlames })(BlameDisplay)
+);
 
 const Container = styled.div`
     height: calc(100vh - 4rem);
@@ -316,181 +291,7 @@ const Container = styled.div`
     }
 `;
 
-const Left = styled.div`
-    display: flex;
-
-    flex-direction: column;
-`;
-
-const LineNumber = styled.span`
-    color: #58a5ff;
-
-    font-weight: 500;
-
-    font-size: 1.23rem;
-
-    margin-top: 0.8rem;
-`;
-
-const Header = styled.div`
-    font-size: 1.45rem;
-
-    font-weight: 500;
-
-    /*margin-bottom: 0.6rem;*/
-`;
-
-const People = styled.div`
-    display: flex;
-
-    margin-left: auto;
-`;
-
-const PersonIcon = styled.div`
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-
-    height: 3.5rem;
-
-    width: 3.5rem;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 0.4rem;
-
-    letter-spacing: 1.5px;
-
-    margin-right: 1.5rem;
-    &:last-of-type {
-        margin-right: 0rem;
-    }
-
-    margin-top: -0.7rem;
-`;
-
-const DataTypeContainer = styled.div`
-    margin-top: 2rem;
-`;
-
-const AnnotationNavbar = styled.div`
-    display: flex;
-
-    align-items: center;
-`;
-
-const AnnotationContent = styled.div`
-    display: flex;
-
-    flex-direction: column;
-`;
-
-const DataHeader = styled.div`
-    font-size: 1.23rem;
-
-    font-weight: 500;
-
-    line-height: 1.8;
-
-    opacity: 0.8;
-
-    margin-bottom: ${(props) => props.marginBottom};
-
-    overflow-wrap: break-word;
-
-    background-color: ${(props) => chroma(props.bg).alpha(0.2)};
-
-    color: ${(props) => props.bg};
-
-    padding: 0.4rem 1rem;
-
-    border-radius: 0.4rem;
-
-    display: inline-flex;
-
-    margin-bottom: 0.8rem;
-`;
-
-const DataList = styled.div`
-    display: flex;
-
-    flex-direction: column;
-`;
-
-const DataItem = styled.div`
-    display: flex;
-
-    align-items: center;
-
-    position: relative;
-    /*
-    margin-left: 0.5rem;
-
-    margin-top: 1.3rem;
-
-    height: 2.5rem
-    
-    */
-
-    padding-left: 0.7rem;
-
-    margin-left: -0.3rem;
-
-    border-radius: 0.4rem;
-
-    margin-top: 0.3rem;
-
-    height: 3.2rem;
-
-    cursor: pointer;
-
-    &:hover {
-        background-color: ${(props) =>
-            props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-    }
-
-    transition: background-color 0.08s ease-in;
-`;
-
-const DataIcon = styled.div`
-    font-size: ${(props) => (props.size ? props.size : "1.7rem")};
-
-    margin-top: ${(props) => props.top};
-
-    min-width: 2.7rem;
-
-    max-width: 2.7rem;
-
-    opacity: 0.95;
-
-    opacity: ${(props) => props.op};
-
-    display: flex;
-`;
-
-const DataText = styled.div`
-    font-size: 1.23rem;
-
-    font-weight: 500;
-
-    line-height: 1.8;
-
-    opacity: 0.8;
-
-    margin-bottom: ${(props) => props.marginBottom};
-
-    overflow-wrap: break-word;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-`;
-
-const BlameContainer = styled.div`
+const AnnotationCardContainer = styled.div`
     margin-top: 1.5rem;
 
     width: 100%;
@@ -505,10 +306,6 @@ const BlameContainer = styled.div`
 
     &:first-of-type {
         margin-top: 0rem;
-    }
-
-    &:last-of-type {
-        margin-top: 1.6rem;
     }
 
     opacity: ${(props) => (props.isFocused ? "1" : "0.55")};

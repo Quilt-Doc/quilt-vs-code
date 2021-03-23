@@ -139,6 +139,9 @@ class ChooseProvider extends Component {
         const integrationIcons = choices.map((choice, i) => {
             return (
                 <IntegrationSource
+                    large={true}
+                    height={"5.3rem"}
+                    width={"5.3rem"}
                     key={i}
                     onClick={() => this.handleSourceClick(i)}
                     inactive={i !== 0}

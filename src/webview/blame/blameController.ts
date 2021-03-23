@@ -24,7 +24,6 @@ import BlameCodeLensProvider from "./blameCodeLensProvider";
 import BlameChunk from "./blameChunk";
 
 import { EXTENSION_NAME } from "../../constants/constants";
-import { type } from "os";
 
 class BlameController {
     private activeEditor?: TextEditor;
@@ -34,6 +33,8 @@ class BlameController {
     private textDocumentListener?: Disposable;
 
     private editorSelectionListener?: Disposable;
+
+    private viewVisibilityListener?: Disposable;
 
     private blameDecorator?: BlameDecorator;
 
@@ -65,10 +66,6 @@ class BlameController {
 
                 const blameStart = args;
 
-                console.log(
-                    "Quilt Blame: Sending message FOCUS_BLAME_ANNOTATION"
-                );
-
                 this._view?.webview.postMessage({
                     type: "FOCUS_BLAME_ANNOTATION",
                     payload: blameStart,
@@ -81,9 +78,11 @@ class BlameController {
         this.activeEditor = activeTextEditor;
 
         this.activeEditorListener = onDidChangeActiveTextEditor((editor) => {
+            this.removeBlame();
+
             this.activeEditor = editor;
 
-            //this.updateBlame();
+            this.requestBlame();
         });
 
         this.editorSelectionListener = onDidChangeTextEditorSelection(
@@ -108,42 +107,33 @@ class BlameController {
                 });
             }
         );
-        /*
+
+        this.viewVisibilityListener = this._view.onDidChangeVisibility((e) => {
+            if (this._view.visible) {
+                this.requestBlame();
+            } else {
+                this.removeBlame();
+            }
+        });
+
         this.textDocumentListener = onDidChangeTextDocument((event) => {
             if (
                 this.activeEditor &&
                 event.document === this.activeEditor.document
             ) {
-                this.updateBlame();
+                this.requestBlame();
             }
-        });*/
+        });
     }
 
     handleWebviewBlameMessage(message: any) {
         const { type, payload } = message;
 
-        console.log("\nQuilt Blame: Handling message --", message);
-
         if (type == "GET_DOCUMENT_TEXT") {
-            console.log(
-                "\nQuilt Blame: Entered with message GET_DOCUMENT_TEXT"
-            );
-
-            const documentText = this.activeEditor?.document.getText();
-
-            console.log("\nQuilt Blame: Sending message RECEIVE_DOCUMENT_TEXT");
-
-            this._view?.webview.postMessage({
-                type: "RECEIVE_DOCUMENT_TEXT",
-                payload: documentText,
-            });
+            this.requestBlame();
         }
 
         if (type == "COMMUNICATE_BLAME") {
-            console.log(
-                "\nQuilt Blame: Received blame with message COMMUNICATE_BLAME"
-            );
-
             const { blameChunks, focusedChunk } = payload;
 
             this.blameChunks = blameChunks;
@@ -154,10 +144,6 @@ class BlameController {
         }
 
         if (type == "FOCUS_CHUNK") {
-            console.log(
-                "\nQuilt Blame: Focused chunk with message FOCUS_CHUNK"
-            );
-
             const { focusedChunk, shouldScroll } = payload;
 
             this.focusedChunk = focusedChunk;
@@ -166,6 +152,19 @@ class BlameController {
 
             this.updateBlame();
         }
+
+        if (type == "REMOVE_BLAME") {
+            this.removeBlame();
+        }
+    }
+
+    requestBlame() {
+        const documentText = this.activeEditor?.document.getText();
+
+        this._view?.webview.postMessage({
+            type: "RECEIVE_DOCUMENT_TEXT",
+            payload: documentText,
+        });
     }
 
     scrollToChunk = () => {
@@ -189,7 +188,8 @@ class BlameController {
         if (
             this.blameDecorator &&
             this.activeEditor &&
-            this.blameCodeLensProvider
+            this.blameCodeLensProvider &&
+            this.blameChunks.length > 0
         ) {
             this.blameDecorator.updateBlameDisplay(
                 this.activeEditor,
@@ -201,7 +201,19 @@ class BlameController {
         }
     }
 
+    removeBlame() {
+        this.blameChunks = [];
+
+        if (this.blameDecorator && this.blameCodeLensProvider) {
+            this.blameDecorator.removeBlameDecorations();
+
+            this.blameCodeLensProvider.setChunks(this.blameChunks);
+        }
+    }
+
     dispose() {
+        this.removeBlame();
+
         this.activeEditorListener?.dispose();
 
         this.textDocumentListener?.dispose();

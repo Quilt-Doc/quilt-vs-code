@@ -12,6 +12,15 @@ import {
 //styles
 import styled from "styled-components";
 
+//react-redux
+import { connect } from "react-redux";
+
+//actions
+import { createJiraAccessToken } from "../../../../../../../actions/JiraActions";
+
+//router
+import { withRouter } from "react-router-dom";
+
 class IntegrationRequestInformation extends Component {
     constructor(props) {
         super(props);
@@ -36,7 +45,8 @@ class IntegrationRequestInformation extends Component {
             'Select "Create API Token".',
             'Choose a clear label, e.g. "Quilt Token".',
             'Click "Create".',
-            'Copy your API Token into the input field below and click "Continue".',
+            "Copy your API Token into the input field below.",
+            'Enter you Jira email address and click "Continue".',
         ];
 
         steps = steps.map((step) => {
@@ -62,8 +72,16 @@ class IntegrationRequestInformation extends Component {
         );
     };
 
-    handleClick = () => {
-        console.log("INPUT VALUE", this.input.value);
+    handleClick = async () => {
+        const { createJiraAccessToken, match } = this.props;
+
+        const { workspaceId } = match.params;
+
+        const result = await createJiraAccessToken({
+            tokenValue: this.tokenInput.value,
+            emailAddress: this.emailInput.value,
+            workspaceId,
+        });
 
         const { setLoaded } = this.props;
 
@@ -82,10 +100,18 @@ class IntegrationRequestInformation extends Component {
                 <Directions>{this.renderSteps()}</Directions>
                 <Input
                     label={"Personal Access Token"}
-                    setRef={(node) => (this.input = node)}
+                    setRef={(node) => (this.tokenInput = node)}
                     spellCheck={false}
                     autoFocus={false}
                     placeholder={`Personal Access Token`}
+                    marginTop={"2rem"}
+                />
+                <Input
+                    label={"Email"}
+                    setRef={(node) => (this.emailInput = node)}
+                    spellCheck={false}
+                    autoFocus={false}
+                    placeholder={`Email`}
                     marginTop={"2rem"}
                 />
                 <Button onClick={this.handleClick}>Continue</Button>
@@ -94,7 +120,15 @@ class IntegrationRequestInformation extends Component {
     }
 }
 
-export default IntegrationRequestInformation;
+const mapStateToProps = () => {
+    return {};
+};
+
+export default withRouter(
+    connect(mapStateToProps, { createJiraAccessToken })(
+        IntegrationRequestInformation
+    )
+);
 
 const Directions = styled.div`
     margin-top: 1.7rem;

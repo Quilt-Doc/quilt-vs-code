@@ -17,20 +17,20 @@ import BlameChunk from "./blameChunk";
 class BlameDecorator {
     private disposableDecorations: any[] = [];
 
-    updateBlameDisplay(
-        editor: TextEditor,
-        blameChunks: BlameChunk[],
-        focusedChunk: Number
-    ) {
+    removeBlameDecorations() {
         this.disposableDecorations.map((dec) => {
             const { decorationType } = dec;
 
             decorationType.dispose();
         });
+    }
 
-        console.log("\nQuilt: Entered into updateDecorations!\n");
-
-        console.log("FOCUSED CHUNK", focusedChunk);
+    updateBlameDisplay(
+        editor: TextEditor,
+        blameChunks: BlameChunk[],
+        focusedChunk: Number
+    ) {
+        this.removeBlameDecorations();
 
         if (!editor) return;
 
@@ -49,14 +49,10 @@ class BlameDecorator {
         let focusIndex = 0;
 
         blameChunks.map((chunk, i) => {
-            console.log("CHUNK START", chunk.start);
-
             if (chunk.start == focusedChunk) {
                 focusIndex = i;
             }
         });
-
-        console.log("FOCUS INDEX", focusIndex);
 
         let topDecorations: any[] = [];
 
@@ -121,8 +117,14 @@ class BlameDecorator {
             };
         });
 
+        const documentLength = editor.document.lineCount;
+
         blameChunks.map((chunk, i) => {
             const { start, end } = chunk;
+
+            if (end >= documentLength) {
+                return;
+            }
 
             const range = new Range(
                 editor.document.lineAt(start + 1).range.start,
@@ -161,8 +163,6 @@ class BlameDecorator {
             botDecorations[i].decorationOptions.push({
                 range: botRange,
             });
-
-            const x = 5;
         });
 
         decorations = decorations.filter(

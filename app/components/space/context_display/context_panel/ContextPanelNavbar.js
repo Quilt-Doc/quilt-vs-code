@@ -23,25 +23,11 @@ class ContextPanelNavbar extends Component {
         return (
             <ContextPanelNavbarContainer>
                 <IntegrationSource
+                    large={true}
                     width={"5.5rem"}
                     borderRadius={"0.5rem"}
                     type={source}
                 />
-                <IntegrationModelSelection>
-                    {models.map((model) => {
-                        return <div>{model}</div>;
-                    })}
-                </IntegrationModelSelection>
-                {/*
-                <ContextPanelIconContainer>
-                    <ContextPanelIcon>
-                        {integration === "trello" ? (
-                            <RiTrelloFill />
-                        ) : (
-                            <RiGithubFill />
-                        )}
-                    </ContextPanelIcon>
-                </ContextPanelIconContainer>*/}
             </ContextPanelNavbarContainer>
         );
     }
@@ -64,7 +50,9 @@ const ContextPanelNavbarContainer = styled.div`
 
     align-items: center;
 
-    padding: 1rem 1rem;
+    padding: 1.7rem 1.7rem;
+
+    padding-bottom: 1.7rem;
 
     opacity: 0.85;
 `;

@@ -9,7 +9,6 @@ import Test from "./Test";
 //actions
 import { setRepositories } from "../../actions/RepositoryActions";
 import { retrieveWorkspaces } from "../../actions/WorkspaceActions";
-import { retrieveContexts } from "../../actions/ContextActions";
 
 //redux
 import { connect } from "react-redux";
@@ -33,10 +32,9 @@ class Space extends Component {
             match,
         } = this.props;
 
-        /*
         const {
             retrieveWorkspaces,
-            retrieveContexts,
+
             setRepositories,
         } = this.props;
 
@@ -46,50 +44,48 @@ class Space extends Component {
             return;
         }
 
-        try {
-            await Promise.all([
-                retrieveWorkspaces({ userId }),
-                retrieveContexts({ workspaceId }),
-            ]);
-        } catch (e) {
-            throw new Error(e);
-        }
+        await retrieveWorkspaces({ userId });
 
         const { workspaces } = this.props;
 
         const currentWorkspace = workspaces[workspaceId];
 
-        console.log("WORKSPACES", workspaces);
-
         const { repositories } = currentWorkspace;
 
         setRepositories({ repositories });
-        */
 
         this.setState({ loaded: true });
     };
 
     renderContent = () => {
         return (
-            <Switch>
-                <Route
-                    path="/space/:workspaceId/settings"
-                    component={Settings}
-                />
-                <Route
-                    path="/space/:workspaceId/blame"
-                    component={BlameDisplay}
-                />
-                <Route path="/space/:workspaceId/context" component={Test} />
-            </Switch>
+            <>
+                <Switch>
+                    <Route
+                        path="/space/:workspaceId/settings"
+                        component={Settings}
+                    />
+                    <Route
+                        path="/space/:workspaceId/blame"
+                        component={BlameDisplay}
+                    />
+                    <Route
+                        path="/space/:workspaceId/context"
+                        component={ContextDisplay}
+                    />
+                </Switch>
+            </>
         );
     };
 
     render() {
         const { loaded } = this.state;
 
+        const { testItem } = this.props;
+
         return (
             <>
+                {testItem}
                 <SpaceNavbar />
                 {loaded && this.renderContent()}
             </>
@@ -113,6 +109,5 @@ export default withRouter(
     connect(mapStateToProps, {
         setRepositories,
         retrieveWorkspaces,
-        retrieveContexts,
     })(Space)
 );

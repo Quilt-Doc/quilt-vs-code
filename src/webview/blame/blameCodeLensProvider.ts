@@ -16,10 +16,7 @@ class BlameCodeLensProvider implements CodeLensProvider {
 
     private isActive: Boolean = true;
 
-    private blameChunks: BlameChunk[] = [
-        { start: 1, end: 3 },
-        { start: 5, end: 8 },
-    ];
+    private blameChunks: BlameChunk[] = [];
 
     private _onDidChangeCodeLenses: EventEmitter<void> = new EventEmitter<void>();
 

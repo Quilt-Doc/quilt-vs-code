@@ -23,7 +23,7 @@ import {
     CHANGE_THEME,
     GET_VALUE_GLOBAL_STORAGE,
     SET_VALUE_GLOBAL_STORAGE,
-    SEND_VALUE_GLOBAL_STORAGE,
+    RECEIVE_VALUE_GLOBAL_STORAGE,
 } from "./types/MessageTypes";
 import { EXTENSION_NAME } from "../constants/constants";
 
@@ -89,7 +89,7 @@ class QuiltViewProvider implements WebviewViewProvider {
             this._globalStore?.getValue(payload.key);
 
             this._view?.webview.postMessage({
-                type: SEND_VALUE_GLOBAL_STORAGE,
+                type: RECEIVE_VALUE_GLOBAL_STORAGE,
                 payload: {
                     value: this._globalStore?.getValue(payload.key),
                     dispatchType: payload.dispatchType,
