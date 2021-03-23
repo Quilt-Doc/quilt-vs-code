@@ -89,10 +89,15 @@ class IntegrationItemSelection extends Component {
 
         const { workspaceId } = match.params;
 
+        const url =
+            integration == "jira"
+                ? `${BASE_URL}/${userId}/${workspaceId}/${integration}`
+                : `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`;
+
         vscode.postMessage({
             type: OPEN_BROWSER,
             payload: {
-                url: `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`,
+                url,
             },
         });
     };

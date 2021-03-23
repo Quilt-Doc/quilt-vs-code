@@ -114,7 +114,7 @@ class IntegrationPanel extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        contexts: Object.values(state.contexts),
+        contexts: Object.values(state.context),
         repositories: Object.values(state.repositories),
     };
 };

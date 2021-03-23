@@ -7,7 +7,7 @@ import ContextPanel from "./context_panel/ContextPanel";
 import { connect } from "react-redux";
 
 //actions
-import { getFileContext } from "../../../actions/AssociationActions";
+import { getFileContext } from "../../../actions/ContextActions";
 
 //react-router
 import { withRouter } from "react-router-dom";
@@ -140,17 +140,6 @@ const mapStateToProps = (state) => {
                 },
                 {
                     name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-                {
-                    name:
-                        "Outdated reference check preventing repository.scanned…",
-                },
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-                {
-                    name:
-                        "Outdated reference check preventing repository.scanned…",
                 },
             ],
             pullRequests: [

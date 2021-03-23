@@ -13,8 +13,6 @@ import authReducer from "./AuthReducer";
 
 //integration specific
 import githubReducer from "./GithubReducer";
-import trelloReducer from "./TrelloReducer";
-import jiraReducer from "./JiraReducer";
 
 //view specific
 import blameReducer from "./BlameReducer";
@@ -25,9 +23,9 @@ import errorReducer from "./ErrorReducer";
 export default combineReducers({
     workspaces: workspaceReducer,
     repositories: repositoryReducer,
-    contexts: contextReducer,
     workspaceInvites: workspaceInviteReducer,
     blames: blameReducer,
+    context: contextReducer,
 
     theme: themeReducer,
     global: globalReducer,
@@ -35,6 +33,4 @@ export default combineReducers({
     errors: errorReducer,
 
     github: githubReducer,
-    trello: trelloReducer,
-    jira: jiraReducer,
 });

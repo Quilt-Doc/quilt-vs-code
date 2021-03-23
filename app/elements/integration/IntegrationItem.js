@@ -8,6 +8,8 @@ import {
     RiLayoutColumnLine,
 } from "react-icons/ri";
 
+import { SiJira } from "react-icons/si";
+
 const IntegrationItem = ({
     type,
     name,
@@ -20,6 +22,7 @@ const IntegrationItem = ({
         github: <RiGithubFill />,
         trello: <RiTrelloFill />,
         column: <RiLayoutColumnLine />,
+        jira: <SiJira />,
     };
 
     return (
@@ -28,7 +31,12 @@ const IntegrationItem = ({
             flat={flat}
             onClick={onClick}
         >
-            <IntegrationItemIcon type={type}>{icons[type]}</IntegrationItemIcon>
+            <IntegrationItemIcon
+                size={type == "jira" ? "1.7rem" : "1.8rem"}
+                type={type}
+            >
+                {icons[type]}
+            </IntegrationItemIcon>
             <IntegrationItemName>{name}</IntegrationItemName>
             {active != null && active != undefined && (
                 <IntegrationItemCheck active={active}>
@@ -71,7 +79,7 @@ const IntegrationItemIcon = styled.div`
 
     display: flex;
 
-    font-size: 1.8rem;
+    font-size: ${(props) => (props.size ? props.size : "1.8rem")};
 
     opacity: 0.85;
 `;

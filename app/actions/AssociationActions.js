@@ -1,15 +1,5 @@
-import { POPULATE_GITHUB_CONTEXT } from "./types/GithubTypes";
-import { POPULATE_TRELLO_CONTEXT } from "./types/TrelloTypes";
-import { POPULATE_JIRA_CONTEXT } from "./types/JiraTypes";
-
 import getAPI from "../api/api";
 import { setError } from "./ErrorActions";
-
-const types = {
-    github: POPULATE_GITHUB_CONTEXT,
-    trello: POPULATE_TRELLO_CONTEXT,
-    jira: POPULATE_JIRA_CONTEXT,
-};
 
 export const generateAssociations = ({ workspaceId, contexts }) => async (
     dispatch
@@ -55,6 +45,10 @@ export const getFileContext = ({
     if (!success) {
         throw new Error(error);
     } else {
+        dispatch({
+            type: SET_CONTEXT_DISPLAY,
+            payload: result,
+        });
         Object.keys(result).map((integration) => {
             dispatch({
                 type: types[integration],

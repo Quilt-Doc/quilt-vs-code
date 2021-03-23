@@ -1,22 +1,31 @@
-import { RETRIEVE_CONTEXTS } from "./types/ContextTypes";
+import { SET_CONTEXT_DISPLAY } from "./types/ContextTypes";
 
 import getAPI from "../api/api";
 
-export const retrieveContexts = ({ workspaceId }) => async (dispatch) => {
+export const getFileContext = ({
+    workspaceId,
+    repositoryId,
+    filePath,
+}) => async (dispatch) => {
     const api = getAPI();
 
-    if (!workspaceId)
-        throw new Error("retrieveContexts: workspaceId not provided");
+    if (!workspaceId) throw new Error("No workspaceId provided");
 
-    const response = await api.post(`/contexts/${workspaceId}/retrieve`);
+    if (!filePath) throw new Error("No filePath is specified");
 
-    const { success, result, error } = response.data;
+    const response = await api.post(
+        `/associations/${workspaceId}/${repositoryId}/get_file_context`,
+        { filePath }
+    );
 
-    console.log("CONTEXTS ARE RETIREVED", response);
+    const { result, success, error } = response.data;
 
     if (!success) {
         throw new Error(error);
     } else {
-        dispatch({ type: RETRIEVE_CONTEXTS, payload: result });
+        dispatch({
+            type: SET_CONTEXT_DISPLAY,
+            payload: result,
+        });
     }
 };

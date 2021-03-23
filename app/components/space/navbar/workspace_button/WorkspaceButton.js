@@ -115,7 +115,7 @@ const SpaceNavbarButton = styled.div`
 
     opacity: ${(props) => (props.active ? 1 : 0.4)};
 
-    border-radius: 0.5rem;
+    border-radius: 0.3rem;
 
     &:hover {
         opacity: 1;
@@ -123,7 +123,7 @@ const SpaceNavbarButton = styled.div`
 
     cursor: pointer;
 
-    transition: opacity 0.1s ease-in;
+    transition: opacity 0.2s ease-in;
 
     &:last-of-type {
         margin-right: 0rem;
@@ -131,7 +131,7 @@ const SpaceNavbarButton = styled.div`
 `;
 
 const WorkspaceButtonContainer = styled(SpaceNavbarButton)`
-    font-weight: 300;
+    font-weight: 600;
 
     font-size: 1.6rem;
 
@@ -141,7 +141,7 @@ const WorkspaceButtonContainer = styled(SpaceNavbarButton)`
 
     min-width: 2.8rem;
 
-    border-radius: 0.35rem;
+    border-radius: 0.2rem;
 
     position: relative;
 `;
