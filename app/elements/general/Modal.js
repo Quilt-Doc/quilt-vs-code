@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 const Modal = (props) => {
-    const { closeModal, children, contentHeight } = props;
+    const { closeModal, children, contentHeight, zIndex } = props;
     return (
-        <ModalBackground onClick={closeModal}>
+        <ModalBackground zIndex={zIndex} onClick={closeModal}>
             {/*<CSSTransition
                 in={true}
                 appear = {true}
@@ -29,7 +29,8 @@ export default Modal;
 const ModalBackground = styled.div`
     position: fixed; /* Stay in place */
 
-    z-index: 10000; /* Sit on top */
+    z-index: ${(props) =>
+        props.zIndex ? props.zIndex : 10000}; /* Sit on top */
 
     left: 0;
 

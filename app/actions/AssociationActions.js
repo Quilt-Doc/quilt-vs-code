@@ -3,6 +3,7 @@ import { POPULATE_TRELLO_CONTEXT } from "./types/TrelloTypes";
 import { POPULATE_JIRA_CONTEXT } from "./types/JiraTypes";
 
 import getAPI from "../api/api";
+import { setError } from "./ErrorActions";
 
 const types = {
     github: POPULATE_GITHUB_CONTEXT,

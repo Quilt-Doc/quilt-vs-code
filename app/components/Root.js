@@ -2,6 +2,10 @@ import React, { Component } from "react";
 
 //styles
 import { ThemeProvider } from "styled-components";
+import styled from "styled-components";
+
+//sentry
+import * as Sentry from "@sentry/react";
 
 //components
 import Login from "./login/Login";
@@ -9,6 +13,7 @@ import Space from "./space/Space";
 import OnboardFlow from "./setup/onboarding/OnboardFlow";
 import WorkspaceCreation from "./setup/workspace_creation/WorkspaceCreation";
 import LoadingScreen from "./loading_screen/LoadingScreen";
+import ErrorDisplay from "./error_handling/ErrorDisplay";
 
 //actions
 import { changeTheme } from "../actions/ThemeActions";
@@ -76,11 +81,13 @@ class Root extends Component {
 
         if (!isOnboarded) return history.push("/onboard");
 
-        console.log("Workspaces", workspaces);
-
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
         }
+
+        return history.push(`/space/${workspaces[0]._id}/context`);
+
+        //return history.push("/error");
 
         return history.push(`/space/${workspaces[0]._id}/blame`);
 
@@ -110,7 +117,7 @@ class Root extends Component {
                     case AUTHENTICATE_USER:
                         const { extensionAuthenticateUser } = this.props;
 
-                        if (payload.value) {
+                        if (payload.value && payload.value.isAuthorized) {
                             await extensionAuthenticateUser(payload);
                         }
 
@@ -127,21 +134,41 @@ class Root extends Component {
         }
     };
 
+    renderContent = () => {
+        const { hasError } = this.props;
+
+        console.log("HAS ERROR", hasError);
+
+        if (hasError) return <ErrorDisplay />;
+
+        return (
+            <Switch>
+                <Route path="/create_workspace" component={WorkspaceCreation} />
+                <Route path="/onboard" component={OnboardFlow} />
+                <Route path="/login" component={Login} />
+                <Route
+                    path="/space/:workspaceId"
+                    render={() => <Space testItem={this.state.testItem} />}
+                />
+                <Route path="/loading_screen" component={LoadingScreen} />
+            </Switch>
+        );
+    };
+
     render() {
         const { theme } = this.props;
 
         return (
             <ThemeProvider theme={theme}>
-                <Switch>
-                    <Route
-                        path="/create_workspace"
-                        component={WorkspaceCreation}
-                    />
-                    <Route path="/onboard" component={OnboardFlow} />
-                    <Route path="/login" component={Login} />
-                    <Route path="/space/:workspaceId" component={Space} />
-                    <Route path="/loading_screen" component={LoadingScreen} />
-                </Switch>
+                <Sentry.ErrorBoundary
+                    fallback={({ resetError }) => {
+                        return (
+                            <ErrorDisplay resetError={resetError} zIndex={-1} />
+                        );
+                    }}
+                >
+                    {this.renderContent()}
+                </Sentry.ErrorBoundary>
             </ThemeProvider>
         );
     }
@@ -151,12 +178,14 @@ const mapStateToProps = (state) => {
     const {
         theme,
         auth: { isAuthorized, user },
+        errors: { hasError },
     } = state;
 
     return {
         theme,
         isAuthorized,
         user,
+        hasError,
     };
 };
 
@@ -168,3 +197,17 @@ export default withRouter(
         extensionAuthenticateUser,
     })(Root)
 );
+
+function FallbackComponent() {
+    return <Box>An error has occurred</Box>;
+}
+
+const myFallback = <FallbackComponent />;
+
+const Box = styled.div`
+    background-color: red;
+
+    height: 50rem;
+
+    width: 40rem;
+`;

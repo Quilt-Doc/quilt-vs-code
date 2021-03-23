@@ -19,6 +19,9 @@ import jiraReducer from "./JiraReducer";
 //view specific
 import blameReducer from "./BlameReducer";
 
+//utility specific
+import errorReducer from "./ErrorReducer";
+
 export default combineReducers({
     workspaces: workspaceReducer,
     repositories: repositoryReducer,
@@ -29,6 +32,7 @@ export default combineReducers({
     theme: themeReducer,
     global: globalReducer,
     auth: authReducer,
+    errors: errorReducer,
 
     github: githubReducer,
     trello: trelloReducer,

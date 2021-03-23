@@ -44,11 +44,7 @@ class Space extends Component {
             return;
         }
 
-        try {
-            await retrieveWorkspaces({ userId });
-        } catch (e) {
-            throw new Error(e);
-        }
+        await retrieveWorkspaces({ userId });
 
         const { workspaces } = this.props;
 
@@ -63,25 +59,33 @@ class Space extends Component {
 
     renderContent = () => {
         return (
-            <Switch>
-                <Route
-                    path="/space/:workspaceId/settings"
-                    component={Settings}
-                />
-                <Route
-                    path="/space/:workspaceId/blame"
-                    component={BlameDisplay}
-                />
-                <Route path="/space/:workspaceId/context" component={Test} />
-            </Switch>
+            <>
+                <Switch>
+                    <Route
+                        path="/space/:workspaceId/settings"
+                        component={Settings}
+                    />
+                    <Route
+                        path="/space/:workspaceId/blame"
+                        component={BlameDisplay}
+                    />
+                    <Route
+                        path="/space/:workspaceId/context"
+                        component={ContextDisplay}
+                    />
+                </Switch>
+            </>
         );
     };
 
     render() {
         const { loaded } = this.state;
 
+        const { testItem } = this.props;
+
         return (
             <>
+                {testItem}
                 <SpaceNavbar />
                 {loaded && this.renderContent()}
             </>

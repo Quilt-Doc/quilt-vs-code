@@ -13,40 +13,32 @@ class ContextPanel extends Component {
         super(props);
 
         this.state = {
-            selectedModel: null,
             loaded: false,
         };
     }
 
     componentDidMount() {
-        const { data } = this.props;
-
         this.setState({
-            selectedModel: Object.keys(data)[0],
             loaded: true,
         });
     }
 
     renderListItems = () => {
-        const { data } = this.props;
+        const { data, model, source } = this.props;
 
-        const { selectedModel } = this.state;
+        console.log("These are the parameters we can see", {
+            data,
+            model,
+            source,
+        });
 
-        const tempMap = {
-            commit: "commitMessage",
-            ticket: "name",
-            pullRequest: "name",
-            branch: "name",
-        };
-
-        const nameField = tempMap[selectedModel];
-
-        const listItems = Object.values(data[selectedModel]).map((item) => {
+        const listItems = data.map((item) => {
             return (
                 <ContextListItem
-                    selectedModel={selectedModel}
+                    key={item.name}
+                    model={model}
                     source={source}
-                    name={item[nameField]}
+                    name={item.name}
                 />
             );
         });
@@ -78,7 +70,7 @@ const ContextPanelList = styled.div`
 
     flex-direction: column;
 
-    max-height: 20rem;
+    max-height: 23rem;
 
     overflow-y: scroll;
 

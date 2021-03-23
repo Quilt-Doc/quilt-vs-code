@@ -8,11 +8,24 @@ import chroma from "chroma-js";
 
 //icons
 import { RiSearch2Line } from "react-icons/ri";
-import { IoLayersOutline } from "react-icons/io5";
+import { BiCopy } from "react-icons/bi";
+import {
+    IoLayersOutline,
+    IoTerminal,
+    IoTerminalOutline,
+} from "react-icons/io5";
 import { VscLibrary } from "react-icons/vsc";
-
+import {
+    HiDuplicate,
+    HiOutlineDuplicate,
+    HiOutlineTerminal,
+    HiSearch,
+} from "react-icons/hi";
+import { BsTerminal } from "react-icons/bs";
+import { FiCopy } from "react-icons/fi";
 //router
 import { withRouter } from "react-router-dom";
+import { CgSearch, CgTerminal } from "react-icons/cg";
 
 class SpaceNavbar extends Component {
     constructor(props) {
@@ -36,18 +49,25 @@ class SpaceNavbar extends Component {
 
         const { workspaceId } = match.params;
 
-        const buttonData = {
-            search: {
+        /*
+               search: {
                 icon: <RiSearch2Line />,
                 fontSize: "2.1rem",
             },
-            blame: {
-                icon: <IoLayersOutline />,
-                fontSize: "2rem",
+        */
+
+        const buttonData = {
+            search: {
+                icon: <CgSearch />,
+                fontSize: "2.1rem",
             },
-            docs: {
-                icon: <VscLibrary />,
-                fontSize: "2rem",
+            blame: {
+                icon: <BsTerminal />, //<VscLibrary />,
+                fontSize: "2.2rem",
+            },
+            context: {
+                icon: <BiCopy />, //<IoLayersOutline />,
+                fontSize: "2.3rem", //2rem
             },
         };
 

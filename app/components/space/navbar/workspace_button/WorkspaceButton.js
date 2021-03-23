@@ -62,7 +62,7 @@ class WorkspaceButton extends Component {
                     <SubHeader>Workspace Settings</SubHeader>
                 </ThinButton>
                 <ThinButton onClick={() => this.routeSettings("user")}>
-                    <SubHeader>User Settings</SubHeader>
+                    <SubHeader>Personal Settings</SubHeader>
                 </ThinButton>
                 <ThinButton onClick={this.logoutUser}>
                     <SubHeader>Log out</SubHeader>
