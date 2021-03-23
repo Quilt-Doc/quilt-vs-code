@@ -52,18 +52,12 @@ class WorkspaceSuggestionContainer extends Component {
         const { history, location } = this.props;
 
         history.push(`/space/${workspaceId}`);
-
-        console.log("LOCATION AFTER WORKSPACE SELECTION", location);
     };
 
     selectWorkspaceCreation = () => {
         const { history, location } = this.props;
 
-        console.log("ENTERED HERE");
-
         history.push("/create_workspace");
-
-        console.log("ACHIEVED LOCATION", location);
     };
 
     renderAddWorkspaceButton = () => {
@@ -114,7 +108,8 @@ const WorkspaceSelected = styled.div`
 `;
 
 const WorkspaceContainer = styled.div`
-    border-bottom: 1px solid ${(props) => props.theme.SHADE_3};
+    border-bottom: 1px solid
+        ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 `;
 
 const WorkspaceSuggestionDetail = styled.div`

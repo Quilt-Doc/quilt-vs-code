@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 // styles
 import styled from "styled-components";
+import chroma from "chroma-js";
 
 //actions
 import { deleteWorkspace } from "../../../../actions/WorkspaceActions";
@@ -53,7 +54,7 @@ class DeleteWorkspacePanel extends Component {
                 </WrappedSubHeader>
                 <Button
                     onClick={this.deleteWorkspace}
-                    borderColor={"#ef3b34"}
+                    borderColor={chroma("#FC427B").alpha(0.8)}
                     loading={deleting}
                 >
                     Delete Workspace

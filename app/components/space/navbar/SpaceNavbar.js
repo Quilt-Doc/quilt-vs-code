@@ -8,11 +8,24 @@ import chroma from "chroma-js";
 
 //icons
 import { RiSearch2Line } from "react-icons/ri";
-import { IoLayersOutline } from "react-icons/io5";
+import { BiCopy } from "react-icons/bi";
+import {
+    IoLayersOutline,
+    IoTerminal,
+    IoTerminalOutline,
+} from "react-icons/io5";
 import { VscLibrary } from "react-icons/vsc";
-
+import {
+    HiDuplicate,
+    HiOutlineDuplicate,
+    HiOutlineTerminal,
+    HiSearch,
+} from "react-icons/hi";
+import { BsTerminal } from "react-icons/bs";
+import { FiCopy } from "react-icons/fi";
 //router
 import { withRouter } from "react-router-dom";
+import { CgSearch, CgTerminal } from "react-icons/cg";
 
 class SpaceNavbar extends Component {
     constructor(props) {
@@ -36,33 +49,39 @@ class SpaceNavbar extends Component {
 
         const { workspaceId } = match.params;
 
-        const buttonData = {
-            search: {
+        /*
+               search: {
                 icon: <RiSearch2Line />,
                 fontSize: "2.1rem",
             },
+        */
+
+        const buttonData = {
             blame: {
-                icon: <IoLayersOutline />,
+                icon: <BsTerminal />, //<VscLibrary />,
                 fontSize: "2rem",
+                type: "left",
             },
-            docs: {
-                icon: <VscLibrary />,
-                fontSize: "2rem",
+            context: {
+                icon: <BiCopy />, //<IoLayersOutline />,
+                fontSize: "2.1rem", //2rem
+                type: "right",
             },
         };
 
         return Object.keys(buttonData).map((key) => {
-            const { icon, fontSize } = buttonData[key];
+            const { icon, fontSize, type } = buttonData[key];
 
             return (
-                <SpaceNavbarButton
+                <SpaceNavbarMode
                     key={key}
                     onClick={() => history.push(`/space/${workspaceId}/${key}`)}
                     active={key == buttonIdentifier}
                     fontSize={fontSize}
+                    type={type}
                 >
                     {icon}
-                </SpaceNavbarButton>
+                </SpaceNavbarMode>
             );
         });
     };
@@ -101,6 +120,53 @@ const SpaceNavbarButtonsContainer = styled.div`
     margin-left: auto;
 
     /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};*/
+`;
+
+const SpaceNavbarMode = styled.div`
+    height: 3.5rem; /*2.8*/
+
+    width: 6rem;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: ${(props) => (props.fontSize ? props.fontSize : "1.7rem")};
+
+    opacity: ${(props) => (props.active ? 1 : 0.4)};
+
+    border-radius: ${(props) =>
+        props.type == "left"
+            ? "0.45rem 0rem 0rem 0.45rem"
+            : "0rem 0.45rem 0.45rem 0rem"};
+
+    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+    /*
+border-bottom: ${(props) =>
+        props.active
+            ? `1px solid ${chroma(props.theme.TEXT_COLOR).alpha(0.9)}`
+            : "1px solid transparent"};
+*/
+
+    &:hover {
+        opacity: ${(props) => (props.active ? 1 : 0.7)};
+    }
+
+    cursor: pointer;
+
+    transition: opacity 0.1s ease-in;
+
+    /*background-color: ${(props) =>
+        props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
+    /*
+
+    opacity: 0.9;
+
+    border: ${(props) =>
+        props.active ? `1px solid ${props.theme.SECONDARY_COLOR}` : ""};
+*/
 `;
 
 const SpaceNavbarButton = styled.div`

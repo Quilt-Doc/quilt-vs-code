@@ -46,20 +46,6 @@ class Settings extends Component {
 
         return (
             <>
-                <Container>
-                    <Tab
-                        active={pageIdentifier == "user"}
-                        onClick={this.routeUserSettings}
-                    >
-                        User
-                    </Tab>
-                    <Tab
-                        active={pageIdentifier == "workspace"}
-                        onClick={this.routeWorkspaceSettings}
-                    >
-                        Workspace
-                    </Tab>
-                </Container>
                 <Switch>
                     <Route
                         path="/space/:workspaceId/settings/workspace"
@@ -75,6 +61,20 @@ class Settings extends Component {
     }
 }
 
+/*<Container>
+                    <Tab
+                        active={pageIdentifier == "user"}
+                        onClick={this.routeUserSettings}
+                    >
+                        User
+                    </Tab>
+                    <Tab
+                        active={pageIdentifier == "workspace"}
+                        onClick={this.routeWorkspaceSettings}
+                    >
+                        Workspace
+                    </Tab>
+                </Container> */
 export default withRouter(Settings);
 
 const Container = styled.div`

@@ -9,6 +9,7 @@ import { Panel, Logo, Loader } from "../../elements";
 
 class LoadingScreen extends Component {
     render() {
+        return <div></div>;
         return (
             <Background>
                 <Container>

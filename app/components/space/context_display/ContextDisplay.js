@@ -7,7 +7,7 @@ import ContextPanel from "./context_panel/ContextPanel";
 import { connect } from "react-redux";
 
 //actions
-import { getFileContext } from "../../../actions/AssociationActions";
+import { getFileContext } from "../../../actions/ContextActions";
 
 //react-router
 import { withRouter } from "react-router-dom";
@@ -20,12 +20,12 @@ class ContextDisplay extends Component {
         super(props);
 
         this.state = {
-            loaded: false,
+            loaded: true,
         };
     }
 
     componentDidMount = () => {
-        this.loadContext();
+        //this.loadContext();
     };
 
     componentDidUpdate = (prevProps) => {
@@ -42,6 +42,8 @@ class ContextDisplay extends Component {
     };
 
     loadContext = async () => {
+        return console.log("Testing");
+
         const {
             repositoryFullName,
             activeFilePath,
@@ -70,27 +72,35 @@ class ContextDisplay extends Component {
     };
 
     renderPanels = () => {
-        const { integrations } = this.props;
+        const { context } = this.props;
 
-        return Object.keys(integrations).map((source) => {
-            const data = integrations[source];
+        // map through each integration source
+        return Object.keys(context)
+            .map((source) => {
+                // extract all the data for that source for the
+                // given context
+                const modelData = context[source];
 
-            // checks if there is integration data
-            let hasData = false;
+                // map through each type of model applicable
+                // to the integration source
+                return Object.keys(modelData).map((model) => {
+                    // if there exists data
+                    // of that model, create a context panel
+                    const data = modelData[model];
 
-            // for every model..
-            Object.keys(data).map((model) => {
-                // if hasData is still false so far
-                if (!hasData) {
-                    // if the data for that model is not empty, set hasData to true
-                    hasData = !_.isEmpty(data[model]);
-                }
-            });
-
-            if (hasData) {
-                return <ContextPanel source={source} data={data} />;
-            }
-        });
+                    if (!_.isEmpty(data)) {
+                        return (
+                            <ContextPanel
+                                key={`${source}-${model}`}
+                                source={source}
+                                model={model}
+                                data={data}
+                            />
+                        );
+                    }
+                });
+            })
+            .flat();
     };
 
     render() {
@@ -104,22 +114,80 @@ const mapStateToProps = (state) => {
     let {
         global: { repositoryFullName, activeFilePath },
         repositories,
+        /*
         github,
         trello,
-        jira,
+        jira,*/
     } = state;
 
+    /*
     github = _.pick(github, ["pullRequests", "commits", "branches", "tickets"]);
 
     trello = _.pick(trello, ["tickets"]);
 
     jira = _.pick(jira, ["tickets"]);
+    */
+
+    const context = {
+        github: {
+            commits: [
+                {
+                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
+                },
+                {
+                    name:
+                        "Outdated reference check preventing repository.scanned…",
+                },
+                {
+                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
+                },
+            ],
+            pullRequests: [
+                {
+                    name: "Fixed Modularization of Blame Display",
+                },
+                {
+                    name: "Implemented Github Webhooks",
+                },
+                {
+                    name: "Fixed Modularization of Blame Display",
+                },
+                {
+                    name: "Implemented Github Webhooks",
+                },
+            ],
+        },
+        trello: {
+            tickets: [
+                {
+                    name: "Backend Query Checklist",
+                },
+                {
+                    name: "Cross-Platform Data Model Spec",
+                },
+                {
+                    name: "Cross-Platform Data Model Spec",
+                },
+            ],
+        },
+        jira: {},
+        google: {
+            documents: [
+                {
+                    name: "Async Document Update Flow",
+                },
+                {
+                    name: "Async Document Update Flow",
+                },
+            ],
+        },
+    };
 
     return {
         repositoryFullName,
         activeFilePath,
         repositories: Object.values(repositories),
-        integrations: { github, trello, jira },
+        context,
     };
 };
 

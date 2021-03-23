@@ -95,7 +95,7 @@ const MenuContainer = styled.div`
 
     top: 0;
 
-    box-shadow: ${(props) => props.theme.BOX_SHADOW_MENU};
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px 0px;
 
     position: absolute;
 
@@ -103,7 +103,9 @@ const MenuContainer = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};
 
-    border-radius: 0.4rem;
+    border-radius: 1rem;
+
+    border: 1px solid ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
     width: ${(props) => (props.width ? props.width : "70vw")};
 

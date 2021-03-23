@@ -95,6 +95,10 @@ class IntegrationPanel extends Component {
                             <CgMathPlus />
                         </IntegrationPanelAddButton>
                     </IntegrationPanelNavbar>
+                    <SubHeader>
+                        Integrate with version control, project management, and
+                        documentation.
+                    </SubHeader>
                     {this.renderRepositories()}
                     {this.renderBoards()}
                 </IntegrationPanelContainer>
@@ -110,7 +114,7 @@ class IntegrationPanel extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        contexts: Object.values(state.contexts),
+        contexts: Object.values(state.context),
         repositories: Object.values(state.repositories),
     };
 };
@@ -156,16 +160,15 @@ const IntegrationPanelNavbar = styled.div`
 
     position: relative;
     /*align-items: center;*/
-
-    margin-bottom: 1.2rem;
 `;
 
 const IntegrationTypeBlock = styled.div`
-    margin-bottom: 1.65rem;
+    margin-top: 1.65rem;
 
+    /*
     &:last-of-type {
         margin-bottom: 0rem;
-    }
+    }*/
 `;
 
 const IntegrationPanelContainer = styled(Panel)`

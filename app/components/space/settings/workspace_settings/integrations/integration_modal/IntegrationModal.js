@@ -82,7 +82,7 @@ class IntegrationModal extends Component {
 export default withRouter(IntegrationModal);
 
 const Container = styled.div`
-    padding: 2rem;
+    padding: 2rem 2.2rem;
 
     padding-bottom: 3rem;
 

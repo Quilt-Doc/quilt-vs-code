@@ -11,8 +11,6 @@ const INITIAL_STATE = {
 };
 
 const postMessage = (payload) => {
-    console.log("POSTING MESSAGE", payload);
-
     vscode.postMessage({
         type: SET_VALUE_GLOBAL_STORAGE,
         payload,
@@ -22,11 +20,13 @@ const postMessage = (payload) => {
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case AUTHENTICATE_USER:
-            console.log("Action Payload", action.payload);
-
             postMessage({
                 key: "auth",
-                value: action.payload,
+                value: {
+                    jwt: action.payload.jwt,
+                    isAuthorized: action.payload.isAuthorized,
+                    userId: action.payload.user._id,
+                },
             });
 
             return action.payload;
@@ -38,17 +38,16 @@ export default (state = INITIAL_STATE, action) => {
 
             const value = { ...state, user };
 
-            postMessage({
-                key: "auth",
-                value,
-            });
-
             return value;
 
         case LOGOUT_USER:
             postMessage({
                 key: "auth",
-                value: INITIAL_STATE,
+                value: {
+                    jwt: null,
+                    isAuthorized: false,
+                    userId: null,
+                },
             });
 
             return INITIAL_STATE;

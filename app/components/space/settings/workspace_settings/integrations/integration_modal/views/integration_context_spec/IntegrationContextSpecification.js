@@ -153,6 +153,12 @@ class IntegrationContextSpecification extends Component {
         return (
             <>
                 <Header>Provide Additional Data</Header>
+                <SubHeader>
+                    {
+                        "Link each board to repositories. We'll associate \
+                    board data with the relevant parts of your codebase."
+                    }
+                </SubHeader>
                 <VerticalList>{this.renderBlocks()}</VerticalList>
                 <Button onClick={this.handleContinueClick}>Continue</Button>
             </>
@@ -224,10 +230,14 @@ const Block = styled.div`
     &:first-of-type {
         margin-top: 1.5rem;
     }
+
+    box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
 `;
 
 const VerticalList = styled.div`
     display: flex;
 
     flex-direction: column;
+
+    margin-top: 1rem;
 `;

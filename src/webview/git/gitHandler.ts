@@ -15,6 +15,8 @@ class GitHandler {
     private viewVisibilityListener?: Disposable;
 
     constructor(private _view: WebviewView) {
+        console.log("Initializing GitHandler");
+
         const gitExtension = extensions.getExtension<GitExtension>("vscode.git")
             ?.exports;
 
@@ -27,6 +29,8 @@ class GitHandler {
     }
 
     setUp() {
+        console.log("Git State", this.git?.state);
+
         if (this.git?.state === "initialized") {
             this.handleGitInformation();
         } else {

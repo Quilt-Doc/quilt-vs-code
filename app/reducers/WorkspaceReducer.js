@@ -21,10 +21,6 @@ export default (state = {}, action) => {
             return _.mapKeys(action.payload, "_id");
 
         case EDIT_WORKSPACE:
-            const newestState = merge(state, [action.payload]);
-
-            console.log("NEWEST REDUX", newestState);
-
             return merge(state, [action.payload]);
 
         default:

@@ -38,8 +38,6 @@ export const activate = (context: ExtensionContext) => {
 
 export const deactivate = () => {
     if (disposables) {
-        console.log("QUILT: Disposables", disposables);
-
         disposables.forEach((item) => item.dispose());
     }
 

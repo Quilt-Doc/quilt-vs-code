@@ -23,10 +23,7 @@ import LoginButton from "./LoginButton";
 
 //constants
 import { API_ENDPOINT } from "../../constants/constants";
-import {
-    OPEN_BROWSER,
-    SET_VALUE_GLOBAL_STORAGE,
-} from "../../vscode/types/messageTypes";
+import { OPEN_BROWSER } from "../../vscode/types/messageTypes";
 
 //actions
 import { authenticateUser, encryptAuthToken } from "../../actions/AuthActions";
@@ -116,34 +113,25 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
 
                             clearTimeout(timeout);
 
-                            authenticateUser({ jwt, user, isAuthorized });
+                            console.log("\n user is being authenticated", {
+                                jwt,
+                                user,
+                                isAuthorized,
+                            });
 
-                            /*
-                            vscode.postMessage({
-                                type: SET_VALUE_GLOBAL_STORAGE,
-                                payload: {
-                                    key: "auth",
-                                    value: { jwt, user, isAuthorized },
-                                },
-                            });*/
+                            authenticateUser({ jwt, user, isAuthorized });
 
                             const { isOnboarded, workspaces } = user;
 
-                            console.log(
-                                "ROUTE",
-                                `/space/${
-                                    workspaces[workspaces.length - 1]._id
-                                }/settings/workspace`
-                            );
-                            if (!isOnboarded) {
-                                history.push("/onboard");
-                            } else {
-                                history.push(
-                                    `/space/${
-                                        workspaces[workspaces.length - 1]._id
-                                    }/settings/workspace`
-                                );
+                            if (!isOnboarded) return history.push("/onboard");
+
+                            if (workspaces.length == 0) {
+                                return history.push("/create_workspace");
                             }
+
+                            return history.push(
+                                `/space/${workspaces[0]._id}/settings/user`
+                            );
                         }
                     }
                 );
