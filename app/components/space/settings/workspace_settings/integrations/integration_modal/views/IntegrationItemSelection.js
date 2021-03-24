@@ -93,6 +93,9 @@ class IntegrationItemSelection extends Component {
             integration == "jira"
                 ? `${BASE_URL}/${userId}/${workspaceId}/${integration}`
                 : `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`;
+            
+        console.log("JIRA AUTHORIZATION URL: ");
+        console.log(url);
 
         vscode.postMessage({
             type: OPEN_BROWSER,

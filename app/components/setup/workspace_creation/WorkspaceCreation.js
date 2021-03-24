@@ -10,7 +10,7 @@ import ChooseName from "./views/ChooseName";
 import WaitCreation from "./views/WaitCreation";
 
 //react-router
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, withRouter } from "react-router-dom";
 
 class WorkspaceCreation extends Component {
     constructor(props) {
@@ -29,6 +29,7 @@ class WorkspaceCreation extends Component {
             ? "/onboard/create_workspace/choose_provider"
             : "/create_workspace/choose_provider";
 
+        console.log("ROUTE: ", route);
         history.push(route);
     }
 
@@ -133,4 +134,4 @@ class WorkspaceCreation extends Component {
     }
 }
 
-export default WorkspaceCreation;
+export default withRouter(WorkspaceCreation);
