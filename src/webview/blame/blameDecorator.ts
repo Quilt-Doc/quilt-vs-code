@@ -36,8 +36,8 @@ class BlameDecorator {
 
         const colors = [
             "rgb(93,106,210)",
-            "rgb(77,183,130)",
             "rgb(195,119,224)",
+            "rgb(77,183,130)",
             "rgb(197,41,40)",
             "rgb(37,181,206)",
             "rgb(235,87,87)",
@@ -45,6 +45,16 @@ class BlameDecorator {
             "rgb(255,120,203)",
             "rgb(235,90,71)",
         ];
+
+        let counter = 0;
+
+        while (colors.length < blameChunks.length) {
+            colors.push(colors[counter]);
+
+            counter += 1;
+
+            if (counter == colors.length) counter = 0;
+        }
 
         let focusIndex = 0;
 
@@ -57,6 +67,8 @@ class BlameDecorator {
         let topDecorations: any[] = [];
 
         let botDecorations: any[] = [];
+
+        let singDecorations: any[] = [];
 
         let decorations = colors.map((color, i) => {
             const isFocused = i == focusIndex;
@@ -81,6 +93,12 @@ class BlameDecorator {
                 borderStyle,
                 backgroundColor,
             };
+
+            const singDecorationType = createTextEditorDecorationType({
+                ...base,
+                borderWidth: `${borderWidth} ${borderWidth} ${borderWidth} ${borderWidth}`,
+                borderRadius: `${borderRadius}`,
+            });
 
             const topDecorationType = createTextEditorDecorationType({
                 ...base,
@@ -109,6 +127,11 @@ class BlameDecorator {
                 decorationOptions: [],
             });
 
+            singDecorations.push({
+                decorationType: singDecorationType,
+                decorationOptions: [],
+            });
+
             let decorationOptions: DecorationOptions[] = [];
 
             return {
@@ -116,6 +139,8 @@ class BlameDecorator {
                 decorationOptions,
             };
         });
+
+        console.log("REACHED HERE3");
 
         const documentLength = editor.document.lineCount;
 
@@ -126,25 +151,43 @@ class BlameDecorator {
                 return;
             }
 
-            const range = new Range(
-                editor.document.lineAt(start + 1).range.start,
-                editor.document.lineAt(end - 1).range.end
-            );
+            if (end == start) {
+                const range = new Range(
+                    editor.document.lineAt(start).range.start,
+                    editor.document.lineAt(end).range.end
+                );
 
-            const params = encodeURIComponent(JSON.stringify(start));
+                const decorationOpt = {
+                    range,
+                };
 
-            const hoverMessage = new MarkdownString(
-                `[Focus this blame annotation in Quilt](command:${EXTENSION_NAME}.focusBlameAnnotation?${params})`
-            );
+                singDecorations[i].decorationOptions.push(decorationOpt);
 
-            hoverMessage.isTrusted = true;
+                return;
+            }
 
-            const decorationOpt = {
-                range,
-                hoverMessage,
-            };
+            // only need body in > 2 line cases
+            if (end - start > 1) {
+                const range = new Range(
+                    editor.document.lineAt(start + 1).range.start,
+                    editor.document.lineAt(end - 1).range.end
+                );
 
-            decorations[i].decorationOptions.push(decorationOpt);
+                /*const params = encodeURIComponent(JSON.stringify(start));
+    
+                const hoverMessage = new MarkdownString(
+                    `[Focus this blame annotation in Quilt](command:${EXTENSION_NAME}.focusBlameAnnotation?${params})`
+                );*/
+
+                //hoverMessage.isTrusted = true;
+
+                const decorationOpt = {
+                    range,
+                    //hoverMessage,
+                };
+
+                decorations[i].decorationOptions.push(decorationOpt);
+            }
 
             const topRange = new Range(
                 editor.document.lineAt(start).range.start,
@@ -180,10 +223,16 @@ class BlameDecorator {
                 dec.decorationOptions.length != 0 || dec.decorationType == null
         );
 
+        singDecorations = singDecorations.filter(
+            (dec) =>
+                dec.decorationOptions.length != 0 || dec.decorationType == null
+        );
+
         this.disposableDecorations = [
             ...decorations,
             ...botDecorations,
             ...topDecorations,
+            ...singDecorations,
         ];
 
         this.disposableDecorations.map((dec) => {

@@ -116,10 +116,12 @@ class BlameController {
             }
         });
 
+        // when actual content of changes
         this.textDocumentListener = onDidChangeTextDocument((event) => {
             if (
                 this.activeEditor &&
-                event.document === this.activeEditor.document
+                event.document === this.activeEditor.document &&
+                this._view.visible
             ) {
                 this.requestBlame();
             }

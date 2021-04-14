@@ -5,17 +5,19 @@ import getAPI from "../api/api";
 export const retrieveBlames = (formValues) => async (dispatch) => {
     const api = getAPI();
 
-    const { filePath, fileContent, workspaceId, repositoryId } = formValues;
+    const { filePath, fileContent, repositoryId, workspaceId } = formValues;
 
     const response = await api.post(
-        `/contexts/${workspaceId}/${repositoryId}/get_blames`,
+        `/blames/${workspaceId}/${repositoryId}/retrieve`,
         {
             filePath,
-            fileContent,
+            fileText: fileContent,
         }
     );
 
-    const { success, error, result } = response;
+    const { success, error, result } = response.data;
+
+    console.log("RESULT", result);
 
     if (!success) {
         throw new Error(error);

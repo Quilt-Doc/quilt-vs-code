@@ -113,7 +113,9 @@ const MenuContainer = styled.div`
 
     padding: 1rem;
 
-    box-shadow: ${(props) => props.theme.BOX_SHADOW_MENU};
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px 0px;
+
+    border: 1px solid ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 
     position: absolute;
 
@@ -121,7 +123,7 @@ const MenuContainer = styled.div`
 
     background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};
 
-    border-radius: 0.4rem;
+    border-radius: 1rem;
 
     width: 70vw;
 `;

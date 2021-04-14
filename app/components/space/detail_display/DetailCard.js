@@ -59,7 +59,7 @@ class DetailCard extends Component {
     };
 
     renderFormattedDateString = () => {
-        return "#463 opened by kgodara 7 days ago";
+        return "#137 opened by fsanal 7 days ago";
 
         const {
             elem: {

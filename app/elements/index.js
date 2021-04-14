@@ -11,6 +11,7 @@ import Step from "./general/Step";
 import ExternalLink from "./general/ExternalLink";
 import Logo from "./general/Logo";
 import UserIcon from "./general/UserIcon";
+import Alert from "./general/Alert";
 
 //INTEGRATION ELEMENTS
 import IntegrationItem from "./integration/IntegrationItem";
@@ -35,6 +36,7 @@ export {
     ExternalLink,
     Logo,
     UserIcon,
+    Alert,
     //INTEGRATION ELEMENTS
     IntegrationItem,
     IntegrationSource,

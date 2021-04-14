@@ -6,6 +6,7 @@ import vscode from "../../../vscode/vscode";
 
 //components
 import AnnotationCard from "./AnnotationCard";
+import GitAlert from "../alerts/GitAlert";
 
 //redux
 import { connect } from "react-redux";
@@ -22,6 +23,7 @@ class BlameDisplay extends Component {
 
         this.state = {
             focusedChunk: 0,
+            cannotFind: false,
         };
 
         this.annotations = {};
@@ -54,7 +56,6 @@ class BlameDisplay extends Component {
 
         switch (type) {
             case "RECEIVE_DOCUMENT_TEXT":
-                console.log("FILE PATH", this.props.activeFilePath);
                 this.retrieveContextBlame(payload);
 
                 break;
@@ -124,23 +125,54 @@ class BlameDisplay extends Component {
             activeFilePath,
         } = this.props;
 
-        /*
+        if (!repositoryFullName) {
+            return;
+        }
+
         const { workspaceId } = match.params;
 
         const workspace = workspaces[workspaceId];
 
-        const repository = workspace.repositories.filter((repo) => {
+        const filteredRepositories = workspace.repositories.filter((repo) => {
             const { fullName } = repo;
 
             return fullName == repositoryFullName;
-        })[0];
+        });
 
-        await retrieveBlames({
-            filePath: activeFilePath,
-            fileContent: text,
-            workspaceId: workspace._id,
-            repositoryId: repository._id,
-        });*/
+        console.log("Parameters", {
+            repositoryFullName,
+            activeFilePath,
+            filteredRepositories,
+        });
+
+        if (
+            !repositoryFullName ||
+            !activeFilePath ||
+            filteredRepositories.length == 0
+        ) {
+            this.setState({
+                cannotFind: true,
+            });
+
+            return;
+        } else {
+            this.setState({
+                cannotFind: false,
+            });
+        }
+
+        const repository = filteredRepositories[0];
+
+        try {
+            await retrieveBlames({
+                filePath: activeFilePath,
+                fileContent: text,
+                workspaceId: workspace._id,
+                repositoryId: repository._id,
+            });
+        } catch (e) {
+            console.log("Error", e);
+        }
 
         const { blameChunks } = this.props;
 
@@ -182,7 +214,7 @@ class BlameDisplay extends Component {
 
         const { focusedChunk } = this.state;
 
-        const exampleData = {
+        const exampleData2 = {
             keyUser: "FS",
             tickets: [
                 {
@@ -197,7 +229,7 @@ class BlameDisplay extends Component {
                     name: "Fixed Modularization of Blame Display",
                 },
                 {
-                    name: "Implemented Github Webhooks",
+                    name: "Implemented Github webhooks for getContext",
                 },
             ],
             commits: [
@@ -216,8 +248,34 @@ class BlameDisplay extends Component {
             ],
         };
 
+        const exampleData = {
+            keyUser: "KG",
+            tickets: [
+                {
+                    name: "Improve Bulk Scrape Testing",
+                },
+                {
+                    name: "Streamline Trello Scrape",
+                },
+            ],
+            commits: [
+                {
+                    name:
+                        "tryRestoreScrollPosition param added to webviewWorkbenchService",
+                },
+            ],
+            documents: [
+                {
+                    name: "The Process - Bulk Scraping",
+                },
+            ],
+        };
+
         return blameChunks.map((chunk, i) => {
-            chunk = { ...chunk, ...exampleData };
+            chunk =
+                i % 2 == 0
+                    ? { ...chunk, ...exampleData }
+                    : { ...chunk, ...exampleData2 };
 
             chunk._id = i;
 
@@ -245,7 +303,15 @@ class BlameDisplay extends Component {
     };
 
     render() {
-        return <Container>{this.renderChunkAnnotations()}</Container>;
+        const { cannotFind } = this.state;
+
+        return cannotFind ? (
+            <Container>
+                <GitAlert />
+            </Container>
+        ) : (
+            <Container>{this.renderChunkAnnotations()}</Container>
+        );
     }
 }
 
@@ -253,19 +319,20 @@ const mapStateToProps = (state) => {
     const {
         global: { activeFilePath, repositoryFullName },
         workspaces,
+        blames: { blameChunks },
     } = state;
 
     return {
         blameChunks: [
-            { start: 0, end: 20 },
-            { start: 21, end: 35 },
-            { start: 36, end: 51 },
-            { start: 52, end: 108 },
-            { start: 109, end: 123 },
-        ],
+            { start: 0, end: 14 },
+            { start: 16, end: 29 },
+            { start: 30, end: 55 },
+            { start: 57, end: 95 },
+        ], //Object.values(blameChunks),
         workspaces,
         activeFilePath,
         filename: activeFilePath ? activeFilePath.split("/").pop() : null,
+        repositoryFullName,
     };
 };
 
@@ -274,7 +341,7 @@ export default withRouter(
 );
 
 const Container = styled.div`
-    height: calc(100vh - 4rem);
+    height: calc(100vh - 6.5rem);
 
     display: flex;
 
