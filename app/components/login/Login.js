@@ -73,6 +73,9 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
 
             const channelName = `private-${ideToken}`;
 
+            console.log("channelName: ", channelName);
+            console.log(`ideToken: ${ideToken}, encryptedToken: ${encryptedToken}`);
+
             const tokenListener = pusher.subscribe(channelName);
 
             setChannelName(channelName);
@@ -96,6 +99,8 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
             setIsLoggingIn(true);
 
             tokenListener.bind("pusher:subscription_succeeded", () => {
+                console.log("OPEN BROWSER: ");
+                console.log(`${API_ENDPOINT}/auth/github?ide_token=${encodeURIComponent(encryptedToken)}`);
                 vscode.postMessage({
                     type: OPEN_BROWSER,
                     payload: {

@@ -29,6 +29,7 @@ class WorkspaceCreation extends Component {
             ? "/onboard/create_workspace/choose_provider"
             : "/create_workspace/choose_provider";
 
+        console.log("ROUTE: ", route);
         history.push(route);
     }
 
