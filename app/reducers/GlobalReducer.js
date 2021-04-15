@@ -8,7 +8,6 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case SET_GIT_INFO:
-            console.log("ACTION PAYLOAD HERE", action.payload);
             return action.payload;
         default:
             return state;

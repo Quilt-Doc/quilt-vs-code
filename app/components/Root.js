@@ -84,7 +84,7 @@ class Root extends Component {
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
         }
-
+        return history.push("/create_workspace");
         return history.push(`/space/${workspaces[0]._id}/blame`);
 
         //return history.push("/error");

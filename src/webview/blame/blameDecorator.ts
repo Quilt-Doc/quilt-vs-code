@@ -140,8 +140,6 @@ class BlameDecorator {
             };
         });
 
-        console.log("REACHED HERE3");
-
         const documentLength = editor.document.lineCount;
 
         blameChunks.map((chunk, i) => {
