@@ -15,8 +15,6 @@ class GitHandler {
     private viewVisibilityListener?: Disposable;
 
     constructor(private _view: WebviewView) {
-        console.log("Initializing GitHandler");
-
         const gitExtension = extensions.getExtension<GitExtension>("vscode.git")
             ?.exports;
 
@@ -29,8 +27,6 @@ class GitHandler {
     }
 
     setUp() {
-        console.log("Git State", this.git?.state);
-
         if (this.git?.state === "initialized") {
             this.handleGitInformation();
         } else {
@@ -41,14 +37,16 @@ class GitHandler {
             });
         }
 
+        // handles changing active repository and path on editor change
+        // when extension is open
         this.activeEditorListener = onDidChangeActiveTextEditor(() => {
             this.handleGitInformation();
         });
 
+        // handles changing active repository and path on extension opening
         this.viewVisibilityListener = this._view.onDidChangeVisibility((e) => {
             if (this._view.visible) this.handleGitInformation();
         });
-        //need to also handle on open
     }
 
     extractFullName(fetchUrl: string) {
@@ -79,52 +77,80 @@ class GitHandler {
     }
 
     handleGitInformation() {
-        if (!this.git || this.git.repositories.length === 0) return;
+        // no repositories were identified in current explorer setup
+        if (!this.git || this.git.repositories.length === 0) {
+            this.postInfo(null, null);
 
-        const selectedRepository = this.git.repositories.filter(
+            return;
+        }
+
+        const { activeTextEditor } = window;
+
+        // no editor is open currently, repository information is useless without this
+        console.log("activeTextEditor: ", activeTextEditor);
+        if (!activeTextEditor) {
+            console.log("Entered no activeTextEditor case.");
+            // can naively set current opened repo to null as well
+            this.postInfo(null, null);
+
+            return;
+        }
+
+        const {
+            document: { fileName },
+        } = activeTextEditor;
+
+        let selectedRepositories = this.git.repositories.filter(
             (repository) => {
-                const { ui } = repository;
+                const { rootUri } = repository;
 
-                const { selected } = ui;
-
-                return selected;
+                return fileName.includes(rootUri.path);
             }
-        )[0];
+        );
+
+        if (selectedRepositories.length < 1) {
+            // no repository correlated with current file
+            this.postInfo(null, null);
+
+            return;
+        }
+
+        const selectedRepository = selectedRepositories[0];
 
         const {
             state: { remotes },
         } = selectedRepository;
 
-        //TODO: Will need to handle when there is no remote
-        if (!remotes || remotes.length === 0) return;
+        if (!remotes || remotes.length === 0) {
+            // Handle no remote by posting null, null
+            this.postInfo(null, null);
 
-        //ONLY USE FIRST REMOTE FOR NOW
+            return;
+        }
+
+        // only use first remote for now
         const { fetchUrl } = remotes[0];
 
-        if (!fetchUrl) return;
+        if (!fetchUrl) {
+            this.postInfo(null, null);
+
+            return;
+        }
 
         const repositoryFullName = this.extractFullName(fetchUrl);
 
-        const { activeTextEditor } = window;
+        const { rootUri } = selectedRepository;
 
-        let activeFilePath;
+        const activeFilePath = fileName.slice(rootUri.path.length + 1);
 
-        if (activeTextEditor) {
-            const {
-                document: { fileName },
-            } = activeTextEditor;
-
-            const { rootUri } = selectedRepository;
-
-            const repositoryPath = rootUri.toString().slice(7);
-
-            activeFilePath = fileName.slice(repositoryPath.length + 1);
-        }
-
+        console.log("Posting Info:", {
+            repositoryFullName,
+            activeFilePath,
+        });
         this.postInfo(repositoryFullName, activeFilePath);
     }
 
-    postInfo(repositoryFullName: string, activeFilePath?: string) {
+    postInfo(repositoryFullName?: string, activeFilePath?: string) {
         this._view.webview.postMessage({
             type: SET_GIT_INFO,
             payload: {
@@ -144,19 +170,3 @@ class GitHandler {
 }
 
 export default GitHandler;
-
-/*
-
-ITERATION 1
-
-ACQUIRE REPOSITORY (NEED REPOSITORY FULL NAME??)
-
-ACQUIRE CURRENTLY OPENED FILE PATH
-
-PASS MESSAGE TO WEBVIEW 
-
-WEBVIEW SHOULD HANDLE MESSAGE AND STORE INFORMATION
-
-WEBVIEW SHOULD PULL CORRECT CONTEXT OBJECTS BASED ON NEW FILE
-
-*/

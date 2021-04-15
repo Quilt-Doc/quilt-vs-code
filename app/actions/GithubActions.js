@@ -8,11 +8,7 @@ import getAPI from "../api/api";
 export const checkGithubInstallations = (formValues) => async (dispatch) => {
     const api = getAPI();
 
-    console.log("FORMVALUES", formValues);
-
     const response = await api.post("/auth/check_installation", formValues);
-
-    console.log("RESPONSE", response.data);
 
     if (response.data.success == false) {
         throw new Error(response.data.error.toString());

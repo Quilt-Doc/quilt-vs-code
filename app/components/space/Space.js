@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import SpaceNavbar from "./navbar/SpaceNavbar";
 import ContextDisplay from "./context_display/ContextDisplay";
 import Settings from "./settings/Settings";
-import Test from "./Test";
 
 //actions
 import { setRepositories } from "../../actions/RepositoryActions";

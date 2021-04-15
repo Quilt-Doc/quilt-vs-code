@@ -89,6 +89,7 @@ class AnnotationCard extends Component {
     renderDataItems = (chunk, items, kind, icon) => {
         const { openedDataItem } = this.state;
 
+        /*
         const exampleElem = {
             name: "Cross-Platform Data Model Spec",
             source: "trello",
@@ -101,6 +102,19 @@ class AnnotationCard extends Component {
             labels: [{ name: "auth" }, { name: "blame" }],
             description:
                 "It causes problems with some of our Azure extension commands because we don't expect that object. I know registerCommand doesn't make any guarantees about the type of arguments passed in to the command, but I couldn't find any VS Code API matching that object and I'm guessing you didn't mean to pass that along. We could adjust all of our commands to handle that object, or y'all could just pass undefined and fix it for us. 😊",
+        };*/
+
+        const exampleElem = {
+            name: "Fixed Modularization of Blame Display",
+            source: "github",
+            baseRef: "github-integration",
+            headRef: "master",
+            repository: {
+                fullName: "Quilt/quilt-vs-code",
+            },
+            labels: [{ name: "v4" }, { name: "context display" }],
+            description:
+                "Creates the blame purely based on the code object, by merging the CO blame with that of the user's currently open file. Additionally, categorizes code objects together based on similar blames, identifying relevant, compact blame areas.",
         };
 
         return items.map((item) => {

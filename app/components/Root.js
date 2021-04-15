@@ -84,8 +84,8 @@ class Root extends Component {
         if (workspaces.length == 0) {
             return history.push("/create_workspace");
         }
-
-        return history.push(`/space/${workspaces[0]._id}/context`);
+        return history.push("/create_workspace");
+        return history.push(`/space/${workspaces[0]._id}/blame`);
 
         //return history.push("/error");
 
@@ -136,8 +136,6 @@ class Root extends Component {
 
     renderContent = () => {
         const { hasError } = this.props;
-
-        console.log("HAS ERROR", hasError);
 
         if (hasError) return <ErrorDisplay />;
 

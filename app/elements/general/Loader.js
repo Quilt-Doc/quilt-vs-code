@@ -2,13 +2,13 @@ import styled from "styled-components";
 
 import { Oval } from "svg-loaders-react";
 
-const Loader = ({ width, height, type, color }) => {
+const Loader = ({ width, height, type, color, marginTop }) => {
     if (!width) width = "100%";
 
     if (!height) height = "10rem";
 
     return (
-        <LoaderContainer>
+        <LoaderContainer marginTop={marginTop}>
             <Oval stroke={color ? color : "white"} />
         </LoaderContainer>
     );
@@ -22,6 +22,8 @@ const LoaderContainer = styled.div`
     height: ${(props) => props.height};
 
     padding-top: 2rem;
+
+    margin-top: ${(props) => props.marginTop};
 
     display: flex;
 

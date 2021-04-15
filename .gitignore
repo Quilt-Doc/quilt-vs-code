@@ -4,3 +4,4 @@ out
 **/_DS_Store
 **/*.swp
 **/*.zip
+dist/main.js

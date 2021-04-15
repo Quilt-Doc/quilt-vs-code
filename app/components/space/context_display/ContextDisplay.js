@@ -130,25 +130,7 @@ const mapStateToProps = (state) => {
 
     const context = {
         github: {
-            commits: [
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-                {
-                    name:
-                        "Outdated reference check preventing repository.scanned…",
-                },
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-            ],
             pullRequests: [
-                {
-                    name: "Fixed Modularization of Blame Display",
-                },
-                {
-                    name: "Implemented Github Webhooks",
-                },
                 {
                     name: "Fixed Modularization of Blame Display",
                 },
@@ -166,7 +148,7 @@ const mapStateToProps = (state) => {
                     name: "Cross-Platform Data Model Spec",
                 },
                 {
-                    name: "Cross-Platform Data Model Spec",
+                    name: "Implement Worker Production Queue",
                 },
             ],
         },
@@ -177,7 +159,7 @@ const mapStateToProps = (state) => {
                     name: "Async Document Update Flow",
                 },
                 {
-                    name: "Async Document Update Flow",
+                    name: "Board Selection Spec",
                 },
             ],
         },

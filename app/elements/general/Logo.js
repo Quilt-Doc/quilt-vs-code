@@ -2,15 +2,23 @@ import React from "react";
 
 import styled from "styled-components";
 
+import logoSVG from "../../images/colored_logo.svg";
+
 const Logo = () => {
     return (
         <LogoContainer>
-            <LogoIconContainer></LogoIconContainer>
+            <LogoIconContainer>
+                <LogoImage src={logoSVG} />
+            </LogoIconContainer>
         </LogoContainer>
     );
 };
 
 export default Logo;
+
+const LogoImage = styled.img`
+    width: 3.2rem;
+`;
 
 const LogoContainer = styled.div`
     width: 100%;
@@ -24,4 +32,7 @@ const LogoIconContainer = styled.div`
     height: 6rem;
     width: 6rem;
     border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `;

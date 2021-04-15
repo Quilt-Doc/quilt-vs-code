@@ -34,10 +34,6 @@ export const triggerJiraScrape = ({
 
     if (!boards) throw new Error("No boards are specified");
 
-    console.log("ROUTE", `/integrations/${workspaceId}/jira/trigger_scrape`);
-
-    console.log("BODY", { projects: boards });
-
     const response = await api.post(
         `/integrations/${workspaceId}/jira/trigger_scrape`,
         { projects: boards }
@@ -93,8 +89,6 @@ export const createJiraAccessToken = ({
     } catch (e) {
         console.log("ERROR IN RESPONSE", e);
     }
-
-    console.log("RESPONSE", response.data);
 
     const { success, result, error } = response.data;
 

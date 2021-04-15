@@ -59,6 +59,8 @@ const InputField = styled.input`
 
     color: ${(props) => props.theme.TEXT_COLOR};
 
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+
     &:focus {
         border: 1px solid ${(props) => props.theme.SECONDARY_COLOR};
 
@@ -66,6 +68,8 @@ const InputField = styled.input`
     }
 
     &::placeholder {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+
         color: ${(props) => props.theme.TEXT_COLOR};
 
         font-weight: 500;
