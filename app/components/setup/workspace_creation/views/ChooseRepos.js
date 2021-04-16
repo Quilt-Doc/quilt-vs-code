@@ -2,23 +2,26 @@ import React, { Component } from "react";
 
 //styles
 import styled from "styled-components";
-import chroma from "chroma-js";
 
 //components
 import { Button, IntegrationItem, SubHeader } from "../../../../elements";
+import RepositorySearchMenu from "./RepositorySearchMenu";
 
 //react-router
 import { withRouter } from "react-router-dom";
 
 //react-redux
 import { connect } from "react-redux";
+
+//icons
 import { MdPublic } from "react-icons/md";
 import {
     RiGitRepositoryLine,
     RiGitRepositoryPrivateLine,
 } from "react-icons/ri";
-import { CgSearch } from "react-icons/cg";
-import { FiSearch } from "react-icons/fi";
+
+//actions
+import { searchPublicGithubRepositories } from "../../../../actions/GithubActions";
 
 class ChooseRepos extends Component {
     constructor(props) {
@@ -26,6 +29,7 @@ class ChooseRepos extends Component {
 
         this.state = {
             isPublic: true,
+            publicRepositories: [],
         };
     }
 
@@ -55,10 +59,20 @@ class ChooseRepos extends Component {
         }
     };
 
-    renderRepositories = () => {
-        const { active, repositories } = this.props;
+    renderRepositories = (isActive) => {
+        const { isPublic, publicRepositories } = this.state;
 
-        return repositories.map((repo) => {
+        let { active, repositories } = this.props;
+
+        let repos = repositories;
+
+        if (isPublic) repos = publicRepositories;
+
+        if (isActive) {
+            repos = repos.filter((repo) => active.includes(repo._id));
+        }
+
+        return repos.map((repo) => {
             const { _id: repositoryId, fullName } = repo;
 
             return (
@@ -107,7 +121,19 @@ class ChooseRepos extends Component {
         );
     };
 
+    searchPublicRepositories = async (query) => {
+        const { searchPublicGithubRepositories } = this.props;
+
+        const foundRepos = await searchPublicGithubRepositories({ query });
+
+        this.setState({
+            publicRepositories: foundRepos,
+        });
+    };
+
     renderPrivateBody = () => {
+        const { active } = this.props;
+
         const placeholder = (
             <PlaceholderContainer>
                 <PlaceholderIcon>
@@ -117,17 +143,19 @@ class ChooseRepos extends Component {
             </PlaceholderContainer>
         );
 
+        const activeRepoList = (
+            <RepositoryList>{this.renderRepositories(true)}</RepositoryList>
+        );
+
+        const bottomJSX = active.length == 0 ? placeholder : activeRepoList;
+
         return (
             <>
-                <SearchbarContainer>
-                    <SearchbarIconContainer>
-                        <FiSearch />
-                    </SearchbarIconContainer>
-                    <SearchbarInput
-                        placeholder={"Search for any repository..."}
-                    />
-                </SearchbarContainer>
-                {placeholder}
+                <RepositorySearchMenu
+                    search={this.searchPublicRepositories}
+                    renderRepositories={this.renderRepositories}
+                />
+                {bottomJSX}
             </>
         );
     };
@@ -180,7 +208,9 @@ const mapStateToProps = (state) => {
     };
 };
 
-export default withRouter(connect(mapStateToProps, {})(ChooseRepos));
+export default withRouter(
+    connect(mapStateToProps, { searchPublicGithubRepositories })(ChooseRepos)
+);
 
 const RepositoryList = styled.div`
     display: flex;
@@ -254,6 +284,8 @@ const SearchbarContainer = styled.div`
     padding: 0 1rem;
 
     max-width: 40rem;
+
+    position: relative;
 `;
 
 const SearchbarIconContainer = styled.div`
@@ -303,7 +335,9 @@ const SearchbarInput = styled.input`
 const PlaceholderContainer = styled.div`
     text-align: center;
 
-    margin-top: 3rem;
+    margin-top: 4rem;
+
+    margin-bottom: 1rem;
 `;
 
 const PlaceholderIcon = styled.div`

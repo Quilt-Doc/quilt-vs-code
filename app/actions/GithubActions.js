@@ -4,6 +4,7 @@ import {
 } from "./types/GithubTypes";
 
 import getAPI from "../api/api";
+import { checkValid } from "../utils";
 
 export const checkGithubInstallations = (formValues) => async (dispatch) => {
     const api = getAPI();
@@ -44,5 +45,33 @@ export const retrieveGithubRepositories = (formValues) => async (dispatch) => {
             type: RETRIEVE_GITHUB_REPOSITORIES,
             payload: response.data.result,
         });
+    }
+};
+
+export const searchPublicGithubRepositories = (formValues) => async () => {
+    console.log("Entered searchPublicGithubRepositories");
+
+    const api = getAPI();
+
+    const { query } = formValues;
+
+    if (!checkValid(query)) {
+        throw new Error(
+            "searchPublicGithubRepositories Error: query not provided."
+        );
+    }
+
+    const response = await api.post(
+        `/repositories/search_public_repos`,
+        formValues
+    );
+
+    const { success, result, error } = response.data;
+    console.log("🚀 ~ result", result);
+
+    if (success == false) {
+        throw new Error(error.toString());
+    } else {
+        return result;
     }
 };
