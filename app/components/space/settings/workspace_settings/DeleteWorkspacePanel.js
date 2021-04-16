@@ -32,7 +32,7 @@ class DeleteWorkspacePanel extends Component {
     }
 
     deleteWorkspace = async () => {
-        const { match, deleteWorkspace } = this.props;
+        const { match, deleteWorkspace, history } = this.props;
 
         const { workspaceId } = match.params;
 

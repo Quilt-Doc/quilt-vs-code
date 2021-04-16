@@ -61,10 +61,18 @@ export const searchPublicGithubRepositories = (formValues) => async () => {
         );
     }
 
-    const response = await api.post(
-        `/repositories/search_public_repos`,
-        formValues
-    );
+    let response;
+
+    try {
+        response = await api.post(
+            `/repositories/search_public_repos`,
+            formValues
+        );
+    } catch (e) {
+        console.log(e);
+
+        throw new Error(e);
+    }
 
     const { success, result, error } = response.data;
     console.log("🚀 ~ result", result);
