@@ -19,6 +19,7 @@ class WorkspaceCreation extends Component {
         this.state = {
             active: [],
             workspaceId: null,
+            isPublic: false,
         };
     }
 
@@ -29,7 +30,6 @@ class WorkspaceCreation extends Component {
             ? "/onboard/create_workspace/choose_provider"
             : "/create_workspace/choose_provider";
 
-        console.log("ROUTE: ", route);
         history.push(route);
     }
 
@@ -49,6 +49,7 @@ class WorkspaceCreation extends Component {
                 onboarding={onboarding}
                 active={active}
                 setActive={(newActive) => this.setState({ active: newActive })}
+                setPublic={() => this.setState({ isPublic: true })}
             />
         );
     };
@@ -56,12 +57,13 @@ class WorkspaceCreation extends Component {
     renderChooseName = () => {
         const { onboarding } = this.props;
 
-        const { active } = this.state;
+        const { active, isPublic } = this.state;
 
         return (
             <ChooseName
                 onboarding={onboarding}
                 active={active}
+                isPublic={isPublic}
                 setCreatedWorkspaceId={(workspaceId) =>
                     this.setState({ workspaceId })
                 }

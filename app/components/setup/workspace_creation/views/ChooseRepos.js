@@ -22,6 +22,7 @@ import {
 
 //actions
 import { searchPublicGithubRepositories } from "../../../../actions/GithubActions";
+import { initRepository } from "../../../../actions/RepositoryActions";
 
 class ChooseRepos extends Component {
     constructor(props) {
@@ -90,6 +91,8 @@ class ChooseRepos extends Component {
     renderRepoModeButton = () => {
         const { isPublic } = this.state;
 
+        const { setActive } = this.props;
+
         const buttonText = isPublic ? "Switch to Private" : "Switch to Public";
 
         const icon = !isPublic ? (
@@ -109,11 +112,16 @@ class ChooseRepos extends Component {
                 }}
             />
         );
+
+        const handleModeButtonClick = () => {
+            setActive([]);
+
+            this.setState({ isPublic: !isPublic });
+        };
+
         return (
             <ModeButtonContainer>
-                <ModeButton
-                    onClick={() => this.setState({ isPublic: !isPublic })}
-                >
+                <ModeButton onClick={handleModeButtonClick}>
                     {icon}
                     <SubHeader>{buttonText}</SubHeader>
                 </ModeButton>
@@ -160,8 +168,35 @@ class ChooseRepos extends Component {
         );
     };
 
-    handleButtonClick = () => {
+    initializePublicRepositories = async () => {
+        const { initRepository, setActive, setPublic, active } = this.props;
+
+        let realActive = await Promise.all(
+            active.map((url) =>
+                initRepository({
+                    isPublic: true,
+                    publicHtmlUrl: url,
+                })
+            )
+        );
+
+        console.log("Public Active", realActive);
+
+        realActive = realActive.map((repo) => repo._id);
+
+        setActive(realActive);
+
+        setPublic();
+    };
+
+    handleButtonClick = async () => {
         const { history, onboarding } = this.props;
+
+        const { isPublic } = this.state;
+
+        if (isPublic) {
+            await this.initializePublicRepositories();
+        }
 
         const route = `${
             onboarding ? "/onboard" : ""
@@ -209,7 +244,10 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(
-    connect(mapStateToProps, { searchPublicGithubRepositories })(ChooseRepos)
+    connect(mapStateToProps, {
+        searchPublicGithubRepositories,
+        initRepository,
+    })(ChooseRepos)
 );
 
 const RepositoryList = styled.div`

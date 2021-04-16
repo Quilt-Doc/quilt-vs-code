@@ -24,7 +24,6 @@ class RepositorySearchMenu extends Component {
 
         const { isSearching } = this.state;
 
-        console.log("isSearching", isSearching);
         return (
             <>
                 <MenuBackground onMouseDown={this.handleOutsideClick} />
