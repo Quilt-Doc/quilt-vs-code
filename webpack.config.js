@@ -8,7 +8,6 @@ module.exports = {
     devtool: "eval-source-map",
     devServer: {
         contentBase: "./dist",
-        hot: true,
     },
     module: {
         rules: [

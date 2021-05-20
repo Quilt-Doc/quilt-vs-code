@@ -75,6 +75,10 @@ class AnnotationCard extends Component {
 
             if (!items) return;
 
+            if (items.includes(null)) {
+                console.log("CHUNK", chunk);
+            }
+
             return (
                 <DataTypeContainer key={`${chunk._id}-${header}`}>
                     <DataHeader bg={bg}>{header}</DataHeader>
