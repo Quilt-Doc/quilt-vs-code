@@ -46,7 +46,7 @@ class ContextPanel extends Component {
 
         return (
             <ContextPanelContainer>
-                <ContextPanelNavbar source={source} data={data} />
+                {/*<ContextPanelNavbar source={source} data={data} />*/}
                 <ContextPanelList>{this.renderListItems()}</ContextPanelList>
             </ContextPanelContainer>
         );
@@ -67,6 +67,8 @@ ContextPanel.propTypes = {
 //PANEL
 const ContextPanelContainer = styled(Panel)`
     margin-top: 1.5rem;
+
+    padding: 1.5rem;
 `;
 
 const ContextPanelList = styled.div`
@@ -81,6 +83,4 @@ const ContextPanelList = styled.div`
     &::-webkit-scrollbar {
         display: none;
     }
-
-    padding-bottom: 1rem;
 `;

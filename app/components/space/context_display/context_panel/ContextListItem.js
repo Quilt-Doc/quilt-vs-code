@@ -61,9 +61,11 @@ class ContextListItem extends Component {
         //<RiFileList2Line />;
 
         return (
-            <ContextListItemIcon left={left} size={size} top={top} color={color}>
-                {icon}
-            </ContextListItemIcon>
+            <ContextListItemIconContainer>
+                <ContextListItemIcon left={left} size={size} top={top} color={color}>
+                    {icon}
+                </ContextListItemIcon>
+            </ContextListItemIconContainer>
         );
     };
 
@@ -73,8 +75,9 @@ class ContextListItem extends Component {
         return (
             <ContextListItemContent>
                 <ContextListItemHeader noWrap={true}>{name}</ContextListItemHeader>
+
                 <ContextListItemSubHeader noWrap={true}>
-                    John Smith
+                    #10 opened on Mar 29 by kgodara
                 </ContextListItemSubHeader>
             </ContextListItemContent>
         );
@@ -90,7 +93,11 @@ class ContextListItem extends Component {
                 <ContextListItemContainer>
                     {this.renderIcon()}
                     {this.renderContent()}
+                    {/*
+                    
+                    {this.renderContent()}
                     {this.renderDate()}
+                    */}
                 </ContextListItemContainer>
             </>
         );
@@ -105,17 +112,36 @@ ContextListItem.propTypes = {
 };
 
 const ContextListItemContainer = styled.div`
-    height: 5.8rem;
+    background-color: ${(props) => props.theme.SHADE_2};
+
+    /*
+    border: 1px solid ${(props) => props.theme.SHADE_8};
+    */
+
+    /*
+    &:first-of-type {
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px 0px;
+
+        border: 1px solid ${(props) => props.theme.SHADE_4};
+
+        background-color: ${(props) => props.theme.SHADE_4};
+
+        margin-top: 0rem;
+    }*/
+
+    margin-top: 1rem;
+
+    height: 5rem;
+
+    border-radius: 0.6rem;
 
     width: 100%;
 
     display: flex;
 
-    padding: 0.5rem 1.7rem;
+    align-items: center;
 
-    padding-top: 0.8rem;
-
-    padding-right: 1.6rem;
+    padding: 0.5rem 1rem;
 
     cursor: pointer;
 
@@ -126,37 +152,63 @@ const ContextListItemContainer = styled.div`
     position: relative;
 `;
 
-const ContextListItemIcon = styled.div`
-    height: 3rem;
+const ContextListItemIconContainer = styled.div`
+    min-height: 3.5rem;
 
-    min-width: 3.4rem;
+    min-width: 3.5rem;
 
-    width: 3.4rem;
+    background-color: ${(props) => props.theme.SHADE_8};
+
+    border-radius: 0.7rem;
 
     display: flex;
 
+    align-items: center;
+
+    justify-content: center;
+`;
+
+const ContextListItemIcon = styled.div`
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: ${(props) => props.color};
+
+    font-size: ${(props) => (props.size ? props.size : "1.9rem")};
+    /*
     margin-top: ${(props) => (props.top ? props.top : "0rem")};
 
-    font-size: ${(props) => (props.size ? props.size : "2.1rem")}; /*2.1rem;*/
+    font-size: ${(props) => (props.size ? props.size : "2.1rem")};
 
     margin-left: ${(props) => (props.left ? props.left : "0.5rem")};
 
     color: ${(props) =>
         props.color}; /* #4284f4*/ /*#4284f4 - doc  #f27448 - card  #0D9D58 - spreadsheet*/
 
-    opacity: 0.7;
+    /*opacity: 0.7;*/
 `;
 
 const ContextListItemContent = styled.div`
     height: 100%;
 
-    width: 100%;
+    width: 90%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 0.12rem 1rem;
+
+    padding-bottom: 0.05rem;
 `;
 
 const ContextListItemHeader = styled(SubHeader)`
-    margin-bottom: 0.2rem;
-
-    width: calc(100vw - 4rem - 18rem);
+    font-size: 1.1rem;
 `;
 
 /*
@@ -178,11 +230,11 @@ const ContextListItemHeader = styled(SubHeader)`
     width: calc(100vw - 4rem - 14.5rem);*/
 
 const ContextListItemSubHeader = styled(SubHeader)`
-    font-weight: 500;
+    font-weight: 400;
 
-    opacity: 0.6;
+    opacity: 0.7;
 
-    font-size: 1.1rem;
+    font-size: 1rem;
 `;
 
 const ContextListItemDate = styled.div`

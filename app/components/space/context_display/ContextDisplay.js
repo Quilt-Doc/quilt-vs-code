@@ -132,7 +132,39 @@ const mapStateToProps = (state) => {
         context,
     } = state;
 
-    console.log("React: context", context);
+    context = {
+        github: {
+            pullRequests: [
+                {
+                    name: "Ensure updating Context.Consumer inside suspended Suspense component  CLA Signed",
+                    description:
+                        "Implemented Code object bulk scrape, and API route to fetch given file path.",
+                },
+                {
+                    name: "Add GitHub action to check for bug reprod",
+                    description:
+                        "Implemented Code object bulk scrape, and API route to fetch given file path.",
+                },
+            ],
+            /*
+            commits: [
+                {
+                    name: "testing method helpers v1",
+                },
+                {
+                    name: "testing method helper 1",
+                },
+                {
+                    name: "model refactoring 1",
+                },
+                {
+                    name: "will this send a webhook event?",
+                },
+            ],
+            tickets: [],
+            */
+        },
+    };
 
     return {
         repositoryFullName,

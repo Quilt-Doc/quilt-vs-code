@@ -48,7 +48,7 @@ const ContextPanelNavbarContainer = styled.div`
 
     align-items: center;
 
-    padding: 1.7rem 1.7rem;
+    /*padding: 1.7rem 1.7rem;*/
 
     padding-bottom: 1.7rem;
 

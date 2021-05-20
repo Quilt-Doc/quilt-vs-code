@@ -35,7 +35,7 @@ const INITIAL_STATE = {
 
     SHADE_1: getShade(0.01),
 
-    SHADE_2: getShade(0.02),
+    SHADE_2: getShade(0.025),
 
     SHADE_3: getShade(0.03),
 
@@ -51,17 +51,13 @@ const INITIAL_STATE = {
 
     SHADE_9: getShade(0.09),
 
+    SHADE_10: getShade(0.1),
+
     SHADE_15: getShade(0.15),
 
-    PRIMARY_ACCENT_COLOR_SHADE_1: chroma(computeAccentColor()).set(
-        "hsl.l",
-        "+0.07"
-    ),
+    PRIMARY_ACCENT_COLOR_SHADE_1: chroma(computeAccentColor()).set("hsl.l", "+0.07"),
 
-    PRIMARY_ACCENT_COLOR_SHADE_2: chroma(computeAccentColor()).set(
-        "hsl.l",
-        "+0.15"
-    ),
+    PRIMARY_ACCENT_COLOR_SHADE_2: chroma(computeAccentColor()).set("hsl.l", "+0.15"),
 
     HOVER_COLOR: chroma(computeAccentColor()).set("hsl.l", "+0.05"),
 
@@ -69,8 +65,7 @@ const INITIAL_STATE = {
         "--vscode-activityBarBadge-background" //VSCODE_BORDER_COLOR
     ),
 
-    IS_DARK_THEME:
-        getComputedStyle(document.body).color === "rgb(255, 255, 255)",
+    IS_DARK_THEME: getComputedStyle(document.body).color === "rgb(255, 255, 255)",
 
     TEXT_COLOR: getComputedStyle(document.body).color,
 
@@ -104,9 +99,9 @@ export default (state = INITIAL_STATE, action) => {
                     "+0.15"
                 ),
 
-                SECONDARY_COLOR: getComputedStyle(
-                    document.body
-                ).getPropertyValue("--vscode-activityBarBadge-background"),
+                SECONDARY_COLOR: getComputedStyle(document.body).getPropertyValue(
+                    "--vscode-activityBarBadge-background"
+                ),
 
                 IS_DARK_THEME: isDarkTheme,
 
