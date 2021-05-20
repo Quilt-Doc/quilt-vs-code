@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
@@ -53,6 +54,15 @@ class ContextPanel extends Component {
 }
 
 export default ContextPanel;
+
+ContextPanel.propTypes = {
+    // source is the data platform ("github")
+    source: PropTypes.string,
+    // data are the list items
+    data: PropTypes.array,
+    // model is the model of the data ("branch")
+    model: PropTypes.string,
+};
 
 //PANEL
 const ContextPanelContainer = styled(Panel)`

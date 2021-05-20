@@ -43,8 +43,13 @@ class ContextDisplay extends Component {
     };
 
     loadContext = async () => {
-        const { repositoryFullName, activeFilePath, match, repositories, getFileContext } =
-            this.props;
+        const {
+            repositoryFullName,
+            activeFilePath,
+            match,
+            repositories,
+            getFileContext,
+        } = this.props;
 
         console.log("React: loadContext params", {
             repositoryFullName,
@@ -62,7 +67,15 @@ class ContextDisplay extends Component {
 
         if (!repository) return;
 
+        console.log("React: Found Repository", repository);
+
         const { _id: repositoryId } = repository;
+
+        console.log("React: getFileContext params", {
+            repositoryId,
+            workspaceId,
+            filePath: activeFilePath,
+        });
 
         await getFileContext({
             repositoryId,
@@ -115,13 +128,39 @@ class ContextDisplay extends Component {
 const mapStateToProps = (state) => {
     let {
         global: { repositoryFullName, activeFilePath },
-        workspace,
         repositories,
+        context,
     } = state;
 
-    console.log("Workspace", workspace);
+    console.log("React: context", context);
 
-    const context = {
+    return {
+        repositoryFullName,
+        activeFilePath,
+        repositories: Object.values(repositories),
+        context,
+    };
+};
+
+export default withRouter(
+    connect(mapStateToProps, { getFileContext })(ContextDisplay)
+);
+
+ContextDisplay.propTypes = {
+    // full name of repository ("kgodara-testing/doc-app")
+    repositoryFullName: PropTypes.string,
+    // file path from the root
+    activeFilePath: PropTypes.string,
+    // repositories from redux
+    repositories: PropTypes.array,
+    // context object with keys of source, nested keys of model, nested array of items
+    context: PropTypes.object,
+    match: PropTypes.object,
+    getFileContext: PropTypes.func,
+};
+
+/*  Placeholder data
+  context = {
         github: {
             pullRequests: [
                 {
@@ -156,23 +195,4 @@ const mapStateToProps = (state) => {
                 },
             ],
         },
-    };
-
-    return {
-        repositoryFullName,
-        activeFilePath,
-        repositories: Object.values(repositories),
-        context,
-    };
-};
-
-export default withRouter(connect(mapStateToProps, { getFileContext })(ContextDisplay));
-
-ContextDisplay.propTypes = {
-    repositoryFullName: PropTypes.string,
-    activeFilePath: PropTypes.string,
-    repositories: PropTypes.array,
-    context: PropTypes.object,
-    getFileContext: PropTypes.func,
-    match: PropTypes.object,
-};
+    };*/

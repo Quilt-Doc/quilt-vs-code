@@ -83,7 +83,7 @@ class Root extends Component {
         }
 
         //return history.push("/create_workspace");
-        return history.push(`/space/${workspaces[0]._id}/context`);
+        return history.push(`/space/${workspaces[1]._id}/context`);
 
         //return history.push("/error");
 

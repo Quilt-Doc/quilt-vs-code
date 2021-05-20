@@ -1,24 +1,18 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
 import chroma from "chroma-js";
 
-//icons
-import { DiGoogleDrive } from "react-icons/di";
-import { RiGithubFill, RiTrelloFill } from "react-icons/ri";
-
 import { IntegrationSource } from "../../../../elements";
 
 //constants
 const TRELLO_ICON_SIZE = "2.1rem";
-const GOOGLE_DRIVE_ICON_SIZE = "2.5rem";
 
 class ContextPanelNavbar extends Component {
     render() {
-        const { source, data } = this.props;
-
-        const models = Object.keys(data);
+        const { source } = this.props;
 
         return (
             <ContextPanelNavbarContainer>
@@ -34,6 +28,10 @@ class ContextPanelNavbar extends Component {
 }
 
 export default ContextPanelNavbar;
+
+ContextPanelNavbar.propTypes = {
+    source: PropTypes.string,
+};
 
 const IntegrationModelSelection = styled.div`
     margin-left: auto;

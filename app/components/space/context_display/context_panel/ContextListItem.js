@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
@@ -23,7 +24,7 @@ import { SubHeader, Header } from "../../../../elements";
 
 class ContextListItem extends Component {
     renderIcon = () => {
-        const { source, model } = this.props;
+        const { model } = this.props;
 
         const metadata = {
             tickets: {
@@ -60,12 +61,7 @@ class ContextListItem extends Component {
         //<RiFileList2Line />;
 
         return (
-            <ContextListItemIcon
-                left={left}
-                size={size}
-                top={top}
-                color={color}
-            >
+            <ContextListItemIcon left={left} size={size} top={top} color={color}>
                 {icon}
             </ContextListItemIcon>
         );
@@ -76,9 +72,7 @@ class ContextListItem extends Component {
 
         return (
             <ContextListItemContent>
-                <ContextListItemHeader noWrap={true}>
-                    {name}
-                </ContextListItemHeader>
+                <ContextListItemHeader noWrap={true}>{name}</ContextListItemHeader>
                 <ContextListItemSubHeader noWrap={true}>
                     John Smith
                 </ContextListItemSubHeader>
@@ -104,6 +98,11 @@ class ContextListItem extends Component {
 }
 
 export default ContextListItem;
+
+ContextListItem.propTypes = {
+    name: PropTypes.string,
+    model: PropTypes.string,
+};
 
 const ContextListItemContainer = styled.div`
     height: 5.8rem;
