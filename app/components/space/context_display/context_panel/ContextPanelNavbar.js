@@ -5,23 +5,51 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import chroma from "chroma-js";
 
-import { IntegrationSource } from "../../../../elements";
+//icons
+import { IntegrationSource, Header, SubHeader } from "../../../../elements";
+
+//icons
+import { RiGithubFill, RiGitlabFill, RiTrelloFill } from "react-icons/ri";
+import { BsArrowRight, BsArrowLeft } from "react-icons/bs";
+import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 
 //constants
 const TRELLO_ICON_SIZE = "2.1rem";
 
 class ContextPanelNavbar extends Component {
-    render() {
-        const { source } = this.props;
+    renderHeader = () => {
+        const { model } = this.props;
 
+        const modelText =
+            model == "pullRequests"
+                ? "Pull Requests"
+                : model == "commits"
+                ? "Commits"
+                : model == "branches"
+                ? "Branches"
+                : "Tickets";
+
+        return <Header marginBottom="0rem">{modelText}</Header>;
+    };
+
+    render() {
         return (
             <ContextPanelNavbarContainer>
-                <IntegrationSource
-                    large={true}
-                    width={"5.5rem"}
-                    borderRadius={"0.5rem"}
-                    type={source}
-                />
+                <ContextListItemIconContainer>
+                    <ContextListItemIcon>
+                        <RiGithubFill />
+                    </ContextListItemIcon>
+                </ContextListItemIconContainer>
+                {this.renderHeader()}
+                <PaginationContainer>
+                    <ArrowContainer>
+                        <HiArrowLeft />
+                    </ArrowContainer>
+                    <PageNumber>1</PageNumber>
+                    <ArrowContainer>
+                        <HiArrowRight />
+                    </ArrowContainer>
+                </PaginationContainer>
             </ContextPanelNavbarContainer>
         );
     }
@@ -31,7 +59,119 @@ export default ContextPanelNavbar;
 
 ContextPanelNavbar.propTypes = {
     source: PropTypes.string,
+    model: PropTypes.string,
 };
+
+const PaginationContainer = styled.div`
+    margin-left: auto;
+
+    display: flex;
+
+    align-items: center;
+`;
+
+const ArrowContainer = styled.div`
+    background-color: ${(props) => props.theme.SHADE_8};
+
+    min-height: 2.5rem;
+
+    min-width: 2.5rem;
+
+    border-radius: 0.5rem;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+`;
+
+const PageNumber = styled(SubHeader)`
+    margin-left: 1rem;
+
+    margin-right: 1rem;
+
+    font-weight: 500;
+
+    font-size: 1.23rem;
+`;
+
+const ContextListItemIconContainer = styled.div`
+    min-height: 3.5rem;
+
+    min-width: 3.5rem;
+
+    background-color: ${(props) => props.theme.SHADE_8};
+
+    border-radius: 0.7rem;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-right: 0.9rem;
+
+    box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+`;
+
+const ContextListItemIcon = styled.div`
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: ${(props) => props.color};
+
+    font-size: ${(props) => (props.size ? props.size : "2.2rem")};
+    /*
+    margin-top: ${(props) => (props.top ? props.top : "0rem")};
+
+    font-size: ${(props) => (props.size ? props.size : "2.1rem")};
+
+    margin-left: ${(props) => (props.left ? props.left : "0.5rem")};
+
+    color: ${(props) =>
+        props.color}; /* #4284f4*/ /*#4284f4 - doc  #f27448 - card  #0D9D58 - spreadsheet*/
+
+    /*opacity: 0.7;*/
+`;
+
+const SourceIcon = styled.div`
+    font-size: 2.3rem;
+
+    margin-right: 1rem;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    height: 3rem;
+
+    width: 3rem;
+
+    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+`;
+
+const ContextPanelHeader = styled.div`
+    border-radius: 0.6rem;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0.5rem 1rem;
+
+    margin-bottom: 0.5rem;
+
+    box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+
+    margin-bottom: 0.5rem;
+`;
 
 const IntegrationModelSelection = styled.div`
     margin-left: auto;
@@ -50,9 +190,9 @@ const ContextPanelNavbarContainer = styled.div`
 
     /*padding: 1.7rem 1.7rem;*/
 
-    padding-bottom: 1.7rem;
+    opacity: 0.9;
 
-    opacity: 0.85;
+    margin-bottom: 0.5rem;
 `;
 
 const ContextPanelIconContainer = styled.div`

@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+//styles
+import styled from "styled-components";
+
 //components
 import ContextPanel from "./context_panel/ContextPanel";
+import ContextSearchPanel from "./ContextSearchPanel";
+import { Loader } from "../../../elements";
 
 //react-redux
 import { connect } from "react-redux";
@@ -21,7 +26,7 @@ class ContextDisplay extends Component {
         super(props);
 
         this.state = {
-            loaded: true,
+            loaded: false,
         };
     }
 
@@ -38,6 +43,8 @@ class ContextDisplay extends Component {
             repositoryFullName !== prevProps.repositoryFullName ||
             activeFilePath !== prevProps.activeFilePath
         ) {
+            this.setState({ loaded: false });
+
             this.loadContext();
         }
     };
@@ -51,14 +58,6 @@ class ContextDisplay extends Component {
             getFileContext,
         } = this.props;
 
-        console.log("React: loadContext params", {
-            repositoryFullName,
-            activeFilePath,
-            match,
-            repositories,
-            getFileContext,
-        });
-
         const { workspaceId } = match.params;
 
         const repositoriesMap = _.mapKeys(repositories, "fullName");
@@ -67,15 +66,7 @@ class ContextDisplay extends Component {
 
         if (!repository) return;
 
-        console.log("React: Found Repository", repository);
-
         const { _id: repositoryId } = repository;
-
-        console.log("React: getFileContext params", {
-            repositoryId,
-            workspaceId,
-            filePath: activeFilePath,
-        });
 
         await getFileContext({
             repositoryId,
@@ -89,6 +80,8 @@ class ContextDisplay extends Component {
     renderPanels = () => {
         const { context } = this.props;
 
+        console.log("Context", context);
+
         // map through each integration source
         return Object.keys(context)
             .map((source) => {
@@ -98,12 +91,14 @@ class ContextDisplay extends Component {
 
                 // map through each type of model applicable
                 // to the integration source
-                return Object.keys(modelData).map((model) => {
+                const allModels = ["tickets", "pullRequests", "commits", "branches"];
+
+                return allModels.map((model) => {
                     // if there exists data
                     // of that model, create a context panel
                     const data = modelData[model];
 
-                    if (!_.isEmpty(data)) {
+                    if (!_.isNil(data) && !_.isEmpty(data)) {
                         return (
                             <ContextPanel
                                 key={`${source}-${model}`}
@@ -121,7 +116,13 @@ class ContextDisplay extends Component {
     render() {
         const { loaded } = this.state;
 
-        return <>{loaded && this.renderPanels()}</>;
+        return (
+            <>
+                <ContextSearchPanel />
+                {loaded ? this.renderPanels() : <Loader />}
+                <BlankSpace />
+            </>
+        );
     }
 }
 
@@ -132,39 +133,15 @@ const mapStateToProps = (state) => {
         context,
     } = state;
 
-    context = {
-        github: {
-            pullRequests: [
-                {
-                    name: "Ensure updating Context.Consumer inside suspended Suspense component  CLA Signed",
-                    description:
-                        "Implemented Code object bulk scrape, and API route to fetch given file path.",
-                },
-                {
-                    name: "Add GitHub action to check for bug reprod",
-                    description:
-                        "Implemented Code object bulk scrape, and API route to fetch given file path.",
-                },
-            ],
-            /*
-            commits: [
-                {
-                    name: "testing method helpers v1",
-                },
-                {
-                    name: "testing method helper 1",
-                },
-                {
-                    name: "model refactoring 1",
-                },
-                {
-                    name: "will this send a webhook event?",
-                },
-            ],
-            tickets: [],
-            */
-        },
-    };
+    if (context.github) {
+        console.log("CONTEXT", context);
+
+        context.github.tickets = [
+            { name: "Implement Sentry Logging for Extension" },
+            { name: "Chunk Parsing Failing on Line Changes" },
+            { name: "Create Issue Scrape Helper for Testing" },
+        ];
+    }
 
     return {
         repositoryFullName,
@@ -191,6 +168,11 @@ ContextDisplay.propTypes = {
     getFileContext: PropTypes.func,
 };
 
+const BlankSpace = styled.div`
+    height: 50vh;
+
+    width: 100vw;
+`;
 /*  Placeholder data
   context = {
         github: {

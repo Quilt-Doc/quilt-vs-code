@@ -15,6 +15,7 @@ class ContextPanel extends Component {
 
         this.state = {
             loaded: false,
+            page: 0,
         };
     }
 
@@ -25,7 +26,11 @@ class ContextPanel extends Component {
     }
 
     renderListItems = () => {
-        const { data, model, source } = this.props;
+        let { data, model, source } = this.props;
+
+        const { page } = this.state;
+
+        data = data.slice(page * 4, page * 4 + 4);
 
         const listItems = data.map((item) => {
             return (
@@ -34,6 +39,7 @@ class ContextPanel extends Component {
                     model={model}
                     source={source}
                     name={item.name}
+                    item={item}
                 />
             );
         });
@@ -42,11 +48,11 @@ class ContextPanel extends Component {
     };
 
     render() {
-        const { source, data } = this.props;
+        const { source, model, data } = this.props;
 
         return (
             <ContextPanelContainer>
-                {/*<ContextPanelNavbar source={source} data={data} />*/}
+                <ContextPanelNavbar model={model} source={source} data={data} />
                 <ContextPanelList>{this.renderListItems()}</ContextPanelList>
             </ContextPanelContainer>
         );
@@ -75,10 +81,6 @@ const ContextPanelList = styled.div`
     display: flex;
 
     flex-direction: column;
-
-    max-height: 23rem;
-
-    overflow-y: scroll;
 
     &::-webkit-scrollbar {
         display: none;

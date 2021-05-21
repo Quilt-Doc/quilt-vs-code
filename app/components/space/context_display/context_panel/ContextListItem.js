@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
-import chroma from "chroma-js";
 
 import {
     RiFileList2Fill,
@@ -17,32 +16,39 @@ import { BsCardChecklist } from "react-icons/bs";
 
 import { BiGitCommit } from "react-icons/bi";
 
-import { VscGitPullRequest } from "react-icons/vsc";
+import { VscGitPullRequest, VscGitMerge } from "react-icons/vsc";
 
-import { FiGitBranch, FiGitPullRequest } from "react-icons/fi";
-import { SubHeader, Header } from "../../../../elements";
+import { FiGitBranch } from "react-icons/fi";
+import { SubHeader } from "../../../../elements";
 
 class ContextListItem extends Component {
     renderIcon = () => {
-        const { model } = this.props;
+        const {
+            model,
+            item: { state },
+        } = this.props;
 
         const metadata = {
             tickets: {
                 icon: <BsCardChecklist style={{ marginLeft: "-0.1rem" }} />,
                 color: "rgb(93, 106, 210)",
-                top: "0.13rem",
-                size: "2.2rem",
+                /*top: "0.13rem",*/
+                size: "2rem",
             },
             commits: {
                 icon: <BiGitCommit />,
-
-                top: "0.04rem",
-                color: "white",
+                top: "0.1rem",
+                color: "#f69700",
             },
             pullRequests: {
-                icon: <VscGitPullRequest />,
-                color: "rgb(77,183,130)",
-                top: "0.19rem",
+                icon: state == "MERGED" ? <VscGitMerge /> : <VscGitPullRequest />,
+                color:
+                    state == "MERGED"
+                        ? "#a470f7"
+                        : state == "CLOSED"
+                        ? "#f85149"
+                        : "rgb(77,183,130)",
+                //top: "0.19rem",
             },
             documents: {
                 icon: <RiFile2Line />,
@@ -55,10 +61,6 @@ class ContextListItem extends Component {
         };
 
         const { color, icon, top, size, left } = metadata[model];
-        //<BiGitCommit />
-        //const color = source === "trello" ? "#6762df" : "white"; //"#4284f4";
-        //const size = source === "trello" ? "2.1rem" : "1.8rem";
-        //<RiFileList2Line />;
 
         return (
             <ContextListItemIconContainer>
@@ -69,22 +71,110 @@ class ContextListItem extends Component {
         );
     };
 
+    renderFormattedDateString = () => {
+        const {
+            item: { sourceCreationDate, mergedAt, sourceCloseDate },
+            model,
+        } = this.props;
+
+        let relevantDate;
+
+        if (model == "pullRequest") {
+            if (model.state == "CLOSED") {
+                relevantDate = sourceCloseDate;
+            } else if (model.state == "MERGED") {
+                relevantDate = mergedAt;
+            } else {
+                relevantDate = sourceCreationDate;
+            }
+        } else {
+            relevantDate = sourceCreationDate;
+        }
+
+        const currentDate = new Date();
+
+        relevantDate = new Date(relevantDate);
+
+        let dateString = "";
+
+        const curr = {
+            hour: currentDate.getHours(),
+            day: currentDate.getDate(),
+            month: currentDate.getMonth(),
+            year: currentDate.getFullYear(),
+        };
+
+        const src = {
+            hour: relevantDate.getHours(),
+            day: relevantDate.getDate(),
+            month: relevantDate.getMonth(),
+            year: relevantDate.getFullYear(),
+        };
+
+        const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+
+        if (curr.year == src.year) {
+            if (curr.month == src.month) {
+                if (curr.day == src.day) {
+                    dateString = `${curr.hour - src.hour} hours ago`;
+                } else {
+                    dateString = `${curr.day - src.day} days ago`;
+                }
+            } else {
+                dateString = `${months[src.month]} ${src.day}`;
+            }
+        } else {
+            dateString = `${months[src.month]} ${src.day}, ${src.year}`;
+        }
+
+        return dateString;
+    };
+
+    acquirePhrase = () => {
+        const { item, model } = this.props;
+
+        if (model == "pullRequests") {
+            return item.state == "OPEN"
+                ? "opened on"
+                : item.state == "CLOSED"
+                ? "was closed on"
+                : "was merged on";
+        } else if (model == "tickets") {
+            return "created on";
+        } else {
+            return "committed on";
+        }
+    };
+
     renderContent = () => {
-        const { name } = this.props;
+        const { item, model } = this.props;
+
+        const { name, sourceId, creator } = item;
+
+        const identifier =
+            model == "commits" ? sourceId.slice(0, 7) : `#${sourceId}`;
 
         return (
             <ContextListItemContent>
                 <ContextListItemHeader noWrap={true}>{name}</ContextListItemHeader>
-
                 <ContextListItemSubHeader noWrap={true}>
-                    #10 opened on Mar 29 by kgodara
+                    {`${identifier} by ${creator} ${this.acquirePhrase()} ${this.renderFormattedDateString()}`}
                 </ContextListItemSubHeader>
             </ContextListItemContent>
         );
-    };
-
-    renderDate = () => {
-        return <ContextListItemDate>Nov 25, 2020</ContextListItemDate>;
     };
 
     render() {
@@ -93,11 +183,6 @@ class ContextListItem extends Component {
                 <ContextListItemContainer>
                     {this.renderIcon()}
                     {this.renderContent()}
-                    {/*
-                    
-                    {this.renderContent()}
-                    {this.renderDate()}
-                    */}
                 </ContextListItemContainer>
             </>
         );
@@ -107,7 +192,7 @@ class ContextListItem extends Component {
 export default ContextListItem;
 
 ContextListItem.propTypes = {
-    name: PropTypes.string,
+    item: PropTypes.object,
     model: PropTypes.string,
 };
 
@@ -146,8 +231,14 @@ const ContextListItemContainer = styled.div`
     cursor: pointer;
 
     &:hover {
-        background-color: ${(props) => props.theme.HOVER_COLOR};
+        box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+
+        border: 1px solid ${(props) => props.theme.SHADE_8};
+
+        background-color: ${(props) => props.theme.SHADE_4};
     }
+
+    transition: background-color 0.2s ease-in, box-shadow 0.2s ease-in;
 
     position: relative;
 `;
@@ -178,6 +269,8 @@ const ContextListItemIcon = styled.div`
     color: ${(props) => props.color};
 
     font-size: ${(props) => (props.size ? props.size : "1.9rem")};
+
+    margin-top: ${(props) => (props.top ? props.top : "0rem")};
     /*
     margin-top: ${(props) => (props.top ? props.top : "0rem")};
 

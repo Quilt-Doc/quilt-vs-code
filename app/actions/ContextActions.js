@@ -16,11 +16,14 @@ export const getFileContext =
             { filePath }
         );
 
+        console.log("Response of call", response);
+
         const { result, success, error } = response.data;
 
         if (!success) {
             throw new Error(error);
         } else {
+            console.log("Result of context call", result);
             dispatch({
                 type: SET_CONTEXT_DISPLAY,
                 payload: result,

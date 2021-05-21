@@ -18,7 +18,10 @@ import ErrorDisplay from "./error_handling/ErrorDisplay";
 //actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
-import { storeExtensionMessage, extensionAuthenticateUser } from "../actions/ExtensionActions";
+import {
+    storeExtensionMessage,
+    extensionAuthenticateUser,
+} from "../actions/ExtensionActions";
 
 //types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
@@ -83,7 +86,7 @@ class Root extends Component {
         }
 
         //return history.push("/create_workspace");
-        return history.push(`/space/${workspaces[1]._id}/context`);
+        return history.push(`/space/${workspaces[0]._id}/context`);
 
         //return history.push("/error");
 
