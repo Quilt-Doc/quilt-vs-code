@@ -47,12 +47,24 @@ class ContextPanel extends Component {
         return listItems;
     };
 
+    changePage = (page) => {
+        this.setState({ page });
+    };
+
     render() {
         const { source, model, data } = this.props;
 
+        const { page } = this.state;
+
         return (
             <ContextPanelContainer>
-                <ContextPanelNavbar model={model} source={source} data={data} />
+                <ContextPanelNavbar
+                    page={page}
+                    changePage={this.changePage}
+                    model={model}
+                    source={source}
+                    data={data}
+                />
                 <ContextPanelList>{this.renderListItems()}</ContextPanelList>
             </ContextPanelContainer>
         );

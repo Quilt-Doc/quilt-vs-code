@@ -32,6 +32,39 @@ class ContextPanelNavbar extends Component {
         return <Header marginBottom="0rem">{modelText}</Header>;
     };
 
+    renderPagination = () => {
+        const { changePage, page, data } = this.props;
+
+        console.log("data length", data.length);
+
+        console.log("page max", page * 4 + 4);
+
+        const isRightActive = !(page * 4 + 4 >= data.length);
+
+        const isLeftActive = !(page == 0);
+
+        return (
+            <PaginationContainer>
+                <ArrowContainer
+                    onClick={() => {
+                        if (isLeftActive) changePage(page - 1);
+                    }}
+                    isActive={isLeftActive}
+                >
+                    <HiArrowLeft />
+                </ArrowContainer>
+                <PageNumber>{page + 1}</PageNumber>
+                <ArrowContainer
+                    onClick={() => {
+                        if (isRightActive) changePage(page + 1);
+                    }}
+                    isActive={isRightActive}
+                >
+                    <HiArrowRight />
+                </ArrowContainer>
+            </PaginationContainer>
+        );
+    };
     render() {
         return (
             <ContextPanelNavbarContainer>
@@ -41,15 +74,7 @@ class ContextPanelNavbar extends Component {
                     </ContextListItemIcon>
                 </ContextListItemIconContainer>
                 {this.renderHeader()}
-                <PaginationContainer>
-                    <ArrowContainer>
-                        <HiArrowLeft />
-                    </ArrowContainer>
-                    <PageNumber>1</PageNumber>
-                    <ArrowContainer>
-                        <HiArrowRight />
-                    </ArrowContainer>
-                </PaginationContainer>
+                {this.renderPagination()}
             </ContextPanelNavbarContainer>
         );
     }
@@ -60,6 +85,9 @@ export default ContextPanelNavbar;
 ContextPanelNavbar.propTypes = {
     source: PropTypes.string,
     model: PropTypes.string,
+    changePage: PropTypes.func,
+    page: PropTypes.number,
+    data: PropTypes.array,
 };
 
 const PaginationContainer = styled.div`
@@ -84,6 +112,22 @@ const ArrowContainer = styled.div`
     justify-content: center;
 
     align-items: center;
+
+    opacity: ${(props) => (!props.isActive ? "0.4" : "1")};
+
+    cursor: ${(props) => (props.isActive ? "pointer" : "default")};
+
+    &:hover {
+        box-shadow: ${(props) => (props.isActive ? props.theme.BOX_SHADOW_1 : "")};
+
+        border: ${(props) =>
+            props.isActive ? `1px solid ${props.theme.SHADE_8}` : ""};
+
+        background-color: ${(props) =>
+            props.isActive ? props.theme.SHADE_10 : props.theme.SHADE_8};
+    }
+
+    transition: background-color 0.2s ease-in, box-shadow 0.2s ease-in;
 `;
 
 const PageNumber = styled(SubHeader)`
