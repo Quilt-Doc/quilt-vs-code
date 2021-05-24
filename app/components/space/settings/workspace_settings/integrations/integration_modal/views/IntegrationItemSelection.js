@@ -19,6 +19,7 @@ import { getExternalGoogleDrives } from "../../../../../../../actions/GoogleActi
 
 //types
 import { OPEN_BROWSER } from "../../../../../../../vscode/types/messageTypes";
+import { BASE_URL } from "../../../../../../../constants";
 
 //components
 import {
@@ -30,7 +31,7 @@ import {
 } from "../../../../../../../elements";
 import IntegrationRequestInformation from "./IntegrationRequestInformation";
 
-const BASE_URL = "http://localhost:3001/api/integrations/connect";
+const CONNECT_URL = `${BASE_URL}/integrations/connect`;
 
 class IntegrationItemSelection extends Component {
     constructor(props) {
@@ -91,9 +92,9 @@ class IntegrationItemSelection extends Component {
 
         const url =
             integration == "jira"
-                ? `${BASE_URL}/${userId}/${workspaceId}/${integration}`
-                : `${BASE_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`;
-            
+                ? `${CONNECT_URL}/${userId}/${workspaceId}/${integration}`
+                : `${CONNECT_URL}/${integration}?&user_id=${userId}&workspace_id=${workspaceId}`;
+
         console.log("JIRA AUTHORIZATION URL: ");
         console.log(url);
 

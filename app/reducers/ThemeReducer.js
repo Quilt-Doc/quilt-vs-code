@@ -55,6 +55,8 @@ const INITIAL_STATE = {
 
     SHADE_15: getShade(0.15),
 
+    SHADE_18: getShade(0.18),
+
     PRIMARY_ACCENT_COLOR_SHADE_1: chroma(computeAccentColor()).set("hsl.l", "+0.07"),
 
     PRIMARY_ACCENT_COLOR_SHADE_2: chroma(computeAccentColor()).set("hsl.l", "+0.15"),

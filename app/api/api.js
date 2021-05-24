@@ -2,7 +2,7 @@ import axios from "axios";
 
 import store from "../store";
 
-const baseURL = "http://localhost:3001/api";
+import { BASE_URL } from "../constants";
 
 const getAPI = () => {
     const {
@@ -10,7 +10,7 @@ const getAPI = () => {
     } = store.getState();
 
     return axios.create({
-        baseURL,
+        baseURL: BASE_URL,
         headers: {
             authorization: `Bearer ${jwt}`,
         },

@@ -1,4 +1,7 @@
-export const API_ENDPOINT = "http://localhost:3001/api";
+const IS_PRODUCTION = false;
 
-export const START_TYPE = "Start";
+export const BASE_URL = IS_PRODUCTION
+    ? "http://api.getquilt.app/api"
+    : "http://localhost:3001/api";
+
 export const END_TYPE = "End";

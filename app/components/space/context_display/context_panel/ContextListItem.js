@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 //styles
 import styled from "styled-components";
 
+// components
+import DetailCard from "../../detail_display/DetailCard";
+
 import {
     RiFileList2Fill,
     RiLayoutTop2Fill,
@@ -22,6 +25,14 @@ import { FiGitBranch } from "react-icons/fi";
 import { SubHeader } from "../../../../elements";
 
 class ContextListItem extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isOpen: false,
+        };
+    }
+
     renderIcon = () => {
         const {
             model,
@@ -150,8 +161,8 @@ class ContextListItem extends Component {
             return item.state == "OPEN"
                 ? "opened on"
                 : item.state == "CLOSED"
-                ? "was closed on"
-                : "was merged on";
+                ? "closed on"
+                : "merged on";
         } else if (model == "tickets") {
             return "created on";
         } else {
@@ -177,12 +188,44 @@ class ContextListItem extends Component {
         );
     };
 
+    renderDetailCard = () => {
+        const { model, item } = this.props;
+
+        const { isOpen } = this.state;
+
+        if ("labels" in item && item["labels"].length > 0) {
+            const first = item["labels"][0];
+
+            if (typeof first != "object") {
+                item.labels = item.labels.map((label) => {
+                    return {
+                        name: label,
+                    };
+                });
+            }
+        }
+        return (
+            <DetailCard
+                elem={item}
+                kind={model.slice(0, model.length - 1)}
+                isOpen={isOpen}
+                closeCard={() =>
+                    this.setState({
+                        isOpen: false,
+                    })
+                }
+            />
+        );
+    };
     render() {
         return (
             <>
-                <ContextListItemContainer>
+                <ContextListItemContainer
+                    onClick={() => this.setState({ isOpen: true })}
+                >
                     {this.renderIcon()}
                     {this.renderContent()}
+                    {this.renderDetailCard()}
                 </ContextListItemContainer>
             </>
         );
@@ -197,11 +240,10 @@ ContextListItem.propTypes = {
 };
 
 const ContextListItemContainer = styled.div`
-    background-color: ${(props) => props.theme.SHADE_2};
+    background-color: ${(props) =>
+        props.isActive ? props.theme.SHADE_4 : props.theme.SHADE_2};
 
-    /*
-    border: 1px solid ${(props) => props.theme.SHADE_8};
-    */
+    border: ${(props) => (props.isActive ? `1px solid ${props.theme.SHADE_8}` : "")};
 
     /*
     &:first-of-type {

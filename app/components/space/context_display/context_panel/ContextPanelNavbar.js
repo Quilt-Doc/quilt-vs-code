@@ -35,10 +35,6 @@ class ContextPanelNavbar extends Component {
     renderPagination = () => {
         const { changePage, page, data } = this.props;
 
-        console.log("data length", data.length);
-
-        console.log("page max", page * 4 + 4);
-
         const isRightActive = !(page * 4 + 4 >= data.length);
 
         const isLeftActive = !(page == 0);

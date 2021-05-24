@@ -9,6 +9,8 @@ import { checkValid } from "../utils";
 export const checkGithubInstallations = (formValues) => async (dispatch) => {
     const api = getAPI();
 
+    console.log("Formvalues", formValues);
+
     const response = await api.post("/auth/check_installation", formValues);
 
     if (response.data.success == false) {
@@ -27,9 +29,7 @@ export const retrieveGithubRepositories = (formValues) => async (dispatch) => {
     const { userId } = formValues;
 
     if (!userId)
-        throw new Error(
-            "retrieveGithubRepositories Error: userId not provided."
-        );
+        throw new Error("retrieveGithubRepositories Error: userId not provided.");
 
     const response = await api.post(
         `/repositories/${userId}/retrieve_creation`,
@@ -56,18 +56,13 @@ export const searchPublicGithubRepositories = (formValues) => async () => {
     const { query } = formValues;
 
     if (!checkValid(query)) {
-        throw new Error(
-            "searchPublicGithubRepositories Error: query not provided."
-        );
+        throw new Error("searchPublicGithubRepositories Error: query not provided.");
     }
 
     let response;
 
     try {
-        response = await api.post(
-            `/repositories/search_public_repos`,
-            formValues
-        );
+        response = await api.post("/repositories/search_public_repos", formValues);
     } catch (e) {
         console.log(e);
 

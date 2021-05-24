@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
+//styles
 import styled from "styled-components";
-
 import chroma from "chroma-js";
 
 //components
 import { Header, SubHeader } from "../../../elements";
+import Markdown from "markdown-to-jsx";
 
 //icons
 import { AiOutlineFileSearch } from "react-icons/ai";
@@ -16,9 +18,11 @@ import {
     VscGitPullRequest,
     VscIssues,
     VscOpenPreview,
+    VscGitMerge,
 } from "react-icons/vsc";
+import { GoFileCode } from "react-icons/go";
 import { BsCardChecklist, BsFileDiff, BsFileText } from "react-icons/bs";
-import { ImFileText, ImFileText2 } from "react-icons/im";
+import { ImFileText, ImFileText2, ImFileEmpty } from "react-icons/im";
 import {
     RiFile2Line,
     RiFileList2Line,
@@ -40,7 +44,7 @@ import {
 } from "react-icons/bi";
 import { TiTags } from "react-icons/ti";
 import { MdFormatAlignLeft } from "react-icons/md";
-
+import { GrTextAlignLeft } from "react-icons/gr";
 //"rgb(242,201,75)"
 
 //TODO: Need to set max lengths on everything
@@ -59,19 +63,28 @@ class DetailCard extends Component {
     };
 
     renderFormattedDateString = () => {
-        return "#137 opened by fsanal 7 days ago";
-
         const {
-            elem: {
-                sourceCreationDate,
-                sourceId,
-                creator: { userName },
-                source,
-            },
-            kind,
+            elem: { sourceCreationDate, mergedAt, sourceCloseDate },
+            kind: model,
         } = this.props;
 
+        let relevantDate;
+
+        if (model == "pullRequest") {
+            if (model.state == "CLOSED") {
+                relevantDate = sourceCloseDate;
+            } else if (model.state == "MERGED") {
+                relevantDate = mergedAt;
+            } else {
+                relevantDate = sourceCreationDate;
+            }
+        } else {
+            relevantDate = sourceCreationDate;
+        }
+
         const currentDate = new Date();
+
+        relevantDate = new Date(relevantDate);
 
         let dateString = "";
 
@@ -83,10 +96,10 @@ class DetailCard extends Component {
         };
 
         const src = {
-            hour: sourceCreationDate.getHours(),
-            day: sourceCreationDate.getDate(),
-            month: sourceCreationDate.getMonth(),
-            year: sourceCreationDate.getFullYear(),
+            hour: relevantDate.getHours(),
+            day: relevantDate.getDate(),
+            month: relevantDate.getMonth(),
+            year: relevantDate.getFullYear(),
         };
 
         const months = [
@@ -118,22 +131,47 @@ class DetailCard extends Component {
             dateString = `${months[src.month]} ${src.day}, ${src.year}`;
         }
 
+        return dateString;
+    };
+
+    acquirePhrase = () => {
+        const {
+            elem: { sourceId, creator, source, state },
+            kind,
+        } = this.props;
+
+        const dateString = this.renderFormattedDateString();
+
+        const action =
+            state == "OPEN"
+                ? "opened on"
+                : state == "CLOSED"
+                ? "closed on"
+                : "merged on";
+
         switch (kind) {
             case "ticket":
                 if (source == "jira") {
-                    return `${sourceId} created by ${userName} ${dateString}`;
+                    return `${sourceId} by ${creator} created on ${dateString}`;
                 } else {
-                    return `#${sourceId} created by ${userName} ${dateString}`;
+                    return `#${sourceId} by ${creator} created on ${dateString}`;
                 }
 
             case "commit":
-                return `Committed by ${userName} ${dateString}`;
+                return (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <ElementSpec marginRight={"0.65rem"}>
+                            {sourceId.slice(0, 7)}
+                        </ElementSpec>
+                        {` committed by ${creator} on ${dateString}`}
+                    </div>
+                );
 
             case "pullRequest":
-                return `#${sourceId} opened by ${userName} ${dateString}`;
+                return `#${sourceId} by ${creator} ${action} ${dateString}`;
 
             case "document":
-                return `Created by ${userName} ${dateString}`;
+                return `Created by ${creator} on ${dateString}`;
 
             default:
                 return "";
@@ -163,10 +201,6 @@ class DetailCard extends Component {
             const { jiraEpic } = elem;
 
             content = <ElementSpec>{jiraEpic}</ElementSpec>;
-        } else if (kind == "commit") {
-            const { sourceId } = commit;
-
-            content = <ElementSpec>{sourceId.slice(0, 7)}</ElementSpec>;
         }
 
         if (content) {
@@ -179,14 +213,23 @@ class DetailCard extends Component {
     renderNavSection = () => {
         const { kind, elem } = this.props;
 
+        const { state, name } = elem;
+
         const metadata = {
             pullRequest: {
                 primaryIcon: {
-                    icon: <VscGitPullRequest />,
-                    color: "rgb(77, 183, 130)",
+                    icon:
+                        state == "MERGED" ? <VscGitMerge /> : <VscGitPullRequest />,
+                    color:
+                        state == "MERGED"
+                            ? "#a470f7"
+                            : state == "CLOSED"
+                            ? "#f85149"
+                            : "rgb(77,183,130)",
                     size: "1.8rem",
                     top: "-0.12rem",
                 },
+
                 checkIcon: {
                     color: "rgb(77, 183, 130)",
                     icon: <BiCheck />,
@@ -199,18 +242,24 @@ class DetailCard extends Component {
                     size: "1.9rem",
                     top: "-0.04rem",
                 },
+
                 checkIcon: {
                     color: "rgb(77, 183, 130)",
                     icon: <RiCalendarCheckFill />,
                     top: "-0.13rem",
                 },
             },
-            commit: {},
+            commit: {
+                primaryIcon: {
+                    icon: <BiGitCommit />,
+                    color: "#f69700",
+                    size: "1.9rem",
+                    top: "0.1rem",
+                },
+            },
         };
 
-        const { primaryIcon, checkIcon } = metadata[kind];
-
-        const { name } = elem;
+        const { primaryIcon } = metadata[kind];
 
         return (
             <>
@@ -227,19 +276,18 @@ class DetailCard extends Component {
                     </Header>
                 </DetailCardHeaderContainer>
                 <DetailCardSubHeaderContainer>
-                    <DetailCardIcon
-                        color={checkIcon["color"]}
-                        top={primaryIcon["top"]}
-                    >
-                        {checkIcon["icon"]}
-                    </DetailCardIcon>
-                    <SubHeader noWrap={true}>
-                        {this.renderFormattedDateString()}
-                    </SubHeader>
+                    <SubHeader noWrap={true}>{this.acquirePhrase()}</SubHeader>
                 </DetailCardSubHeaderContainer>
                 {this.renderNavSpec()}
             </>
         );
+
+        /*  <DetailCardIcon
+                        color={checkIcon["color"]}
+                        top={primaryIcon["top"]}
+                    >
+                        {checkIcon["icon"]}
+                    </DetailCardIcon>*/
     };
 
     renderFullName = (name) => {
@@ -257,6 +305,8 @@ class DetailCard extends Component {
     renderStatus = () => {
         const { elem, kind } = this.props;
 
+        const { reviewDecision, repository, board, column } = elem;
+
         let icon;
 
         let status;
@@ -267,7 +317,7 @@ class DetailCard extends Component {
 
         switch (kind) {
             case "pullRequest":
-                sourceObjName = this.renderFullName(elem.repository.fullName);
+                sourceObjName = this.renderFullName(repository.fullName);
 
                 icon = (
                     <VscGithubInverted
@@ -278,16 +328,21 @@ class DetailCard extends Component {
                     />
                 );
 
-                status = "Under Review";
+                status =
+                    reviewDecision == "REVIEW_REQUIRED"
+                        ? "Review Required"
+                        : reviewDecision == "CHANGES_REQUESTED"
+                        ? "Changes Requested"
+                        : "Approved";
 
                 break;
             case "commit":
-                sourceObjName = this.renderFullName(elem.repository.fullName);
+                sourceObjName = this.renderFullName(repository.fullName);
 
                 icon = (
                     <VscGithubInverted
                         style={{
-                            marginRight: "0.6rem",
+                            marginRight: "0.8rem",
                             fontSize: "1.7rem",
                         }}
                     />
@@ -299,9 +354,9 @@ class DetailCard extends Component {
 
                 break;
             case "ticket":
-                sourceObjName = elem.board.name;
+                sourceObjName = board.name;
 
-                status = elem.column.name;
+                status = column.name;
 
                 statusColor = "#58a5ff";
 
@@ -337,16 +392,12 @@ class DetailCard extends Component {
                 </DetailCardIcon>
                 <DetailSourceObj>
                     {icon}
-                    <OpaqueSubHeader noWrap={true}>
-                        {sourceObjName}
-                    </OpaqueSubHeader>
+                    <OpaqueSubHeader noWrap={true}>{sourceObjName}</OpaqueSubHeader>
                 </DetailSourceObj>
                 {status && (
                     <DetailContent>
                         <DetailStatus color={statusColor}>
-                            <OpaqueSubHeader noWrap={true}>
-                                {status}
-                            </OpaqueSubHeader>
+                            <OpaqueSubHeader noWrap={true}>{status}</OpaqueSubHeader>
                         </DetailStatus>
                     </DetailContent>
                 )}
@@ -360,25 +411,32 @@ class DetailCard extends Component {
         if (kind == "ticket" || kind == "pullRequest") {
             const { labels } = elem;
 
+            let labelContent;
+
+            if (!labels || labels.length == 0) {
+                labelContent = (
+                    <DetailSourceObj>
+                        <PlaceholderText>No labels yet..</PlaceholderText>
+                    </DetailSourceObj>
+                );
+            } else {
+                labelContent = labels.map((label) => {
+                    const { name /*color*/ } = label;
+
+                    return (
+                        <Tag key={name}>
+                            <OpaqueSubHeader>{name}</OpaqueSubHeader>
+                        </Tag>
+                    );
+                });
+            }
             return (
                 <DetailCardItem>
                     <DetailCardIcon op={0.8} size={"2rem"}>
                         <TiTags />
                     </DetailCardIcon>
                     <DetailContent>
-                        <DetailTags>
-                            {labels.map((label) => {
-                                const { name, color } = label;
-
-                                return (
-                                    <Tag>
-                                        <OpaqueSubHeader>
-                                            {name}
-                                        </OpaqueSubHeader>
-                                    </Tag>
-                                );
-                            })}
-                        </DetailTags>
+                        <DetailTags>{labelContent}</DetailTags>
                     </DetailContent>
                 </DetailCardItem>
             );
@@ -386,34 +444,58 @@ class DetailCard extends Component {
     };
 
     renderDescription = () => {
-        const { elem, kind } = this.props;
+        let {
+            elem: { name, description },
+            kind,
+        } = this.props;
 
         const descriptionKinds = new Set(["pullRequest", "commit", "ticket"]);
 
         if (descriptionKinds.has(kind)) {
-            let description;
-
             if (kind == "commit") {
-                const { name } = commit;
-
                 description = name.split("\n").slice(1).join("\n");
-            } else {
-                description = elem.description;
             }
 
-            return (
-                <DetailCardDesc>
+            if (!description || description.length == 0) {
+                description = (
                     <DetailContent>
                         <DetailDesc>
-                            <OpaqueSubHeader>{description}</OpaqueSubHeader>
+                            <PlaceholderText>
+                                <Markdown>
+                                    There is no description available yet..
+                                </Markdown>
+                            </PlaceholderText>
                         </DetailDesc>
                     </DetailContent>
-                </DetailCardDesc>
-            );
+                );
+            } else {
+                description = (
+                    <DetailContent>
+                        <DetailDesc>
+                            <OpaqueSubHeader>
+                                <Markdown>{description}</Markdown>;
+                            </OpaqueSubHeader>
+                        </DetailDesc>
+                    </DetailContent>
+                );
+            }
+
+            return <DetailCardDesc>{description}</DetailCardDesc>;
         }
     };
 
     renderCounts = () => {
+        /*
+        const metadata = {
+            "commit": [
+                {icon: <BiPlus/>, value: 4, top: 0, color: "rgb(77, 183, 130)"},
+                {icon: <BiMinus/>, value: 4, top: 0, color: "rgb(77, 183, 130)"},
+            ],
+            "pullRequest": [
+                {icon: <BiGitCommit/>, value: 4, top: 0, color: "rgb(77, 183, 130)"},
+            ]
+        }*/
+
         return (
             <DetailCountsContainer>
                 <DetailCounts>
@@ -421,34 +503,29 @@ class DetailCard extends Component {
                         <CountIcon>
                             <BiGitCommit />
                         </CountIcon>
-                        <OpaqueSubHeader marginLeft={"0.6rem"}>
-                            3
-                        </OpaqueSubHeader>
+                        <OpaqueSubHeader>300</OpaqueSubHeader>
                     </Count>
-                    <Count color={"rgb(93, 106, 210)"}>
-                        <CountIcon top={"-0.1rem"}>
-                            <VscIssues />
+                    <Count color={"#58a5ff"}>
+                        <CountIcon top={"-0.06rem"}>
+                            <GoFileCode style={{ fontSize: "1.3rem" }} />
                         </CountIcon>
-                        <OpaqueSubHeader marginLeft={"0.6rem"}>
-                            3
-                        </OpaqueSubHeader>
+                        <OpaqueSubHeader>3</OpaqueSubHeader>
                     </Count>
+
+                    {/*
                     <Count color={"#58a5ff"}>
                         <CountIcon top={"0.03rem"} size={"1.3rem"}>
                             <BiCodeCurly />
                         </CountIcon>
-                        <OpaqueSubHeader marginLeft={"0.6rem"}>
-                            3
-                        </OpaqueSubHeader>
+                        <OpaqueSubHeader marginLeft={"0.6rem"}>3</OpaqueSubHeader>
                     </Count>
                     <Count color={"rgb(77, 183, 130)"}>
                         <CountIcon top={"0rem"} size={"1.3rem"}>
                             <BiMessageSquareDetail />
                         </CountIcon>
-                        <OpaqueSubHeader marginLeft={"0.6rem"}>
-                            5
-                        </OpaqueSubHeader>
+                        <OpaqueSubHeader marginLeft={"0.6rem"}>5</OpaqueSubHeader>
                     </Count>
+                    */}
                 </DetailCounts>
             </DetailCountsContainer>
         );
@@ -462,9 +539,7 @@ class DetailCard extends Component {
                 {isOpen && (
                     <>
                         <MenuBackground onMouseDown={this.handleOutsideClick} />
-                        <DetailCardContainer
-                            ref={(node) => (this.menuRef = node)}
-                        >
+                        <DetailCardContainer ref={(node) => (this.menuRef = node)}>
                             {this.renderNavSection()}
                             <Divider />
                             {this.renderStatus()}
@@ -512,6 +587,13 @@ class DetailCard extends Component {
 
 export default DetailCard;
 
+DetailCard.propTypes = {
+    kind: PropTypes.string,
+    elem: PropTypes.object,
+    closeCard: PropTypes.func,
+    isOpen: PropTypes.bool,
+};
+
 const MenuBackground = styled.div`
     position: fixed;
 
@@ -530,6 +612,28 @@ const MenuBackground = styled.div`
     background-color: transparent;
 `;
 
+const Count = styled.div`
+    width: 6rem;
+
+    height: 2.5rem;
+
+    display: flex;
+
+    border-radius: 0.4rem;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+
+    margin-left: 1rem;
+
+    color: ${(props) => props.color};
+
+    padding: 0rem 0.8rem;
+`;
+
 const CountIcon = styled.div`
     font-size: ${(props) => (props.size ? props.size : "1.5rem")};
 
@@ -540,6 +644,13 @@ const CountIcon = styled.div`
     display: flex;
 
     align-items: center;
+
+    margin-right: 0.8rem;
+
+    /*
+    &:first-of-type {
+        border-right: 2px solid ${(props) => props.theme.SHADE_18};
+    }*/
 `;
 
 //TODO: Give Max Length
@@ -565,6 +676,40 @@ const OpaqueSubHeader = styled(SubHeader)`
     opacity: 1;
 
     margin-left: ${(props) => props.marginLeft};
+
+    margin-bottom: ${(props) => props.marginBottom};
+`;
+
+const PlaceholderText = styled(SubHeader)`
+    opacity: 0.9;
+
+    font-style: italic;
+`;
+
+const Placeholder = styled.div`
+    width: 100%;
+
+    padding: 2rem 0rem;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+`;
+
+const PlaceholderIcon = styled.div`
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 4rem;
+
+    margin-bottom: 1.5rem;
+
+    opacity: 0.7;
 `;
 
 const DetailStatus = styled.div`
@@ -573,9 +718,7 @@ const DetailStatus = styled.div`
     border-radius: 0.5rem;
 
     background-color: ${(props) =>
-        props.color
-            ? chroma(props.color).alpha(0.2)
-            : chroma("#FC427B").alpha(0.2)};
+        props.color ? chroma(props.color).alpha(0.2) : chroma("#FC427B").alpha(0.2)};
 
     color: ${(props) => (props.color ? props.color : "#fc427b")};
 
@@ -596,26 +739,6 @@ const DetailCounts = styled.div`
     display: flex;
 
     margin-left: auto;
-`;
-
-const Count = styled.div`
-    height: 2.5rem;
-
-    width: 5rem;
-
-    display: flex;
-
-    border-radius: 0.4rem;
-
-    justify-content: center;
-
-    align-items: center;
-
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
-
-    margin-left: 1rem;
-
-    color: ${(props) => props.color};
 `;
 
 const DetailCardDesc = styled.div`
@@ -698,6 +821,8 @@ const ElementSpec = styled.div`
     border-radius: 0.45rem;
 
     color: ${(props) => props.color};
+
+    margin-right: ${(props) => props.marginRight};
 `;
 
 const Spacing = styled.div`
@@ -707,8 +832,7 @@ const Spacing = styled.div`
 const NavSpec = styled.div`
     height: 3.5rem;
 
-    background-color: ${(props) =>
-        props.bg ? chroma(props.bg).alpha(0.15) : ""};
+    background-color: ${(props) => (props.bg ? chroma(props.bg).alpha(0.15) : "")};
 
     margin-left: -0.1rem;
 
@@ -732,8 +856,7 @@ const Divider = styled.div`
 
     margin-left: 2.8rem;
 
-    border-bottom: 2px solid
-        ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+    border-bottom: 2px solid ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
 `;
 
 const DetailCardSubHeaderContainer = styled.div`
@@ -746,7 +869,9 @@ const DetailCardSubHeaderContainer = styled.div`
 
 //TODO: REMOVE MIN-HEIGHT
 const DetailCardContainer = styled.div`
-    min-height: 30rem;
+    /*min-height: 30rem;*/
+
+    cursor: default;
 
     position: absolute;
 
