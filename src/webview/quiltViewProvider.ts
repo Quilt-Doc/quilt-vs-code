@@ -119,14 +119,28 @@ class QuiltViewProvider implements WebviewViewProvider {
             Uri.joinPath(this._extensionUri, "dist", "app.css")
         );
 
+        const nonce = getNonce();
+
+        const defaultSrc = `default-src 'none';`;
+
+        const connectSrc = `connect-src *.sentry.io http://localhost:3001;`;
+
+        const styleSrc = `style-src 'unsafe-inline' ${webview.cspSource} https://fonts.googleapis.com;`;
+
+        const imgSrc = ` img-src data: ${webview.cspSource} https:; `;
+
+        const fontSrc = `font-src 'self' https://fonts.gstatic.com;`;
+
+        const scriptSrc = `script-src 'unsafe-eval' ${webview.cspSource};`;
+
         return `<!DOCTYPE html>
             <html lang="en">
                 <head>
                     <meta charset="UTF-8">
+                    <meta http-equiv="Content-Security-Policy" content="${defaultSrc} ${connectSrc} ${styleSrc} ${imgSrc} ${fontSrc} ${scriptSrc}">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <link rel="stylesheet" type="text/css" href="${styleUri}" media="screen" />
                     <link rel="preconnect" href="https://fonts.gstatic.com">
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
                     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
                     <title>Quilt</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -139,8 +153,16 @@ class QuiltViewProvider implements WebviewViewProvider {
                 </body>
             </html>`;
     };
-    // <script src="${scriptUri}"></script>
-    //  <link rel="stylesheet" type="text/css" href="${styleUri}" media="screen" />
 }
+
+const getNonce = () => {
+    let text = "";
+    const possible =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+};
 
 export default QuiltViewProvider;
