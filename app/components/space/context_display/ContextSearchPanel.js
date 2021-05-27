@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 // styles
 import styled from "styled-components";
@@ -10,15 +11,32 @@ import { Panel } from "../../../elements";
 import { FiSearch } from "react-icons/fi";
 
 class ContextSearchPanel extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isFocused: false,
+        };
+    }
+
     render() {
+        const { setSearchQuery } = this.props;
+
+        const { isFocused } = this.state;
+
         return (
             <Container>
-                <PanelContainer>
+                <PanelContainer isFocused={isFocused}>
                     <PanelSearchbar>
                         <SearchbarIcon>
                             <FiSearch />
                         </SearchbarIcon>
-                        <SearchbarInput placeholder={"Search"}></SearchbarInput>
+                        <SearchbarInput
+                            onFocus={() => this.setState({ isFocused: true })}
+                            onBlur={() => this.setState({ isFocused: false })}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={"Search"}
+                        ></SearchbarInput>
                         {/*<Divider />*/}
                     </PanelSearchbar>
                 </PanelContainer>
@@ -28,6 +46,10 @@ class ContextSearchPanel extends Component {
 }
 
 export default ContextSearchPanel;
+
+ContextSearchPanel.propTypes = {
+    setSearchQuery: PropTypes.func,
+};
 
 const Container = styled.div`
     display: flex;
@@ -39,6 +61,27 @@ const PanelContainer = styled(Panel)`
     width: 10rem;
 
     margin-left: auto;
+
+    ${(props) =>
+        props.isFocused ? `box-shadow: ${props.theme.BOX_SHADOW_1};` : ""};
+
+    ${(props) =>
+        props.isFocused
+            ? `border: 2px solid ${props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};`
+            : "border: 2px solid transparent;"}
+
+    ${(props) =>
+        props.isFocused ? `background-color: ${props.theme.SHADE_2};` : ""};
+
+    &:hover {
+        box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+
+        border: 2px solid ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};
+
+        background-color: ${(props) => props.theme.SHADE_2};
+    }
+
+    transition: background-color 0.2s ease-in, box-shadow 0.2s ease-in;
 `;
 
 const PanelSearchbar = styled.div`
@@ -104,7 +147,7 @@ const SearchbarInput = styled.input`
 
     align-items: center;
 
-    background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR};
+    background-color: transparent;
 `;
 
 const Divider = styled.div`

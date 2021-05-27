@@ -26,7 +26,8 @@ class ContextDisplay extends Component {
         super(props);
 
         this.state = {
-            loaded: false,
+            isLoaded: false,
+            searchQuery: "",
         };
     }
 
@@ -43,7 +44,7 @@ class ContextDisplay extends Component {
             repositoryFullName !== prevProps.repositoryFullName ||
             activeFilePath !== prevProps.activeFilePath
         ) {
-            this.setState({ loaded: false });
+            this.setState({ isLoaded: false });
 
             this.loadContext();
         }
@@ -74,13 +75,36 @@ class ContextDisplay extends Component {
             filePath: activeFilePath,
         });
 
-        this.setState({ loaded: true });
+        this.setState({ isLoaded: true });
+    };
+
+    setSearchQuery = (query) => {
+        const { isLoaded, searchTimeout } = this.state;
+
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        if (isLoaded) {
+            this.setState({
+                isLoaded: false,
+            });
+        }
+
+        this.setState({
+            searchTimeout: setTimeout(async () => {
+                this.setState({
+                    searchQuery: query,
+                    isLoaded: true,
+                });
+            }, 1000),
+        });
     };
 
     renderPanels = () => {
-        const { context } = this.props;
+        let { context } = this.props;
 
-        console.log("Context", context);
+        const { searchQuery } = this.state;
 
         // map through each integration source
         return Object.keys(context)
@@ -96,30 +120,40 @@ class ContextDisplay extends Component {
                 return allModels.map((model) => {
                     // if there exists data
                     // of that model, create a context panel
-                    const data = modelData[model];
+                    let data = modelData[model];
 
-                    if (!_.isNil(data) && !_.isEmpty(data)) {
-                        return (
-                            <ContextPanel
-                                key={`${source}-${model}`}
-                                source={source}
-                                model={model}
-                                data={data}
-                            />
-                        );
-                    }
+                    if (_.isNil(data) || _.isEmpty(data)) return;
+
+                    console.log("SEARCH QUERY", searchQuery);
+
+                    data = data.filter((item) =>
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+
+                    console.log(`${model} DATA`, data);
+
+                    if (_.isNil(data) || _.isEmpty(data)) return;
+
+                    return (
+                        <ContextPanel
+                            key={`${source}-${model}`}
+                            source={source}
+                            model={model}
+                            data={data}
+                        />
+                    );
                 });
             })
             .flat();
     };
 
     render() {
-        const { loaded } = this.state;
+        const { isLoaded } = this.state;
 
         return (
             <>
-                <ContextSearchPanel />
-                {loaded ? this.renderPanels() : <Loader />}
+                <ContextSearchPanel setSearchQuery={this.setSearchQuery} />
+                {isLoaded ? this.renderPanels() : <Loader />}
                 <BlankSpace />
             </>
         );
