@@ -54,12 +54,9 @@ class ContextDisplay extends Component {
         const {
             repositoryFullName,
             activeFilePath,
-            match,
-            repositories,
             getFileContext,
+            workspace: { repositories, _id: workspaceId },
         } = this.props;
-
-        const { workspaceId } = match.params;
 
         const repositoriesMap = _.mapKeys(repositories, "fullName");
 
@@ -124,13 +121,9 @@ class ContextDisplay extends Component {
 
                     if (_.isNil(data) || _.isEmpty(data)) return;
 
-                    console.log("SEARCH QUERY", searchQuery);
-
                     data = data.filter((item) =>
                         item.name.toLowerCase().includes(searchQuery.toLowerCase())
                     );
-
-                    console.log(`${model} DATA`, data);
 
                     if (_.isNil(data) || _.isEmpty(data)) return;
 
@@ -160,28 +153,19 @@ class ContextDisplay extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
     let {
         global: { repositoryFullName, activeFilePath },
-        repositories,
         context,
+        workspaces,
     } = state;
-
-    if (context.github) {
-        console.log("CONTEXT", context);
-
-        context.github.tickets = [
-            { name: "Implement Sentry Logging for Extension" },
-            { name: "Chunk Parsing Failing on Line Changes" },
-            { name: "Create Issue Scrape Helper for Testing" },
-        ];
-    }
 
     return {
         repositoryFullName,
         activeFilePath,
-        repositories: Object.values(repositories),
+
         context,
+        workspace: workspaces[ownProps.match.params.workspaceId],
     };
 };
 
@@ -195,7 +179,7 @@ ContextDisplay.propTypes = {
     // file path from the root
     activeFilePath: PropTypes.string,
     // repositories from redux
-    repositories: PropTypes.array,
+    workspace: PropTypes.object,
     // context object with keys of source, nested keys of model, nested array of items
     context: PropTypes.object,
     match: PropTypes.object,

@@ -14,7 +14,7 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case SET_HAS_ERROR:
-            return { hasError: action.payload };
+            return { hasError: action.payload, alert: null };
 
         case SET_ALERT_ERROR:
             return { hasError: false, alert: action.payload };

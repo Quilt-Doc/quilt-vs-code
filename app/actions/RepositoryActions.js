@@ -4,26 +4,43 @@ import { RETRIEVE_REPOSITORIES } from "./types/RepositoryTypes";
 
 import getAPI from "../api/api";
 
-import { checkValid } from "../utils";
+//error handling
+import * as Sentry from "@sentry/react";
+import { errs, triggerError } from "./ErrorActions";
 
-export const setRepositories = ({ repositories }) => (dispatch) => {
-    dispatch({
-        type: RETRIEVE_REPOSITORIES,
-        payload: repositories,
+export const setRepositories =
+    ({ repositories }) =>
+    (dispatch) => {
+        dispatch({
+            type: RETRIEVE_REPOSITORIES,
+            payload: repositories,
+        });
+    };
+
+export const initRepository = (formValues) => async (dispatch) => {
+    Sentry.setContext("RepositoryActions::initRepository", {
+        message: "Error initializing repository.",
+        ...formValues,
     });
-};
 
-export const initRepository = (formValues) => async () => {
     const api = getAPI();
 
     const { isPublic, publicHtmlUrl } = formValues;
 
-    if (!checkValid(isPublic)) {
-        throw new Error();
+    if (_.isNil(isPublic)) {
+        triggerError(dispatch);
+
+        return Sentry.captureException(
+            new Error("Error: isPublic was not provided.")
+        );
     }
 
-    if (!checkValid(publicHtmlUrl)) {
-        throw new Error();
+    if (_.isNil(publicHtmlUrl)) {
+        triggerError(dispatch);
+
+        return Sentry.captureException(
+            new Error("Error: publicHtmlUrl was not provided.")
+        );
     }
 
     let response;
@@ -31,15 +48,29 @@ export const initRepository = (formValues) => async () => {
     try {
         response = await api.post("/repositories/init", formValues);
     } catch (e) {
-        console.log(e);
+        triggerError(dispatch);
+
+        return Sentry.captureException(e, {
+            tags: {
+                message: errs[0],
+                route: "/repositories/init",
+                body: formValues,
+            },
+        });
     }
 
     const { success, result, error } = response.data;
 
-    console.log("Result", result);
-
     if (success == false) {
-        throw new Error(error.toString());
+        triggerError(dispatch);
+
+        return Sentry.captureException(new Error(error), {
+            tags: {
+                message: errs[1],
+                route: "/repositories/init",
+                body: formValues,
+            },
+        });
     } else {
         return result;
     }
