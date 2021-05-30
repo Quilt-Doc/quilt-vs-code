@@ -156,15 +156,7 @@ export const retrieveWorkspaces = ({ userId }) => async (dispatch) => {
     if (success == false) {
         triggerError(dispatch);
 
-        return Sentry.captureException(new Error(error), {
-            tags: {
-                message: errs[1],
-                route: "/workspaces/retrieve",
-                body: {
-                    memberUserIds: [userId],
-                },
-            },
-        });
+        return;
     } else {
         dispatch({ type: RETRIEVE_WORKSPACES, payload: result });
     }

@@ -32,8 +32,6 @@ export const extensionAuthenticateUser = (payload) => async (dispatch) => {
         },
     });
 
-    console.log("RESPONSE", response);
-
     const { success, result } = response.data;
 
     if (success == false) {

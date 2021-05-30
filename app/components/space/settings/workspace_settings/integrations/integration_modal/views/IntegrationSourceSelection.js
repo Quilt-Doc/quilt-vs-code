@@ -185,7 +185,7 @@ const IntegrationsContainer = styled.div`
     /*padding-bottom: 1rem;*/
 `;
 
-const OpaqueSubHeader = styled(SubHeader)`
+const OpaqueSubHeader = styled(Header)`
     opacity: 1;
 
     margin-bottom: 1.5rem;

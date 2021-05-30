@@ -29,6 +29,8 @@ const FormPanelContainer = styled(Panel)`
     flex-direction: column;
 
     padding: 2rem 2rem;
+
+    position: relative;
 `;
 
 /*

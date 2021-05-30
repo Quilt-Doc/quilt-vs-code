@@ -1,8 +1,8 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import { ThemeProvider } from "styled-components";
-import styled from "styled-components";
 
 //sentry
 import * as Sentry from "@sentry/react";
@@ -18,10 +18,7 @@ import ErrorDisplay from "./error_handling/ErrorDisplay";
 //actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
-import {
-    storeExtensionMessage,
-    extensionAuthenticateUser,
-} from "../actions/ExtensionActions";
+import { storeExtensionMessage, extensionAuthenticateUser } from "../actions/ExtensionActions";
 
 //types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
@@ -85,13 +82,14 @@ class Root extends Component {
             return history.push("/create_workspace");
         }
 
+        //return history.push("/create_workspace");
         return history.push(`/space/${workspaces[0]._id}/context`);
 
         //return history.push("/error");
 
-        return history.push(`/space/${workspaces[0]._id}/blame`);
+        //return history.push(`/space/${workspaces[0]._id}/blame`);
 
-        return history.push(`/space/${workspaces[0]._id}/settings/user`);
+        //return history.push(`/space/${workspaces[0]._id}/settings/user`);
     };
 
     componentWillUnmount = () => {
@@ -99,7 +97,7 @@ class Root extends Component {
     };
 
     handleExtensionMessage = async ({ data: message }) => {
-        const { changeTheme, setGitInfo } = this.props;
+        const { changeTheme, setGitInfo, extensionAuthenticateUser } = this.props;
 
         const { type, payload } = message;
 
@@ -115,8 +113,6 @@ class Root extends Component {
             case RECEIVE_VALUE_GLOBAL_STORAGE:
                 switch (payload.dispatchType) {
                     case AUTHENTICATE_USER:
-                        const { extensionAuthenticateUser } = this.props;
-
                         if (payload.value && payload.value.isAuthorized) {
                             await extensionAuthenticateUser(payload);
                         }
@@ -124,6 +120,8 @@ class Root extends Component {
                         this.setState({ receivedAuth: true });
 
                         this.handleRouting();
+
+                        break;
                     default:
                         break;
                 }
@@ -136,8 +134,6 @@ class Root extends Component {
 
     renderContent = () => {
         const { hasError } = this.props;
-
-        console.log("HAS ERROR", hasError);
 
         if (hasError) return <ErrorDisplay />;
 
@@ -162,9 +158,7 @@ class Root extends Component {
             <ThemeProvider theme={theme}>
                 <Sentry.ErrorBoundary
                     fallback={({ resetError }) => {
-                        return (
-                            <ErrorDisplay resetError={resetError} zIndex={-1} />
-                        );
+                        return <ErrorDisplay resetError={resetError} zIndex={-1} />;
                     }}
                 >
                     {this.renderContent()}
@@ -198,16 +192,14 @@ export default withRouter(
     })(Root)
 );
 
-function FallbackComponent() {
-    return <Box>An error has occurred</Box>;
-}
-
-const myFallback = <FallbackComponent />;
-
-const Box = styled.div`
-    background-color: red;
-
-    height: 50rem;
-
-    width: 40rem;
-`;
+Root.propTypes = {
+    user: PropTypes.object,
+    history: PropTypes.object,
+    theme: PropTypes.object,
+    isAuthorized: PropTypes.bool,
+    changeTheme: PropTypes.func,
+    setGitInfo: PropTypes.func,
+    storeExtensionMessage: PropTypes.func,
+    extensionAuthenticateUser: PropTypes.func,
+    hasError: PropTypes.bool,
+};

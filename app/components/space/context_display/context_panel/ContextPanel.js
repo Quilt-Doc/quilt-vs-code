@@ -26,12 +26,6 @@ class ContextPanel extends Component {
     renderListItems = () => {
         const { data, model, source } = this.props;
 
-        console.log("These are the parameters we can see", {
-            data,
-            model,
-            source,
-        });
-
         const listItems = data.map((item) => {
             return (
                 <ContextListItem

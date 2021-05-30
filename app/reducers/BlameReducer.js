@@ -12,9 +12,7 @@ export default (state = INITIAL_STATE, action) => {
         case RETRIEVE_BLAMES:
             let { blameChunks, contextBlames } = action.payload;
 
-            blameChunks = _.mapKeys(blameChunks, "start");
-
-            return { blameChunks, ...state };
+            return { blameChunks, contextBlames: {} };
 
         default:
             return state;

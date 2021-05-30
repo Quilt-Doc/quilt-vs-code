@@ -23,29 +23,34 @@ class ChooseName extends Component {
             user: { _id: creatorId, profileId, firstName },
             active,
             setCreatedWorkspaceId,
+            isPublic,
         } = this.props;
 
-        const installationId = installations.filter(
-            (inst) =>
-                inst.account.type == "User" && inst.account.id == profileId
-        )[0].id;
+        let parameters = {};
 
-        const name =
+        if (!isPublic) {
+            parameters.installationId = installations.filter(
+                (inst) =>
+                    inst.account.type == "User" && inst.account.id == profileId
+            )[0].id;
+        } else {
+            parameters.public = true;
+        }
+
+        parameters.name =
             this.input.value !== "" ? this.input.value : `${firstName}'s Quilt`;
 
-        console.log("WORKSPACE PARAMS", {
-            installationId,
+        console.log("Parameters to Workspace Creation", {
+            ...parameters,
             creatorId,
             repositoryIds: active,
-            name,
         });
 
         const workspace = await createWorkspace(
             {
-                installationId,
+                ...parameters,
                 creatorId,
                 repositoryIds: active,
-                name,
             },
             true
         );

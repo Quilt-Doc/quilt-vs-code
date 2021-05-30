@@ -78,11 +78,11 @@ class BlameController {
         this.activeEditor = activeTextEditor;
 
         this.activeEditorListener = onDidChangeActiveTextEditor((editor) => {
-            this.removeBlame();
+            //this.removeBlame();
 
             this.activeEditor = editor;
 
-            this.requestBlame();
+            //this.requestBlame();
         });
 
         this.editorSelectionListener = onDidChangeTextEditorSelection(
@@ -116,10 +116,12 @@ class BlameController {
             }
         });
 
+        // when actual content of changes
         this.textDocumentListener = onDidChangeTextDocument((event) => {
             if (
                 this.activeEditor &&
-                event.document === this.activeEditor.document
+                event.document === this.activeEditor.document &&
+                this._view.visible
             ) {
                 this.requestBlame();
             }
@@ -130,7 +132,13 @@ class BlameController {
         const { type, payload } = message;
 
         if (type == "GET_DOCUMENT_TEXT") {
-            this.requestBlame();
+            if (this.blameChunks.length > 0) {
+                this.removeBlame();
+            }
+
+            if (this._view.visible) {
+                this.requestBlame();
+            }
         }
 
         if (type == "COMMUNICATE_BLAME") {

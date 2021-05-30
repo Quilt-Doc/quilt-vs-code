@@ -61,11 +61,16 @@ class BlameCodeLensProvider implements CodeLensProvider {
     public resolveCodeLens(codeLens: CodeLens, token: CancellationToken) {
         if (this.isActive) {
             codeLens.command = {
+                title: "",
+                command: "",
+            };
+            /*
+            codeLens.command = {
                 title: "Focus this blame annotation in Quilt.",
                 tooltip: "Focus this blame annotation in Quilt.",
                 command: `${EXTENSION_NAME}.focusBlameAnnotation`,
                 arguments: [codeLens.range.start.line],
-            };
+            };*/
             return codeLens;
         }
 

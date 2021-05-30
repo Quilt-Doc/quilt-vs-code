@@ -6,6 +6,8 @@ import vscode from "../../../vscode/vscode";
 
 //components
 import AnnotationCard from "./AnnotationCard";
+import GitAlert from "../alerts/GitAlert";
+import { Loader } from "../../../elements";
 
 //redux
 import { connect } from "react-redux";
@@ -16,16 +18,39 @@ import { retrieveBlames } from "../../../actions/BlameActions";
 //router
 import { withRouter } from "react-router-dom";
 
+//utils
+import { checkValid } from "../../../utils";
+
 class BlameDisplay extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             focusedChunk: 0,
+            cannotFind: false,
+            isLoaded: false,
         };
 
         this.annotations = {};
     }
+
+    componentDidUpdate = (prevProps) => {
+        const { activeFilePath, repositoryFullName } = this.props;
+
+        if (
+            prevProps.activeFilePath != activeFilePath ||
+            prevProps.repositoryFullName != repositoryFullName
+        ) {
+            console.log({
+                prevActiveFilePath: prevProps.activeFilePath,
+                activeFilePath,
+                prevRepositoryFullName: prevProps.repositoryFullName,
+                repositoryFullName,
+            });
+
+            this.getDocumentText();
+        }
+    };
 
     componentDidMount = () => {
         this.setupListeners();
@@ -54,7 +79,6 @@ class BlameDisplay extends Component {
 
         switch (type) {
             case "RECEIVE_DOCUMENT_TEXT":
-                console.log("FILE PATH", this.props.activeFilePath);
                 this.retrieveContextBlame(payload);
 
                 break;
@@ -67,6 +91,7 @@ class BlameDisplay extends Component {
                 this.focusChunk(payload, false);
 
                 break;
+
             default:
                 return;
         }
@@ -110,12 +135,24 @@ class BlameDisplay extends Component {
     };
 
     getDocumentText = () => {
-        vscode.postMessage({
-            type: "GET_DOCUMENT_TEXT",
-        });
+        const { activeFilePath, repositoryFullName } = this.props;
+
+        if (!checkValid(activeFilePath) || !checkValid(repositoryFullName)) {
+            this.setState({ cannotFind: true, isLoaded: true });
+        } else {
+            this.setState({ cannotFind: false, isLoaded: false }, () => {
+                console.log("Current State", this.state);
+            });
+
+            vscode.postMessage({
+                type: "GET_DOCUMENT_TEXT",
+            });
+        }
     };
 
     retrieveContextBlame = async (text) => {
+        if (this.state.isLoaded) this.setState({ isLoaded: false });
+
         const {
             retrieveBlames,
             repositoryFullName,
@@ -124,23 +161,51 @@ class BlameDisplay extends Component {
             activeFilePath,
         } = this.props;
 
-        /*
         const { workspaceId } = match.params;
 
         const workspace = workspaces[workspaceId];
 
-        const repository = workspace.repositories.filter((repo) => {
+        const filteredRepositories = workspace.repositories.filter((repo) => {
             const { fullName } = repo;
 
             return fullName == repositoryFullName;
-        })[0];
+        });
+
+        /*  console.log("Parameters", {
+            repositoryFullName,
+            activeFilePath,
+            filteredRepositories,
+        }); */
+
+        if (
+            !repositoryFullName ||
+            !activeFilePath ||
+            filteredRepositories.length == 0
+        ) {
+            this.setState({
+                cannotFind: true,
+                isLoaded: true,
+            });
+
+            return;
+        } else {
+            const { cannotFind } = this.state;
+
+            if (cannotFind) {
+                this.setState({
+                    cannotFind: false,
+                });
+            }
+        }
+
+        const repository = filteredRepositories[0];
 
         await retrieveBlames({
             filePath: activeFilePath,
             fileContent: text,
             workspaceId: workspace._id,
             repositoryId: repository._id,
-        });*/
+        });
 
         const { blameChunks } = this.props;
 
@@ -153,6 +218,8 @@ class BlameDisplay extends Component {
                 focusedChunk,
             },
         });
+
+        this.setState({ isLoaded: true });
     };
 
     focusChunk = (start, shouldScroll = true) => {
@@ -178,54 +245,18 @@ class BlameDisplay extends Component {
     };
 
     renderChunkAnnotations = () => {
-        const { blameChunks } = this.props;
+        const { blameChunks, filename } = this.props;
 
         const { focusedChunk } = this.state;
 
-        const exampleData = {
-            keyUser: "FS",
-            tickets: [
-                {
-                    name: "Backend Query Checklist",
-                },
-                {
-                    name: "Cross-Platform Data Model Spec",
-                },
-            ],
-            pullRequests: [
-                {
-                    name: "Fixed Modularization of Blame Display",
-                },
-                {
-                    name: "Implemented Github Webhooks",
-                },
-            ],
-            commits: [
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-                {
-                    name:
-                        "Outdated reference check preventing repository.scanned…",
-                },
-            ],
-            documents: [
-                {
-                    name: "Async Document Update Flow",
-                },
-            ],
-        };
-
         return blameChunks.map((chunk, i) => {
-            chunk = { ...chunk, ...exampleData };
+            chunk["keyUser"] = "FS";
 
             chunk._id = i;
 
             const { start } = chunk;
 
             const isFocused = focusedChunk == start;
-
-            const filename = "BlameDisplay.js";
 
             return (
                 <AnnotationCardContainer
@@ -245,7 +276,13 @@ class BlameDisplay extends Component {
     };
 
     render() {
-        return <Container>{this.renderChunkAnnotations()}</Container>;
+        const { cannotFind, isLoaded } = this.state;
+
+        return (
+            <Container>
+                {cannotFind ? <GitAlert /> : this.renderChunkAnnotations()}
+            </Container>
+        );
     }
 }
 
@@ -253,19 +290,15 @@ const mapStateToProps = (state) => {
     const {
         global: { activeFilePath, repositoryFullName },
         workspaces,
+        blames: { blameChunks },
     } = state;
 
     return {
-        blameChunks: [
-            { start: 0, end: 20 },
-            { start: 21, end: 35 },
-            { start: 36, end: 51 },
-            { start: 52, end: 108 },
-            { start: 109, end: 123 },
-        ],
+        blameChunks: Object.values(blameChunks),
         workspaces,
         activeFilePath,
         filename: activeFilePath ? activeFilePath.split("/").pop() : null,
+        repositoryFullName,
     };
 };
 
@@ -274,7 +307,7 @@ export default withRouter(
 );
 
 const Container = styled.div`
-    height: calc(100vh - 4rem);
+    height: calc(100vh - 6.5rem);
 
     display: flex;
 

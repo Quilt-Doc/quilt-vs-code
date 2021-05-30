@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //components
 import ContextPanel from "./context_panel/ContextPanel";
@@ -25,7 +26,7 @@ class ContextDisplay extends Component {
     }
 
     componentDidMount = () => {
-        //this.loadContext();
+        this.loadContext();
     };
 
     componentDidUpdate = (prevProps) => {
@@ -42,15 +43,16 @@ class ContextDisplay extends Component {
     };
 
     loadContext = async () => {
-        return console.log("Testing");
+        const { repositoryFullName, activeFilePath, match, repositories, getFileContext } =
+            this.props;
 
-        const {
+        console.log("React: loadContext params", {
             repositoryFullName,
             activeFilePath,
             match,
             repositories,
             getFileContext,
-        } = this.props;
+        });
 
         const { workspaceId } = match.params;
 
@@ -113,42 +115,15 @@ class ContextDisplay extends Component {
 const mapStateToProps = (state) => {
     let {
         global: { repositoryFullName, activeFilePath },
+        workspace,
         repositories,
-        /*
-        github,
-        trello,
-        jira,*/
     } = state;
 
-    /*
-    github = _.pick(github, ["pullRequests", "commits", "branches", "tickets"]);
-
-    trello = _.pick(trello, ["tickets"]);
-
-    jira = _.pick(jira, ["tickets"]);
-    */
+    console.log("Workspace", workspace);
 
     const context = {
         github: {
-            commits: [
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-                {
-                    name:
-                        "Outdated reference check preventing repository.scanned…",
-                },
-                {
-                    name: "[QD-278] Validate Trello Lifecycle Tests Progress..",
-                },
-            ],
             pullRequests: [
-                {
-                    name: "Fixed Modularization of Blame Display",
-                },
-                {
-                    name: "Implemented Github Webhooks",
-                },
                 {
                     name: "Fixed Modularization of Blame Display",
                 },
@@ -166,7 +141,7 @@ const mapStateToProps = (state) => {
                     name: "Cross-Platform Data Model Spec",
                 },
                 {
-                    name: "Cross-Platform Data Model Spec",
+                    name: "Implement Worker Production Queue",
                 },
             ],
         },
@@ -177,7 +152,7 @@ const mapStateToProps = (state) => {
                     name: "Async Document Update Flow",
                 },
                 {
-                    name: "Async Document Update Flow",
+                    name: "Board Selection Spec",
                 },
             ],
         },
@@ -191,6 +166,13 @@ const mapStateToProps = (state) => {
     };
 };
 
-export default withRouter(
-    connect(mapStateToProps, { getFileContext })(ContextDisplay)
-);
+export default withRouter(connect(mapStateToProps, { getFileContext })(ContextDisplay));
+
+ContextDisplay.propTypes = {
+    repositoryFullName: PropTypes.string,
+    activeFilePath: PropTypes.string,
+    repositories: PropTypes.array,
+    context: PropTypes.object,
+    getFileContext: PropTypes.func,
+    match: PropTypes.object,
+};
