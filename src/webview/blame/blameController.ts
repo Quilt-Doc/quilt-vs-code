@@ -22,6 +22,7 @@ const { onDidChangeTextDocument } = workspace;
 import BlameDecorator from "./blameDecorator";
 import BlameCodeLensProvider from "./blameCodeLensProvider";
 import BlameChunk from "./blameChunk";
+import ContextItem from "./contextItem";
 
 import { EXTENSION_NAME } from "../../constants/constants";
 
@@ -43,6 +44,8 @@ class BlameController {
     private blameChunks: BlameChunk[] = [];
 
     private focusedChunk: number = 0;
+
+    private selectedItem?: ContextItem;
 
     constructor(private _view: WebviewView) {
         this.blameDecorator = new BlameDecorator();
@@ -85,28 +88,26 @@ class BlameController {
             //this.requestBlame();
         });
 
-        this.editorSelectionListener = onDidChangeTextEditorSelection(
-            (event) => {
-                const { selections } = event;
+        this.editorSelectionListener = onDidChangeTextEditorSelection((event) => {
+            const { selections } = event;
 
-                if (selections.length == 0) return;
+            if (selections.length == 0) return;
 
-                const {
-                    start: { line },
-                } = selections[0];
+            const {
+                start: { line },
+            } = selections[0];
 
-                this.blameChunks.map((chunk) => {
-                    const { start, end } = chunk;
+            this.blameChunks.map((chunk) => {
+                const { start, end } = chunk;
 
-                    if (line >= start && line <= end) {
-                        this._view?.webview.postMessage({
-                            type: "SELECT_BLAME_ANNOTATION",
-                            payload: start,
-                        });
-                    }
-                });
-            }
-        );
+                if (line >= start && line <= end) {
+                    this._view?.webview.postMessage({
+                        type: "SELECT_BLAME_ANNOTATION",
+                        payload: start,
+                    });
+                }
+            });
+        });
 
         this.viewVisibilityListener = this._view.onDidChangeVisibility((e) => {
             if (this._view.visible) {
@@ -161,6 +162,14 @@ class BlameController {
             this.updateBlame();
         }
 
+        if (type == "SELECT_CONTEXT_ITEM") {
+            const { selectedItem } = payload;
+
+            this.selectedItem = selectedItem;
+
+            this.showContextBlame();
+        }
+
         if (type == "REMOVE_BLAME") {
             this.removeBlame();
         }
@@ -206,6 +215,22 @@ class BlameController {
             );
 
             this.blameCodeLensProvider.setChunks(this.blameChunks);
+        }
+    }
+
+    showContextBlame() {
+        this.blameDecorator.removeBlameDecorations();
+
+        if (
+            this.blameDecorator &&
+            this.activeEditor &&
+            this.selectedItem &&
+            this.selectedItem.chunks.length > 0
+        ) {
+            this.blameDecorator.showContextBlameDisplay(
+                this.activeEditor,
+                this.selectedItem
+            );
         }
     }
 

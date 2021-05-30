@@ -4,8 +4,6 @@ import {
     CLEAR_ERROR,
 } from "../actions/types/ErrorTypes";
 
-import _ from "lodash";
-
 const INITIAL_STATE = {
     hasError: false,
     alert: null,
