@@ -1,6 +1,7 @@
 # quilt README
+Leverage information like never before
 
-This is the README for your extension "quilt". After writing up a brief description, we recommend including the following sections.
+No more searching for insight. Quilt unifies the existing knowledge of your codebase across platforms and brings it into the IDE.
 
 ## Features
 

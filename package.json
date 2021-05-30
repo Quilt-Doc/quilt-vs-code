@@ -2,6 +2,7 @@
     "name": "quilt",
     "displayName": "Quilt",
     "description": "Quilt -- View All Code-Related Information In Your IDE",
+    "publisher": "Quilt",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.52.0"
