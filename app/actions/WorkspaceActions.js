@@ -1,3 +1,4 @@
+// dispatch types
 import {
     CREATE_WORKSPACE,
     GET_WORKSPACE,
@@ -5,20 +6,19 @@ import {
     EDIT_WORKSPACE,
     DELETE_WORKSPACE,
 } from "./types/WorkspaceTypes";
-
 import { CREATE_INVITE } from "./types/WorkspaceInviteTypes";
-
 import { EDIT_USER } from "./types/UserTypes";
 
+// api
 import getAPI from "../api/api";
 
-//error handling
+// error handling
 import * as Sentry from "@sentry/react";
 import { errs, triggerAlert, triggerError } from "./ErrorActions";
 
 export const createWorkspace = (formValues, passback) => async (dispatch) => {
     Sentry.setContext("WorkspaceActions::createWorkspace", {
-        message: `Error creating workspace.`,
+        message: "Error creating workspace.",
         ...formValues,
         passback,
     });
@@ -62,109 +62,121 @@ export const createWorkspace = (formValues, passback) => async (dispatch) => {
     }
 };
 
-export const getWorkspace = ({ workspaceId }) => async (dispatch) => {
-    Sentry.setContext("WorkspaceActions::getWorkspace", {
-        message: `Error getting workspace.`,
-        workspaceId,
-    });
+export const getWorkspace =
+    ({ workspaceId }) =>
+    async (dispatch) => {
+        Sentry.setContext("WorkspaceActions::getWorkspace", {
+            message: "Error getting workspace.",
+            workspaceId,
+        });
 
-    const api = getAPI();
+        const api = getAPI();
 
-    if (!workspaceId) {
-        triggerError(dispatch);
+        if (_.isNil(workspaceId)) {
+            triggerError(dispatch);
 
-        return Sentry.captureException(
-            new Error("Error: workspaceId was not provided.")
-        );
-    }
+            return Sentry.captureException(
+                new Error("Error: workspaceId was not provided.")
+            );
+        }
 
-    let response;
+        let response;
 
-    try {
-        response = await api.get(`/workspaces/get/${workspaceId}`);
-    } catch (e) {
-        triggerError(dispatch);
+        try {
+            response = await api.get(`/workspaces/get/${workspaceId}`);
+        } catch (e) {
+            triggerError(dispatch);
 
-        return Sentry.captureException(e, {
-            tags: {
-                message: errs[0],
-                route: `/workspaces/get/${workspaceId}`,
-                params: {
-                    workspaceId,
+            return Sentry.captureException(e, {
+                tags: {
+                    message: errs[0],
+                    route: `/workspaces/get/${workspaceId}`,
+                    params: {
+                        workspaceId,
+                    },
                 },
-            },
-        });
-    }
+            });
+        }
 
-    const { success, result, error } = response.data;
+        const { success, result, error } = response.data;
 
-    if (success == false) {
-        triggerError(dispatch);
+        if (success == false) {
+            triggerError(dispatch);
 
-        return Sentry.captureException(new Error(error), {
-            tags: {
-                message: errs[1],
-                route: `/workspaces/get/${workspaceId}`,
-                params: {
-                    workspaceId,
+            return Sentry.captureException(new Error(error), {
+                tags: {
+                    message: errs[1],
+                    route: `/workspaces/get/${workspaceId}`,
+                    params: {
+                        workspaceId,
+                    },
                 },
-            },
+            });
+        } else {
+            dispatch({ type: GET_WORKSPACE, payload: result });
+        }
+    };
+
+export const retrieveWorkspaces =
+    ({ userId }) =>
+    async (dispatch) => {
+        Sentry.setContext("WorkspaceActions::retrieveWorkspaces", {
+            message: "Error retrieving workspaces.",
+            userId,
         });
-    } else {
-        dispatch({ type: GET_WORKSPACE, payload: result });
-    }
-};
 
-export const retrieveWorkspaces = ({ userId }) => async (dispatch) => {
-    Sentry.setContext("WorkspaceActions::retrieveWorkspaces", {
-        message: `Error retrieving workspaces.`,
-        userId,
-    });
+        const api = getAPI();
 
-    const api = getAPI();
+        if (_.isNil(userId)) {
+            triggerError(dispatch);
 
-    if (!userId) {
-        triggerError(dispatch);
+            return Sentry.captureException(
+                new Error("Error: userId was not provided.")
+            );
+        }
 
-        return Sentry.captureException(
-            new Error("Error: userId was not provided.")
-        );
-    }
+        let response;
 
-    let response;
+        try {
+            response = await api.post("/workspaces/retrieve", {
+                memberUserIds: [userId],
+            });
+        } catch (e) {
+            triggerError(dispatch);
 
-    try {
-        response = await api.post(`/workspaces/retrieve`, {
-            memberUserIds: [userId],
-        });
-    } catch (e) {
-        triggerError(dispatch);
-
-        return Sentry.captureException(e, {
-            tags: {
-                message: errs[0],
-                route: "/workspaces/retrieve",
-                body: {
-                    memberUserIds: [userId],
+            return Sentry.captureException(e, {
+                tags: {
+                    message: errs[0],
+                    route: "/workspaces/retrieve",
+                    body: {
+                        memberUserIds: [userId],
+                    },
                 },
-            },
-        });
-    }
+            });
+        }
 
-    const { success, result, error } = response.data;
+        const { success, result, error } = response.data;
 
-    if (success == false) {
-        triggerError(dispatch);
+        if (success == false) {
+            triggerError(dispatch);
 
-        return;
-    } else {
-        dispatch({ type: RETRIEVE_WORKSPACES, payload: result });
-    }
-};
+            return Sentry.captureException(new Error(error), {
+                tags: {
+                    message: errs[1],
+                    route: "/workspaces/retrieve",
+                    body: {
+                        memberUserIds: [userId],
+                    },
+                },
+            });
+        } else {
+            dispatch({ type: RETRIEVE_WORKSPACES, payload: result });
+        }
+    };
 
 export const editWorkspace = (formValues) => async (dispatch) => {
     Sentry.setContext("WorkspaceActions::editWorkspace", {
-        message: `Error editing workspace.`,
+        message: "Error editing workspace.",
         ...formValues,
     });
 
@@ -172,7 +184,7 @@ export const editWorkspace = (formValues) => async (dispatch) => {
 
     const { workspaceId } = formValues;
 
-    if (!workspaceId) {
+    if (_.isNil(workspaceId)) {
         triggerError(dispatch);
 
         return Sentry.captureException(
@@ -221,7 +233,7 @@ export const editWorkspace = (formValues) => async (dispatch) => {
 
 export const deleteWorkspace = (formValues) => async (dispatch) => {
     Sentry.setContext("WorkspaceActions::deleteWorkspace", {
-        message: `Error deleting workspace.`,
+        message: "Error deleting workspace.",
         ...formValues,
     });
 
@@ -229,7 +241,7 @@ export const deleteWorkspace = (formValues) => async (dispatch) => {
 
     const { workspaceId } = formValues;
 
-    if (!workspaceId) {
+    if (_.isNil(workspaceId)) {
         triggerError(dispatch);
 
         return Sentry.captureException(
@@ -240,10 +252,7 @@ export const deleteWorkspace = (formValues) => async (dispatch) => {
     let response;
 
     try {
-        response = await api.delete(
-            `/workspaces/delete/${workspaceId}`,
-            formValues
-        );
+        response = await api.delete(`/workspaces/delete/${workspaceId}`, formValues);
     } catch (e) {
         triggerError(dispatch);
 
@@ -277,7 +286,7 @@ export const deleteWorkspace = (formValues) => async (dispatch) => {
 
 export const sendInvite = (formValues) => async (dispatch) => {
     Sentry.setContext("WorkspaceActions::sendInvite", {
-        message: `Error sending invite.`,
+        message: "Error sending invite.",
         ...formValues,
     });
 
@@ -285,7 +294,7 @@ export const sendInvite = (formValues) => async (dispatch) => {
 
     const { workspaceId, email } = formValues;
 
-    if (!workspaceId) {
+    if (_.isNil(workspaceId)) {
         triggerError(dispatch);
 
         return Sentry.captureException(
@@ -293,12 +302,10 @@ export const sendInvite = (formValues) => async (dispatch) => {
         );
     }
 
-    if (!email) {
+    if (_.isNil(email)) {
         triggerError(dispatch);
 
-        return Sentry.captureException(
-            new Error("Error: email was not provided.")
-        );
+        return Sentry.captureException(new Error("Error: email was not provided."));
     }
 
     let response;

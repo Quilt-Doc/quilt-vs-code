@@ -9,11 +9,7 @@ import chroma from "chroma-js";
 //icons
 import { RiSearch2Line } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
-import {
-    IoLayersOutline,
-    IoTerminal,
-    IoTerminalOutline,
-} from "react-icons/io5";
+import { IoLayersOutline, IoTerminal, IoTerminalOutline } from "react-icons/io5";
 import { VscLibrary } from "react-icons/vsc";
 import {
     HiDuplicate,
@@ -111,7 +107,7 @@ const SpaceNavbarContainer = styled.div`
 const SpaceNavbarButtonsContainer = styled.div`
     padding-top: 0rem;
 
-    padding: 0.3rem 1rem;
+    padding: 0.3rem 0rem;
 
     display: flex;
 
@@ -158,8 +154,7 @@ border-bottom: ${(props) =>
 
     transition: opacity 0.1s ease-in;
 
-    /*background-color: ${(props) =>
-        props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
+    /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
     /*
 
     opacity: 0.9;
@@ -207,8 +202,7 @@ const SpaceNavbarButton = styled.div`
         margin-right: 0rem;
     }
 
-    /*background-color: ${(props) =>
-        props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
+    /*background-color: ${(props) => props.theme.PRIMARY_ACCENT_COLOR_SHADE_1};*/
     /*
     opacity: 0.9;
 

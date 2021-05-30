@@ -22,7 +22,7 @@ import { Panel, Logo, SubHeader } from "../../elements";
 import LoginButton from "./LoginButton";
 
 //constants
-import { API_ENDPOINT } from "../../constants/constants";
+import { BASE_URL } from "../../constants";
 import { OPEN_BROWSER } from "../../vscode/types/messageTypes";
 
 //actions
@@ -39,7 +39,7 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
         () =>
             new Pusher("8a6c058f2c0eb1d4d237", {
                 cluster: "mt1",
-                authEndpoint: `${API_ENDPOINT}/pusher/vscode/auth`,
+                authEndpoint: `${BASE_URL}/pusher/vscode/auth`,
             }),
         []
     );
@@ -60,9 +60,7 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
 
             setIsLoggingIn(false);
 
-            console.log(
-                "Please reload authentication or reclick to authenticate."
-            );
+            console.log("Please reload authentication or reclick to authenticate.");
         },
         [isLoggingIn, requestTimeout, requestChannelName]
     );
@@ -100,11 +98,15 @@ const Login = ({ authenticateUser, encryptAuthToken, history }) => {
 
             tokenListener.bind("pusher:subscription_succeeded", () => {
                 console.log("OPEN BROWSER: ");
-                console.log(`${API_ENDPOINT}/auth/github?ide_token=${encodeURIComponent(encryptedToken)}`);
+                console.log(
+                    `${BASE_URL}/auth/github?ide_token=${encodeURIComponent(
+                        encryptedToken
+                    )}`
+                );
                 vscode.postMessage({
                     type: OPEN_BROWSER,
                     payload: {
-                        url: `${API_ENDPOINT}/auth/github?ide_token=${encodeURIComponent(
+                        url: `${BASE_URL}/auth/github?ide_token=${encodeURIComponent(
                             encryptedToken
                         )}`,
                     },

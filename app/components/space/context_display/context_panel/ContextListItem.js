@@ -1,8 +1,11 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
-import chroma from "chroma-js";
+
+// components
+import DetailCard from "../../detail_display/DetailCard";
 
 import {
     RiFileList2Fill,
@@ -16,32 +19,47 @@ import { BsCardChecklist } from "react-icons/bs";
 
 import { BiGitCommit } from "react-icons/bi";
 
-import { VscGitPullRequest } from "react-icons/vsc";
+import { VscGitPullRequest, VscGitMerge } from "react-icons/vsc";
 
-import { FiGitBranch, FiGitPullRequest } from "react-icons/fi";
-import { SubHeader, Header } from "../../../../elements";
+import { FiGitBranch } from "react-icons/fi";
+import { SubHeader } from "../../../../elements";
 
 class ContextListItem extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isOpen: false,
+        };
+    }
+
     renderIcon = () => {
-        const { source, model } = this.props;
+        const {
+            model,
+            item: { state },
+        } = this.props;
 
         const metadata = {
             tickets: {
                 icon: <BsCardChecklist style={{ marginLeft: "-0.1rem" }} />,
                 color: "rgb(93, 106, 210)",
-                top: "0.13rem",
-                size: "2.2rem",
+                /*top: "0.13rem",*/
+                size: "2rem",
             },
             commits: {
                 icon: <BiGitCommit />,
-
-                top: "0.04rem",
-                color: "white",
+                top: "0.1rem",
+                color: "#f69700",
             },
             pullRequests: {
-                icon: <VscGitPullRequest />,
-                color: "rgb(77,183,130)",
-                top: "0.19rem",
+                icon: state == "MERGED" ? <VscGitMerge /> : <VscGitPullRequest />,
+                color:
+                    state == "MERGED"
+                        ? "#a470f7"
+                        : state == "CLOSED"
+                        ? "#f85149"
+                        : "rgb(77,183,130)",
+                //top: "0.19rem",
             },
             documents: {
                 icon: <RiFile2Line />,
@@ -54,49 +72,160 @@ class ContextListItem extends Component {
         };
 
         const { color, icon, top, size, left } = metadata[model];
-        //<BiGitCommit />
-        //const color = source === "trello" ? "#6762df" : "white"; //"#4284f4";
-        //const size = source === "trello" ? "2.1rem" : "1.8rem";
-        //<RiFileList2Line />;
 
         return (
-            <ContextListItemIcon
-                left={left}
-                size={size}
-                top={top}
-                color={color}
-            >
-                {icon}
-            </ContextListItemIcon>
+            <ContextListItemIconContainer>
+                <ContextListItemIcon left={left} size={size} top={top} color={color}>
+                    {icon}
+                </ContextListItemIcon>
+            </ContextListItemIconContainer>
         );
     };
 
+    renderFormattedDateString = () => {
+        const {
+            item: { sourceCreationDate, mergedAt, sourceCloseDate },
+            model,
+        } = this.props;
+
+        let relevantDate;
+
+        if (model == "pullRequest") {
+            if (model.state == "CLOSED") {
+                relevantDate = sourceCloseDate;
+            } else if (model.state == "MERGED") {
+                relevantDate = mergedAt;
+            } else {
+                relevantDate = sourceCreationDate;
+            }
+        } else {
+            relevantDate = sourceCreationDate;
+        }
+
+        const currentDate = new Date();
+
+        relevantDate = new Date(relevantDate);
+
+        let dateString = "";
+
+        const curr = {
+            hour: currentDate.getHours(),
+            day: currentDate.getDate(),
+            month: currentDate.getMonth(),
+            year: currentDate.getFullYear(),
+        };
+
+        const src = {
+            hour: relevantDate.getHours(),
+            day: relevantDate.getDate(),
+            month: relevantDate.getMonth(),
+            year: relevantDate.getFullYear(),
+        };
+
+        const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+
+        if (curr.year == src.year) {
+            if (curr.month == src.month) {
+                if (curr.day == src.day) {
+                    dateString = `${curr.hour - src.hour} hours ago`;
+                } else {
+                    dateString = `${curr.day - src.day} days ago`;
+                }
+            } else {
+                dateString = `${months[src.month]} ${src.day}`;
+            }
+        } else {
+            dateString = `${months[src.month]} ${src.day}, ${src.year}`;
+        }
+
+        return dateString;
+    };
+
+    acquirePhrase = () => {
+        const { item, model } = this.props;
+
+        if (model == "pullRequests") {
+            return item.state == "OPEN"
+                ? "opened on"
+                : item.state == "CLOSED"
+                ? "closed on"
+                : "merged on";
+        } else if (model == "tickets") {
+            return "created on";
+        } else {
+            return "committed on";
+        }
+    };
+
     renderContent = () => {
-        const { name } = this.props;
+        const { item, model } = this.props;
+
+        const { name, sourceId, creator } = item;
+
+        const identifier =
+            model == "commits" ? sourceId.slice(0, 7) : `#${sourceId}`;
 
         return (
             <ContextListItemContent>
-                <ContextListItemHeader noWrap={true}>
-                    {name}
-                </ContextListItemHeader>
+                <ContextListItemHeader noWrap={true}>{name}</ContextListItemHeader>
                 <ContextListItemSubHeader noWrap={true}>
-                    John Smith
+                    {`${identifier} by ${creator} ${this.acquirePhrase()} ${this.renderFormattedDateString()}`}
                 </ContextListItemSubHeader>
             </ContextListItemContent>
         );
     };
 
-    renderDate = () => {
-        return <ContextListItemDate>Nov 25, 2020</ContextListItemDate>;
-    };
+    renderDetailCard = () => {
+        const { model, item } = this.props;
 
+        const { isOpen } = this.state;
+
+        if ("labels" in item && item["labels"].length > 0) {
+            const first = item["labels"][0];
+
+            if (typeof first != "object") {
+                item.labels = item.labels.map((label) => {
+                    return {
+                        name: label,
+                    };
+                });
+            }
+        }
+        return (
+            <DetailCard
+                elem={item}
+                kind={model.slice(0, model.length - 1)}
+                isOpen={isOpen}
+                closeCard={() =>
+                    this.setState({
+                        isOpen: false,
+                    })
+                }
+            />
+        );
+    };
     render() {
         return (
             <>
-                <ContextListItemContainer>
+                <ContextListItemContainer
+                    onClick={() => this.setState({ isOpen: true })}
+                >
                     {this.renderIcon()}
                     {this.renderContent()}
-                    {this.renderDate()}
+                    {this.renderDetailCard()}
                 </ContextListItemContainer>
             </>
         );
@@ -105,59 +234,116 @@ class ContextListItem extends Component {
 
 export default ContextListItem;
 
+ContextListItem.propTypes = {
+    item: PropTypes.object,
+    model: PropTypes.string,
+};
+
 const ContextListItemContainer = styled.div`
-    height: 5.8rem;
+    background-color: ${(props) =>
+        props.isActive ? props.theme.SHADE_4 : props.theme.SHADE_2};
+
+    border: ${(props) => (props.isActive ? `1px solid ${props.theme.SHADE_8}` : "")};
+
+    /*
+    &:first-of-type {
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px 0px;
+
+        border: 1px solid ${(props) => props.theme.SHADE_4};
+
+        background-color: ${(props) => props.theme.SHADE_4};
+
+        margin-top: 0rem;
+    }*/
+
+    margin-top: 1rem;
+
+    height: 5rem;
+
+    border-radius: 0.6rem;
 
     width: 100%;
 
     display: flex;
 
-    padding: 0.5rem 1.7rem;
+    align-items: center;
 
-    padding-top: 0.8rem;
-
-    padding-right: 1.6rem;
+    padding: 0.5rem 1rem;
 
     cursor: pointer;
 
     &:hover {
-        background-color: ${(props) => props.theme.HOVER_COLOR};
+        box-shadow: ${(props) => props.theme.BOX_SHADOW_1};
+
+        border: 1px solid ${(props) => props.theme.SHADE_8};
+
+        background-color: ${(props) => props.theme.SHADE_4};
     }
+
+    transition: background-color 0.2s ease-in, box-shadow 0.2s ease-in;
 
     position: relative;
 `;
 
-const ContextListItemIcon = styled.div`
-    height: 3rem;
+const ContextListItemIconContainer = styled.div`
+    min-height: 3.5rem;
 
-    min-width: 3.4rem;
+    min-width: 3.5rem;
 
-    width: 3.4rem;
+    background-color: ${(props) => props.theme.SHADE_8};
+
+    border-radius: 0.7rem;
 
     display: flex;
 
+    align-items: center;
+
+    justify-content: center;
+`;
+
+const ContextListItemIcon = styled.div`
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: ${(props) => props.color};
+
+    font-size: ${(props) => (props.size ? props.size : "1.9rem")};
+
+    margin-top: ${(props) => (props.top ? props.top : "0rem")};
+    /*
     margin-top: ${(props) => (props.top ? props.top : "0rem")};
 
-    font-size: ${(props) => (props.size ? props.size : "2.1rem")}; /*2.1rem;*/
+    font-size: ${(props) => (props.size ? props.size : "2.1rem")};
 
     margin-left: ${(props) => (props.left ? props.left : "0.5rem")};
 
     color: ${(props) =>
         props.color}; /* #4284f4*/ /*#4284f4 - doc  #f27448 - card  #0D9D58 - spreadsheet*/
 
-    opacity: 0.7;
+    /*opacity: 0.7;*/
 `;
 
 const ContextListItemContent = styled.div`
     height: 100%;
 
-    width: 100%;
+    width: 90%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 0.12rem 1rem;
+
+    padding-bottom: 0.05rem;
 `;
 
 const ContextListItemHeader = styled(SubHeader)`
-    margin-bottom: 0.2rem;
-
-    width: calc(100vw - 4rem - 18rem);
+    font-size: 1.1rem;
 `;
 
 /*
@@ -179,11 +365,11 @@ const ContextListItemHeader = styled(SubHeader)`
     width: calc(100vw - 4rem - 14.5rem);*/
 
 const ContextListItemSubHeader = styled(SubHeader)`
-    font-weight: 500;
+    font-weight: 400;
 
-    opacity: 0.6;
+    opacity: 0.7;
 
-    font-size: 1.1rem;
+    font-size: 1rem;
 `;
 
 const ContextListItemDate = styled.div`

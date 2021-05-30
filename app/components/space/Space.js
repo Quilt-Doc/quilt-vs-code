@@ -1,18 +1,22 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
-//components
+// styles
+import styled from "styled-components";
+
+// components
 import SpaceNavbar from "./navbar/SpaceNavbar";
 import ContextDisplay from "./context_display/ContextDisplay";
 import Settings from "./settings/Settings";
 
-//actions
+// actions
 import { setRepositories } from "../../actions/RepositoryActions";
 import { retrieveWorkspaces } from "../../actions/WorkspaceActions";
 
-//redux
+// redux
 import { connect } from "react-redux";
 
-//router
+// router
 import { withRouter, Switch, Route } from "react-router-dom";
 import BlameDisplay from "./blame_display/BlameDisplay";
 
@@ -31,11 +35,7 @@ class Space extends Component {
             match,
         } = this.props;
 
-        const {
-            retrieveWorkspaces,
-
-            setRepositories,
-        } = this.props;
+        const { retrieveWorkspaces, setRepositories } = this.props;
 
         const { workspaceId } = match.params;
 
@@ -58,7 +58,7 @@ class Space extends Component {
 
     renderContent = () => {
         return (
-            <>
+            <Content>
                 <Switch>
                     <Route
                         path="/space/:workspaceId/settings"
@@ -73,18 +73,15 @@ class Space extends Component {
                         component={ContextDisplay}
                     />
                 </Switch>
-            </>
+            </Content>
         );
     };
 
     render() {
         const { loaded } = this.state;
 
-        const { testItem } = this.props;
-
         return (
             <>
-                {testItem}
                 <SpaceNavbar />
                 {loaded && this.renderContent()}
             </>
@@ -110,3 +107,21 @@ export default withRouter(
         retrieveWorkspaces,
     })(Space)
 );
+
+Space.propTypes = {
+    workspaces: PropTypes.object,
+    user: PropTypes.object,
+    retrieveWorkspaces: PropTypes.func,
+    setRepositories: PropTypes.func,
+    match: PropTypes.object,
+};
+
+const Content = styled.div`
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    height: calc(100vh - 4.1rem);
+
+    overflow-y: scroll;
+`;

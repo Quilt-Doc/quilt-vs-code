@@ -3,16 +3,12 @@ import React, { Component } from "react";
 import styled from "styled-components";
 
 //elements
-import {
-    Menu,
-    IntegrationItem,
-    SubHeader,
-} from "../../../../../../../elements";
+import { Menu, IntegrationItem, SubHeader } from "../../../../../../../elements";
 
 import { FiChevronDown } from "react-icons/fi";
 
 //constants
-import { END_TYPE } from "../../../../../../../constants/constants";
+import { END_TYPE } from "../../../../../../../constants";
 
 //TODO: REMOVE DUPLICATE LISTS
 //TODO: MAKE MENU SCROLLABLE

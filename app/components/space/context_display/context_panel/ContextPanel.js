@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 //styles
 import styled from "styled-components";
@@ -14,6 +15,7 @@ class ContextPanel extends Component {
 
         this.state = {
             loaded: false,
+            page: 0,
         };
     }
 
@@ -24,7 +26,11 @@ class ContextPanel extends Component {
     }
 
     renderListItems = () => {
-        const { data, model, source } = this.props;
+        let { data, model, source } = this.props;
+
+        const { page } = this.state;
+
+        data = data.slice(page * 4, page * 4 + 4);
 
         const listItems = data.map((item) => {
             return (
@@ -33,6 +39,7 @@ class ContextPanel extends Component {
                     model={model}
                     source={source}
                     name={item.name}
+                    item={item}
                 />
             );
         });
@@ -40,12 +47,24 @@ class ContextPanel extends Component {
         return listItems;
     };
 
+    changePage = (page) => {
+        this.setState({ page });
+    };
+
     render() {
-        const { source, data } = this.props;
+        const { source, model, data } = this.props;
+
+        const { page } = this.state;
 
         return (
             <ContextPanelContainer>
-                <ContextPanelNavbar source={source} data={data} />
+                <ContextPanelNavbar
+                    page={page}
+                    changePage={this.changePage}
+                    model={model}
+                    source={source}
+                    data={data}
+                />
                 <ContextPanelList>{this.renderListItems()}</ContextPanelList>
             </ContextPanelContainer>
         );
@@ -54,9 +73,20 @@ class ContextPanel extends Component {
 
 export default ContextPanel;
 
+ContextPanel.propTypes = {
+    // source is the data platform ("github")
+    source: PropTypes.string,
+    // data are the list items
+    data: PropTypes.array,
+    // model is the model of the data ("branch")
+    model: PropTypes.string,
+};
+
 //PANEL
 const ContextPanelContainer = styled(Panel)`
     margin-top: 1.5rem;
+
+    padding: 1.5rem;
 `;
 
 const ContextPanelList = styled.div`
@@ -64,13 +94,7 @@ const ContextPanelList = styled.div`
 
     flex-direction: column;
 
-    max-height: 23rem;
-
-    overflow-y: scroll;
-
     &::-webkit-scrollbar {
         display: none;
     }
-
-    padding-bottom: 1rem;
 `;

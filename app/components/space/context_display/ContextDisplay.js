@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+//styles
+import styled from "styled-components";
+
 //components
 import ContextPanel from "./context_panel/ContextPanel";
+import ContextSearchPanel from "./ContextSearchPanel";
+import { Loader } from "../../../elements";
 
 //react-redux
 import { connect } from "react-redux";
@@ -21,7 +26,8 @@ class ContextDisplay extends Component {
         super(props);
 
         this.state = {
-            loaded: true,
+            isLoaded: false,
+            searchQuery: "",
         };
     }
 
@@ -38,23 +44,19 @@ class ContextDisplay extends Component {
             repositoryFullName !== prevProps.repositoryFullName ||
             activeFilePath !== prevProps.activeFilePath
         ) {
+            this.setState({ isLoaded: false });
+
             this.loadContext();
         }
     };
 
     loadContext = async () => {
-        const { repositoryFullName, activeFilePath, match, repositories, getFileContext } =
-            this.props;
-
-        console.log("React: loadContext params", {
+        const {
             repositoryFullName,
             activeFilePath,
-            match,
-            repositories,
             getFileContext,
-        });
-
-        const { workspaceId } = match.params;
+            workspace: { repositories, _id: workspaceId },
+        } = this.props;
 
         const repositoriesMap = _.mapKeys(repositories, "fullName");
 
@@ -70,11 +72,36 @@ class ContextDisplay extends Component {
             filePath: activeFilePath,
         });
 
-        this.setState({ loaded: true });
+        this.setState({ isLoaded: true });
+    };
+
+    setSearchQuery = (query) => {
+        const { isLoaded, searchTimeout } = this.state;
+
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        if (isLoaded) {
+            this.setState({
+                isLoaded: false,
+            });
+        }
+
+        this.setState({
+            searchTimeout: setTimeout(async () => {
+                this.setState({
+                    searchQuery: query,
+                    isLoaded: true,
+                });
+            }, 1000),
+        });
     };
 
     renderPanels = () => {
-        const { context } = this.props;
+        let { context } = this.props;
+
+        const { searchQuery } = this.state;
 
         // map through each integration source
         return Object.keys(context)
@@ -85,43 +112,87 @@ class ContextDisplay extends Component {
 
                 // map through each type of model applicable
                 // to the integration source
-                return Object.keys(modelData).map((model) => {
+                const allModels = ["tickets", "pullRequests", "commits", "branches"];
+
+                return allModels.map((model) => {
                     // if there exists data
                     // of that model, create a context panel
-                    const data = modelData[model];
+                    let data = modelData[model];
 
-                    if (!_.isEmpty(data)) {
-                        return (
-                            <ContextPanel
-                                key={`${source}-${model}`}
-                                source={source}
-                                model={model}
-                                data={data}
-                            />
-                        );
-                    }
+                    if (_.isNil(data) || _.isEmpty(data)) return;
+
+                    data = data.filter((item) =>
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+
+                    if (_.isNil(data) || _.isEmpty(data)) return;
+
+                    return (
+                        <ContextPanel
+                            key={`${source}-${model}`}
+                            source={source}
+                            model={model}
+                            data={data}
+                        />
+                    );
                 });
             })
             .flat();
     };
 
     render() {
-        const { loaded } = this.state;
+        const { isLoaded } = this.state;
 
-        return <>{loaded && this.renderPanels()}</>;
+        return (
+            <>
+                <ContextSearchPanel setSearchQuery={this.setSearchQuery} />
+                {isLoaded ? this.renderPanels() : <Loader />}
+                <BlankSpace />
+            </>
+        );
     }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
     let {
         global: { repositoryFullName, activeFilePath },
-        workspace,
-        repositories,
+        context,
+        workspaces,
     } = state;
 
-    console.log("Workspace", workspace);
+    return {
+        repositoryFullName,
+        activeFilePath,
 
-    const context = {
+        context,
+        workspace: workspaces[ownProps.match.params.workspaceId],
+    };
+};
+
+export default withRouter(
+    connect(mapStateToProps, { getFileContext })(ContextDisplay)
+);
+
+ContextDisplay.propTypes = {
+    // full name of repository ("kgodara-testing/doc-app")
+    repositoryFullName: PropTypes.string,
+    // file path from the root
+    activeFilePath: PropTypes.string,
+    // repositories from redux
+    workspace: PropTypes.object,
+    // context object with keys of source, nested keys of model, nested array of items
+    context: PropTypes.object,
+    match: PropTypes.object,
+    getFileContext: PropTypes.func,
+};
+
+const BlankSpace = styled.div`
+    height: 50vh;
+
+    width: 100vw;
+`;
+/*  Placeholder data
+  context = {
         github: {
             pullRequests: [
                 {
@@ -156,23 +227,4 @@ const mapStateToProps = (state) => {
                 },
             ],
         },
-    };
-
-    return {
-        repositoryFullName,
-        activeFilePath,
-        repositories: Object.values(repositories),
-        context,
-    };
-};
-
-export default withRouter(connect(mapStateToProps, { getFileContext })(ContextDisplay));
-
-ContextDisplay.propTypes = {
-    repositoryFullName: PropTypes.string,
-    activeFilePath: PropTypes.string,
-    repositories: PropTypes.array,
-    context: PropTypes.object,
-    getFileContext: PropTypes.func,
-    match: PropTypes.object,
-};
+    };*/

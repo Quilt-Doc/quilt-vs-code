@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-//styles
-import { ThemeProvider } from "styled-components";
+// utility functions
+import _ from "lodash";
 
-//sentry
+// styles
+import styled, { ThemeProvider } from "styled-components";
+
+// sentry
 import * as Sentry from "@sentry/react";
 
-//components
+// components
 import Login from "./login/Login";
 import Space from "./space/Space";
 import OnboardFlow from "./setup/onboarding/OnboardFlow";
@@ -15,12 +18,15 @@ import WorkspaceCreation from "./setup/workspace_creation/WorkspaceCreation";
 import LoadingScreen from "./loading_screen/LoadingScreen";
 import ErrorDisplay from "./error_handling/ErrorDisplay";
 
-//actions
+// actions
 import { changeTheme } from "../actions/ThemeActions";
 import { setGitInfo } from "../actions/GlobalActions";
-import { storeExtensionMessage, extensionAuthenticateUser } from "../actions/ExtensionActions";
+import {
+    storeExtensionMessage,
+    extensionAuthenticateUser,
+} from "../actions/ExtensionActions";
 
-//types
+// types
 import { CHANGE_THEME } from "../actions/types/ThemeTypes";
 import { SET_GIT_INFO } from "../actions/types/GlobalTypes";
 import { AUTHENTICATE_USER } from "../actions/types/AuthTypes";
@@ -29,13 +35,13 @@ import {
     RECEIVE_VALUE_GLOBAL_STORAGE,
 } from "../vscode/types/messageTypes"; //"/vscode/types/messageTypes.js
 
-//vscode
+// vscode
 import vscode from "../vscode/vscode";
 
-//redux
+// redux
 import { connect } from "react-redux";
 
-//router
+// router
 import { Route, Switch, withRouter } from "react-router-dom";
 
 class Root extends Component {
@@ -72,7 +78,7 @@ class Root extends Component {
 
         if (!receivedAuth) return history.push("/loading_screen");
 
-        if (!isAuthorized || !user) return history.push("/login");
+        if (!isAuthorized || _.isNil(user)) return history.push("/login");
 
         const { isOnboarded, workspaces } = user;
 
@@ -138,16 +144,18 @@ class Root extends Component {
         if (hasError) return <ErrorDisplay />;
 
         return (
-            <Switch>
-                <Route path="/create_workspace" component={WorkspaceCreation} />
-                <Route path="/onboard" component={OnboardFlow} />
-                <Route path="/login" component={Login} />
-                <Route
-                    path="/space/:workspaceId"
-                    render={() => <Space testItem={this.state.testItem} />}
-                />
-                <Route path="/loading_screen" component={LoadingScreen} />
-            </Switch>
+            <Container>
+                <Switch>
+                    <Route path="/create_workspace" component={WorkspaceCreation} />
+                    <Route path="/onboard" component={OnboardFlow} />
+                    <Route path="/login" component={Login} />
+                    <Route
+                        path="/space/:workspaceId"
+                        render={() => <Space testItem={this.state.testItem} />}
+                    />
+                    <Route path="/loading_screen" component={LoadingScreen} />
+                </Switch>
+            </Container>
         );
     };
 
@@ -203,3 +211,9 @@ Root.propTypes = {
     extensionAuthenticateUser: PropTypes.func,
     hasError: PropTypes.bool,
 };
+
+const Container = styled.div`
+    &::-webkit-scrollbar {
+        display: none;
+    }
+`;

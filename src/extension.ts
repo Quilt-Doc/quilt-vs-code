@@ -17,23 +17,13 @@ export const activate = (context: ExtensionContext) => {
 
     const { quiltViewId } = QuiltViewProvider;
 
-    const webviewRegistration = registerWebviewViewProvider(
-        quiltViewId,
-        provider,
-        {
-            webviewOptions: {
-                retainContextWhenHidden: true,
-            },
-        }
-    );
-
-    context.subscriptions.push(webviewRegistration);
-
-    const helloExample = registerCommand(`${EXTENSION_NAME}.helloWorld`, () => {
-        showInformationMessage("Hello World");
+    const webviewRegistration = registerWebviewViewProvider(quiltViewId, provider, {
+        webviewOptions: {
+            retainContextWhenHidden: true,
+        },
     });
 
-    context.subscriptions.push(helloExample);
+    context.subscriptions.push(webviewRegistration);
 };
 
 export const deactivate = () => {

@@ -13,6 +13,7 @@ const { createTextEditorDecorationType } = window;
 import { EXTENSION_NAME } from "../../constants/constants";
 
 import BlameChunk from "./blameChunk";
+import ContextItem from "./contextItem";
 
 class BlameDecorator {
     private disposableDecorations: any[] = [];
@@ -23,6 +24,10 @@ class BlameDecorator {
 
             decorationType.dispose();
         });
+    }
+
+    showContextBlameDisplay(editor: TextEditor, contextItem: ContextItem) {
+        if (!editor) return;
     }
 
     updateBlameDisplay(
@@ -207,23 +212,19 @@ class BlameDecorator {
         });
 
         decorations = decorations.filter(
-            (dec) =>
-                dec.decorationOptions.length != 0 || dec.decorationType == null
+            (dec) => dec.decorationOptions.length != 0 || dec.decorationType == null
         );
 
         botDecorations = botDecorations.filter(
-            (dec) =>
-                dec.decorationOptions.length != 0 || dec.decorationType == null
+            (dec) => dec.decorationOptions.length != 0 || dec.decorationType == null
         );
 
         topDecorations = topDecorations.filter(
-            (dec) =>
-                dec.decorationOptions.length != 0 || dec.decorationType == null
+            (dec) => dec.decorationOptions.length != 0 || dec.decorationType == null
         );
 
         singDecorations = singDecorations.filter(
-            (dec) =>
-                dec.decorationOptions.length != 0 || dec.decorationType == null
+            (dec) => dec.decorationOptions.length != 0 || dec.decorationType == null
         );
 
         this.disposableDecorations = [

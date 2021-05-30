@@ -19,7 +19,7 @@ import { retrieveBlames } from "../../../actions/BlameActions";
 import { withRouter } from "react-router-dom";
 
 //utils
-import { checkValid } from "../../../utils";
+import _ from "lodash";
 
 class BlameDisplay extends Component {
     constructor(props) {
@@ -122,10 +122,7 @@ class BlameDisplay extends Component {
             let newIndex = 0;
 
             blameChunks.map((chunk, i) => {
-                if (
-                    chunk.start == focusedChunk &&
-                    i != blameChunks.length - 1
-                ) {
+                if (chunk.start == focusedChunk && i != blameChunks.length - 1) {
                     newIndex = i + 1;
                 }
             });
@@ -137,7 +134,7 @@ class BlameDisplay extends Component {
     getDocumentText = () => {
         const { activeFilePath, repositoryFullName } = this.props;
 
-        if (!checkValid(activeFilePath) || !checkValid(repositoryFullName)) {
+        if (_.isNil(activeFilePath) || _.isNil(repositoryFullName)) {
             this.setState({ cannotFind: true, isLoaded: true });
         } else {
             this.setState({ cannotFind: false, isLoaded: false }, () => {
